@@ -1,0 +1,39 @@
+export const BASIC_DOCUMENTS = [
+  { key: 'studentPhoto', labelKey: 'step5.studentPhoto' },
+  { key: 'identityDocument', labelKey: 'step5.identityDocument' },
+  { key: 'educationalCertificates', labelKey: 'step5.educationalCertificates' },
+  { key: 'tenth.markSheet', labelKey: 'step5.tenthMarkSheet' },
+  { key: 'twelfth.markSheet', labelKey: 'step5.twelfthMarkSheet' },
+  { key: 'college.markSheet', labelKey: 'step5.latestCollegeMarkSheet' },
+]
+
+export function getConditionalDocuments(data) {
+  const bothGovtSchool =
+    data.tenth.schoolType === 'government' && data.twelfth.schoolType === 'government'
+  const isScSt = ['SC', 'ST', 'SC(A)'].includes(data.socialCategory)
+
+  return [
+    data.bothParentsDeceased === 'yes' && { key: 'fatherDeathCert', labelKey: 'step5.fatherDeathCert' },
+    data.bothParentsDeceased === 'yes' && { key: 'motherDeathCert', labelKey: 'step5.motherDeathCert' },
+    data.singleParent === 'yes' && { key: 'supportingDocument', labelKey: 'step5.singleParentProof' },
+    { key: 'incomeCertificate', labelKey: 'step5.incomeCertificate' },
+    data.hasDiploma === 'yes' && { key: 'diplomaMarkSheet', labelKey: 'step5.diplomaMarkSheet' },
+    data.tamilMediumTill12 === 'yes' && { key: 'tamilMediumEvidence', labelKey: 'step5.tamilEvidence' },
+    bothGovtSchool && { key: 'govtSchoolEvidence', labelKey: 'step5.govtSchoolEvidence' },
+    isScSt && { key: 'communityCertificate', labelKey: 'step5.scCert' },
+    data.selfEarning === 'yes' && { key: 'selfIncomeDoc', labelKey: 'step5.selfSupportEvidence' },
+    data.existingScholarship === 'yes' && { key: 'scholarshipDoc', labelKey: 'step5.scholarshipProof' },
+  ].filter(Boolean)
+}
+
+export function getAllRequiredDocuments(data) {
+  return [...BASIC_DOCUMENTS, ...getConditionalDocuments(data)]
+}
+
+// Mirrors the server's storage layout (documentFieldPatch.js): flat documents
+// are stored under `${key}Url`, nested ones (tenth/twelfth/college) directly
+// under their own key. Use this — not the raw checklist key — to read a
+// document's value off a fetched application record.
+export function getDocumentFieldPath(docKey) {
+  return docKey.includes('.') ? docKey : `${docKey}Url`
+}

@@ -1,0 +1,223 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ApplicationStatus {
+  submitted
+  under_review
+  approved // == "concession approved": set by the existing Accept action once
+  // document verification is complete (see requireApplicantAuth/Accept flow).
+  rejected
+  payment_submitted // student submitted transaction details, awaiting admin review
+  payment_approved
+  payment_rejected
+  certificate_issued
+}
+
+enum PaymentStatus {
+  pending
+  submitted
+  approved
+  rejected
+}
+
+model Application {
+  id        String            @id @default(uuid())
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  status    ApplicationStatus @default(submitted)
+
+  // Supabase Auth user (Google sign-in) who submitted this application.
+  // Unique so one Google account can't back more than one application
+  // (Postgres allows multiple NULLs through a unique index, so pre-auth rows are unaffected).
+  authUserId String? @unique
+  authEmail  String?
+
+  // Step 1 — Student Details
+  fullName      String
+  dob           String?
+  gender        String?
+  mobile        String
+  email         String
+  address       String?
+  district      String?
+  institution   String?
+  qualification String?
+
+  // Step 2 — Family
+  fatherName        String?
+  fatherOccupation  String?
+  fatherContact     String?
+  motherName        String?
+  motherOccupation  String?
+  motherContact     String?
+  guardianName      String?
+  guardianRelation  String?
+  guardianContact   String?
+  parentStatus      String?
+
+  bothParentsDeceased  String?
+  fatherDeathCertUrl   String?
+  motherDeathCertUrl   String?
+  singleParent         String?
+  supportingParent     String?
+  supportingDocumentUrl String?
+
+  // Step 2 — Financial
+  annualIncome         String?
+  incomeCertificateUrl String?
+  expenseBearer        String?
+  selfEarning          String?
+  employmentType       String?
+  monthlyIncome        String?
+  selfIncomeDocUrl     String?
+  supportsDependents   String?
+  numDependents        String?
+
+  // Step 2 — Social category & existing scholarship
+  socialCategory          String?
+  communityCertificateUrl String?
+  existingScholarship     String?
+  scholarshipName         String?
+  scholarshipProvider     String?
+  scholarshipAmount       String?
+  scholarshipYear         String?
+  scholarshipDocUrl       String?
+
+  // Step 3 — Education (nested payloads stored as-is)
+  tenth                 Json?
+  twelfth               Json?
+  college               Json?
+  govtSchoolEvidenceUrl String?
+
+  hasDiploma            String?
+  diplomaPercentage     String?
+  diplomaMarkSheetUrl   String?
+  latestAcademicPercentage String?
+
+  medium                String?
+  tamilMediumTill12     String?
+  tamilMediumEvidenceUrl String?
+
+  // Step 4 — Competitive Examination
+  examCategory          String?
+  examName              String?
+  examYear              String?
+  targetAttempt         String?
+  relevantQualification String?
+  coachingMode          String?
+
+  // Step 5 — Documents
+  studentPhotoUrl            String?
+  identityDocumentUrl        String?
+  educationalCertificatesUrl String?
+
+  // Step 7 — Declaration
+  declarationAccepted Boolean @default(false)
+
+  // Admin document verification: { [documentKey]: { status: 'pending'|'approved'|'rejected', comment: string } }
+  documentReviews Json?
+
+  // Discount / concession decision. `calculatedConcession` is the system's
+  // provisional figure from scholarshipCalc, auto-computed the moment an
+  // application is accepted — it is never edited by hand. `concessionCategory`
+  // and `finalApprovedConcession` are the Trust's final decision, which can
+  // match or override the calculated figure (e.g. after document verification
+  // or an Exceptional Hardship committee review, where nothing is auto-calculated).
+  calculatedConcession       Int?
+  concessionCategory         String?
+  finalApprovedConcession    Int?
+  concessionNote             String?
+  concessionDecidedAt        DateTime?
+  concessionApprovedByEmail  String?
+
+  // Original course fee the concession is applied against — the Trust confirms
+  // this alongside the concession decision (never self-reported by the student),
+  // since the payable amount is always computed server-side from courseFee x concession.
+  courseFee Int?
+
+  payment     Payment?
+  certificate Certificate?
+
+  @@map("applications")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  applicationId String        @unique
+  application   Application   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  status        PaymentStatus @default(pending)
+
+  // amountDue is always computed server-side from Application.courseFee and
+  // finalApprovedConcession at submission time — never trusted from the client.
+  amountDue        Int?
+  amountPaid       Int?
+  paymentMethod    String?
+  transactionId    String?
+  paymentDate      DateTime?
+  paymentProofPath String?
+
+  submittedAt     DateTime?
+  verifiedByEmail String?
+  verifiedAt      DateTime?
+  rejectionReason String?
+  adminRemarks    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payments")
+}
+
+model Certificate {
+  id            String      @id @default(uuid())
+  applicationId String      @unique
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  certificateNumber    String  @unique
+  certificateType      String  @default("Scholarship Concession")
+  studentName          String
+  courseName           String?
+  concessionPercentage Int
+
+  certificatePath String?
+  issuedByEmail   String?
+  issuedAt        DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  @@map("certificates")
+}
+
+// A single admin identity, layered on top of the existing shared ADMIN_PASSWORD
+// login (see server/src/auth.js) so approvals/audit entries can record *who*
+// acted rather than just "an admin." Auto-provisioned on first successful login.
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  @@map("admin_users")
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  adminEmail    String?
+  applicationId String?
+  paymentId     String?
+  action        String
+  oldStatus     String?
+  newStatus     String?
+  oldValue      Json?
+  newValue      Json?
+  remarks       String?
+  createdAt     DateTime @default(now())
+
+  @@map("audit_logs")
+}
