@@ -153,7 +153,7 @@ export default function Scholarships() {
         <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-brand-navy/5 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-32 -left-16 w-80 h-80 rounded-full bg-brand-red/5 blur-3xl" />
 
-        <div className="relative max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] mx-auto px-6 py-16 md:pb-24 md:pt-10 grid md:grid-cols-2 gap-12 items-center">
+        <div className="relative max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 py-16 md:pb-24 md:pt-10 grid md:grid-cols-2 gap-12 items-center">
           <div>
             <span className="inline-flex items-center gap-2 text-xs font-semibold text-white bg-brand-navy px-3 py-1.5 rounded-full mb-5">
               <BadgeCheck className="w-3.5 h-3.5" />
@@ -221,7 +221,7 @@ export default function Scholarships() {
       </section>
 
       {/* How It Works */}
-      <section className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] mx-auto px-6 py-16 text-center">
+      <section className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 py-16 text-center">
         <h2 className="text-2xl md:text-3xl font-bold text-brand-navy mb-3">How It Works</h2>
         <p className="text-brand-muted max-w-2xl mx-auto mb-12">
           A streamlined, transparent process designed to minimize cognitive load and get you the
@@ -243,7 +243,7 @@ export default function Scholarships() {
 
       {/* Scholarship Categories */}
       <section className="bg-brand-surface py-16">
-        <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] mx-auto px-6">
+        <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6">
           <h2 className="text-2xl md:text-3xl font-bold text-brand-navy mb-10">
             Scholarship Categories
           </h2>
@@ -270,7 +270,7 @@ export default function Scholarships() {
       </section>
 
       {/* C3 Educational Platform */}
-      <section id="platform" className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] mx-auto px-6 py-16 text-center scroll-mt-24">
+      <section id="platform" className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 py-16 text-center scroll-mt-24">
         <h2 className="text-2xl md:text-3xl font-bold text-brand-navy mb-4">
           The <span className="text-brand-red">C3</span> Educational Platform
         </h2>
@@ -309,7 +309,7 @@ export default function Scholarships() {
 
       {/* The C3 Advantage */}
       <section className="bg-brand-surface py-16 text-center">
-        <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] mx-auto px-6">
+        <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6">
           <h2 className="text-2xl md:text-3xl font-bold text-brand-navy mb-12">
             The C3 Advantage
           </h2>
@@ -348,7 +348,7 @@ export default function Scholarships() {
       </section>
 
       {/* Eligibility + FAQ */}
-      <section className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] mx-auto px-6 pb-20 grid md:grid-cols-2 gap-6">
+      <section className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 pb-20 grid md:grid-cols-2 gap-6">
         <div className="border border-brand-border rounded-xl p-6">
           <h3 className="font-semibold text-brand-text mb-4">General Eligibility</h3>
           <ul className="space-y-3 mb-4">

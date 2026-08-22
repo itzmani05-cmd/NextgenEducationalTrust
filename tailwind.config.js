@@ -9,6 +9,8 @@ export default {
       screens: {
         '3xl': '1920px',
         '4xl': '2560px',
+        '5xl': '3200px',
+        '6xl': '3840px',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],

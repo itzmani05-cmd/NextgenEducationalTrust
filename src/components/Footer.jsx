@@ -5,7 +5,7 @@ import logo from '../assests/Logo.png'
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-400">
-      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] mx-auto px-6 py-10 flex flex-col md:flex-row md:items-start md:justify-between gap-8">
+      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 py-10 flex flex-col md:flex-row md:items-start md:justify-between gap-8">
         <div>
           <p className="flex items-center gap-2 text-white font-bold text-lg mb-2">
             <img src={logo} alt="" className="w-8 h-8 object-contain" />
@@ -57,6 +57,20 @@ export default function Footer() {
             </Link>
           </li>
         </ul>
+      </div>
+
+      <div className="border-t border-white/10">
+        <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 py-4 text-center text-xs">
+          Developed by{' '}
+          <a
+            href="https://www.manidevfolio.site/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-300 font-medium hover:text-white transition-colors"
+          >
+            Manikandan
+          </a>
+        </div>
       </div>
     </footer>
   )

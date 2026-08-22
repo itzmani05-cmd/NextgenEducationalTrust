@@ -19,7 +19,7 @@ export default function ContactSection() {
 
   return (
     <section id="contact" className="bg-white">
-      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] mx-auto px-6 py-20 md:py-28 grid lg:grid-cols-2 gap-12 items-start">
+      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 py-20 md:py-28 grid lg:grid-cols-2 gap-12 items-start">
         <div>
           <span className="inline-flex items-center text-xs font-semibold tracking-[0.15em] uppercase border border-brand-border rounded-full px-4 py-1.5 mb-6 text-brand-muted">
             Get Involved

@@ -5,7 +5,7 @@ import c3PlatformPic2 from '../../assests/c3Platform/Pic2.jpeg'
 export default function ProgramHighlightSection() {
   return (
     <section className="bg-brand-cream">
-      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] mx-auto px-6 py-20 md:py-28">
+      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 py-20 md:py-28">
         <div className="bg-brand-ink rounded-3xl overflow-hidden grid md:grid-cols-2">
           <div className="p-10 md:p-14 flex flex-col justify-center">
             <span className="inline-flex items-center text-xs font-semibold tracking-[0.15em] uppercase border border-brand-rust/50 text-brand-rust rounded-full px-4 py-1.5 mb-6 self-start">

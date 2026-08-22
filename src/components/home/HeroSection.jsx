@@ -12,7 +12,7 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-brand-ink/75" />
       </div>
 
-      <div className="relative max-w-5xl mx-auto px-6 py-28 md:py-30 text-center text-white">
+      <div className="relative max-w-5xl 3xl:max-w-[1280px] 4xl:max-w-[1536px] 5xl:max-w-[1792px] 6xl:max-w-[2048px] mx-auto px-6 py-28 md:py-30 text-center text-white">
         <span className="inline-flex items-center text-xs font-semibold tracking-[0.15em] uppercase border border-white/30 rounded-full px-4 py-1.5 mb-6">
           Empowering Generations
         </span>

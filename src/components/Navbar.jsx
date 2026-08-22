@@ -44,7 +44,7 @@ export default function Navbar() {
         scrolled ? 'border-brand-border shadow-[0_1px_12px_rgba(23,35,60,0.06)]' : 'border-brand-border/70'
       }`}
     >
-      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] mx-auto px-6 h-20 flex items-center justify-between gap-6">
+      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 h-20 flex items-center justify-between gap-6">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <img src={logo} alt="NextGen Education Trust" className="h-16 w-auto max-w-[200px] object-contain" />
         </Link>

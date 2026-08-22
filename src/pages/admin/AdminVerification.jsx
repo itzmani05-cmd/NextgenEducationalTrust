@@ -178,12 +178,12 @@ export default function AdminVerification() {
   const goNext = () => index < applications.length - 1 && navigate(`/admin/verification/${applications[index + 1].id}`)
 
   if (loading) {
-    return <div className="max-w-6xl 3xl:max-w-[1500px] 4xl:max-w-[1800px] mx-auto px-6 py-10 text-brand-muted">{enOnly('admin.common.loading')}</div>
+    return <div className="max-w-6xl 3xl:max-w-[1500px] 4xl:max-w-[1800px] 5xl:max-w-[2000px] 6xl:max-w-[2300px] mx-auto px-6 py-10 text-brand-muted">{enOnly('admin.common.loading')}</div>
   }
 
   if (applications.length === 0) {
     return (
-      <div className="max-w-6xl 3xl:max-w-[1500px] 4xl:max-w-[1800px] mx-auto px-6 py-10">
+      <div className="max-w-6xl 3xl:max-w-[1500px] 4xl:max-w-[1800px] 5xl:max-w-[2000px] 6xl:max-w-[2300px] mx-auto px-6 py-10">
         <div className="bg-white border border-brand-border rounded-xl p-10 text-center text-brand-muted">
           {enOnly('admin.verification.noApplications')}
         </div>
@@ -192,7 +192,7 @@ export default function AdminVerification() {
   }
 
   if (!app) {
-    return <div className="max-w-6xl 3xl:max-w-[1500px] 4xl:max-w-[1800px] mx-auto px-6 py-10 text-brand-muted">{enOnly('admin.common.loading')}</div>
+    return <div className="max-w-6xl 3xl:max-w-[1500px] 4xl:max-w-[1800px] 5xl:max-w-[2000px] 6xl:max-w-[2300px] mx-auto px-6 py-10 text-brand-muted">{enOnly('admin.common.loading')}</div>
   }
 
   const selectedDocHasFile = selectedDoc ? Boolean(getPath(app, selectedDoc)) : false
@@ -200,7 +200,7 @@ export default function AdminVerification() {
   const selectedDocMeta = docs.find((d) => d.key === selectedDoc)
 
   return (
-    <div className="max-w-6xl 3xl:max-w-[1500px] 4xl:max-w-[1800px] mx-auto px-6 py-2">
+    <div className="max-w-6xl 3xl:max-w-[1500px] 4xl:max-w-[1800px] 5xl:max-w-[2000px] 6xl:max-w-[2300px] mx-auto px-6 py-2">
       {error && (
         <div className="mb-6 bg-red-50 border border-brand-red/30 rounded-lg p-4 text-sm text-brand-red">
           {error}

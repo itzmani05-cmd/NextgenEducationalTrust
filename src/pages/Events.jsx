@@ -73,7 +73,7 @@ export default function Events() {
         </div>
       </section>
 
-      <section className="max-w-6xl 3xl:max-w-[1500px] 4xl:max-w-[1800px] mx-auto px-6 py-24 space-y-16">
+      <section className="max-w-6xl 3xl:max-w-[1500px] 4xl:max-w-[1800px] 5xl:max-w-[2000px] 6xl:max-w-[2300px] mx-auto px-6 py-24 space-y-16">
         {events.map((ev) => (
           <div key={ev.title}>
             <h2 className="font-serif text-2xl text-brand-ink mb-1.5">{ev.title}</h2>
