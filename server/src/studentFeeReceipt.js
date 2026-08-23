@@ -7,7 +7,7 @@ import { getSupabaseAdmin, STORAGE_BUCKET } from './supabaseAdmin.js'
 import { amountInWords, drawWatermark, drawSignature } from './receipt.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'TrustLogo.png')
+const LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'Logo.png')
 
 function inr(n) {
   return n != null ? `Rs. ${Number(n).toLocaleString('en-IN')}` : '—'
@@ -22,9 +22,6 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     doc.on('error', reject)
 
     drawWatermark(doc)
-
-    doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).lineWidth(2).strokeColor('#1B2A4A').stroke()
-    doc.rect(26, 26, doc.page.width - 52, doc.page.height - 52).lineWidth(0.5).strokeColor('#B3261E').stroke()
 
     let logoDrawn = false
     if (fs.existsSync(LOGO_PATH)) {
@@ -43,6 +40,8 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     doc.text('nextgencollegesolutions@gmail.com  |  93423 79043 / 97902 13628', { align: 'center' })
 
     doc.moveDown(1)
+    doc.moveTo(doc.page.width / 2 - 90, doc.y).lineTo(doc.page.width / 2 + 90, doc.y).lineWidth(1).strokeColor('#1B2A4A').stroke()
+    doc.moveDown(0.5)
     doc.fontSize(15).fillColor('#B3261E').font('Helvetica-Bold').text('RECEIPT', { align: 'center' })
 
     doc.moveDown(1)

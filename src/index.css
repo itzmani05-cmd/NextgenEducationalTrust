@@ -11,3 +11,19 @@
     @apply font-serif;
   }
 }
+
+@layer components {
+  /* Numbers every apply-wizard question in DOM order, per step. Conditional
+     fields that aren't rendered are simply skipped, so numbering never has
+     gaps — no per-field index props to keep in sync by hand. */
+  .question-counter {
+    counter-reset: apply-question;
+  }
+  .apply-q {
+    counter-increment: apply-question;
+  }
+  .apply-q::before {
+    content: counter(apply-question) '. ';
+    @apply text-brand-navy font-bold;
+  }
+}

@@ -2,7 +2,7 @@ export default function OptionPills({ label, value, onChange, options, required 
   return (
     <div>
       {label && (
-        <span className="block text-sm font-medium text-brand-text mb-2">
+        <span className="apply-q block text-sm font-medium text-brand-text mb-2">
           {label} {required && <span className="text-brand-red">*</span>}
         </span>
       )}

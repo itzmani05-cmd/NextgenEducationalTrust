@@ -12,7 +12,7 @@ Numbered sequentially per year, e.g. `NGD/2026/00001`.
 
 | Field | Value |
 |---|---|
-| Trust Name | NextGen Solutions Educational Trust |
+| Trust Name | NEXTGEN SOLUTIONS Educational Trust |
 | Address | 4/1023-D, Ayyalu Meenakshi Nagar, Udumalpet - 642 126, Tiruppur (Dt.), Tamil Nadu |
 | Contact | nextgencollegesolutions@gmail.com \| 93423 79043 / 97902 13628 |
 | Document Title | DONATION RECEIPT |

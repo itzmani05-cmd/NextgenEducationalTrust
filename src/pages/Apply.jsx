@@ -318,7 +318,7 @@ function ApplyForm() {
 
   return (
     <div className="bg-brand-surface min-h-screen">
-      <div className="max-w-9xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="bg-white border border-brand-border rounded-2xl shadow-sm p-6 md:p-8 mb-6">
           <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
             <div>
@@ -344,7 +344,7 @@ function ApplyForm() {
           <Stepper current={step} />
         </div>
 
-        <div className="space-y-6">{renderStep()}</div>
+        <div className="question-counter space-y-6">{renderStep()}</div>
 
         {submitError && (
           <div className="mt-6 bg-red-50 border border-brand-red/30 rounded-lg p-4 text-sm text-brand-red">

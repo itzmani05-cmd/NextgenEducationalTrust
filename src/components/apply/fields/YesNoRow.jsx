@@ -4,7 +4,7 @@ export default function YesNoRow({ question, helper, value, onChange, yesLabel, 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4 border-b border-brand-border last:border-0">
       <div>
-        <p className="font-medium text-brand-text">{question}</p>
+        <p className="apply-q font-medium text-brand-text">{question}</p>
         {helper && <p className="text-sm text-brand-muted mt-0.5">{helper}</p>}
       </div>
       <div className="flex items-center gap-6 shrink-0">

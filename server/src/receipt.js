@@ -6,8 +6,8 @@ import { prisma } from './prismaClient.js'
 import { getSupabaseAdmin, STORAGE_BUCKET } from './supabaseAdmin.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'TrustLogo.png')
-const WATERMARK_LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'Logo.png')
+const LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'Logo.png')
+const WATERMARK_LOGO_PATH = LOGO_PATH
 const SIGNATURE_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'signature.png')
 
 function drawWatermark(doc) {
@@ -74,9 +74,6 @@ function renderReceiptPdf({ receiptNumber, donation, issuedAt }) {
 
     drawWatermark(doc)
 
-    doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).lineWidth(2).strokeColor('#1B2A4A').stroke()
-    doc.rect(26, 26, doc.page.width - 52, doc.page.height - 52).lineWidth(0.5).strokeColor('#B3261E').stroke()
-
     let logoDrawn = false
     if (fs.existsSync(LOGO_PATH)) {
       try {
@@ -94,6 +91,8 @@ function renderReceiptPdf({ receiptNumber, donation, issuedAt }) {
     doc.text('nextgencollegesolutions@gmail.com  |  93423 79043 / 97902 13628', { align: 'center' })
 
     doc.moveDown(1)
+    doc.moveTo(doc.page.width / 2 - 90, doc.y).lineTo(doc.page.width / 2 + 90, doc.y).lineWidth(1).strokeColor('#1B2A4A').stroke()
+    doc.moveDown(0.5)
     doc.fontSize(15).fillColor('#B3261E').font('Helvetica-Bold').text('DONATION RECEIPT', { align: 'center' })
 
     doc.moveDown(1)

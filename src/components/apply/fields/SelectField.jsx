@@ -9,7 +9,7 @@ export default function SelectField({
 }) {
   return (
     <label className={`block ${className}`}>
-      <span className="block text-sm font-medium text-brand-text mb-1.5">
+      <span className="apply-q block text-sm font-medium text-brand-text mb-1.5">
         {label} {required && <span className="text-brand-red">*</span>}
       </span>
       <select

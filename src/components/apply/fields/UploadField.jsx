@@ -23,7 +23,7 @@ export default function UploadField({ label, file, onChange, required, helper, s
   return (
     <div className="border border-brand-border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div className="min-w-0">
-        <p className="text-sm font-medium text-brand-text truncate">
+        <p className="apply-q text-sm font-medium text-brand-text truncate">
           {label} {required && <span className="text-brand-red">*</span>}
         </p>
         <p className="text-xs text-brand-muted truncate mt-0.5">

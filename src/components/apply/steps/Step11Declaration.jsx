@@ -11,7 +11,7 @@ export default function Step11Declaration({ data, setField }) {
           onChange={(e) => setField('declarationAccepted', e.target.checked)}
           className="mt-1 w-4 h-4 rounded border-brand-border text-brand-navy focus:ring-brand-navy shrink-0"
         />
-        <span className="text-sm text-brand-text">{bi('step7.declarationText')}</span>
+        <span className="apply-q text-sm text-brand-text">{bi('step7.declarationText')}</span>
       </label>
     </SectionCard>
   )

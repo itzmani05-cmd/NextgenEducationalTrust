@@ -46,8 +46,8 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 h-20 flex items-center justify-between gap-6">
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <img src={logo} alt="NextGen Education Trust" className="h-17 w-auto max-w-[230px] object-contain" />
+        <Link to="/" className="flex items-center shrink-0">
+          <img src={logo} alt="NextGen Education Trust" className="h-14 w-[84px] object-contain" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-9 text-[0.9rem] font-medium tracking-wide">
@@ -176,18 +176,11 @@ export default function Navbar() {
               </Link>
             )}
             <Link
-              to="/donate"
-              onClick={() => setMobileOpen(false)}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-semibold text-brand-navy border border-brand-navy/30 px-3.5 py-2 rounded-full"
-            >
-              <HeartHandshake className="w-4 h-4" /> Donate
-            </Link>
-            <Link
               to="/contact"
               onClick={() => setMobileOpen(false)}
               className="flex-1 inline-flex items-center justify-center bg-brand-red text-white text-sm font-semibold px-5 py-2 rounded-full"
             >
-              Enquire Now
+              Contact Us
             </Link>
           </div>
         </div>
