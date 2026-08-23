@@ -106,8 +106,8 @@ marked **(required)**; fields that only appear based on an earlier answer are ma
 | Current Year | **(required)** Dropdown — Year 1 to Year 5 |
 | Current Semester | Optional — Dropdown — Semester 1 to Semester 10 |
 | Academic Year | **(required)** e.g. 2025-2026 |
-| Expected Graduation Year | Optional |
-| Current CGPA / Percentage | **(required)** |
+| Expected Graduation Year (or "Year of Graduation" if not currently studying) | Optional |
+| Current CGPA / Percentage (or "Final CGPA / Percentage" if not currently studying) | **(required)** |
 | Latest College Mark Sheet (upload) | **(required)** |
 
 ### Existing Scholarships / Financial Assistance
@@ -130,11 +130,10 @@ Only reached once the applicant has already provided their college details above
 | Diploma Mark Sheet (upload) | **(conditional — required if above = Yes)** |
 | Latest Academic Percentage | **(conditional — required if above = Yes)** |
 
-### Medium of Instruction
+### PSTM (Persons Studied in Tamil Medium)
 | Field | Notes |
 |---|---|
-| What was your medium of instruction? | **(required)** Tamil / English / Other |
-| Did you study in Tamil Medium up to 10th / 12th? | Yes / No |
+| Are you PSTM (Persons Studied in Tamil Medium)? | **(required)** Yes / No |
 | Tamil Medium Evidence (upload) | **(conditional — required if above = Yes)** Bonafide certificate or mark sheet indicating medium of instruction |
 
 ---

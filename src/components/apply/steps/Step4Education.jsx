@@ -186,14 +186,14 @@ export default function Step4Education({ data, setField }) {
             onChange={(v) => setField('college.academicYear', v)}
           />
           <TextField
-            label={bi('step3.gradYear')}
+            label={data.college.currentlyStudying === 'no' ? bi('step3.pastGradYear') : bi('step3.gradYear')}
             value={data.college.gradYear}
             onChange={(v) => setField('college.gradYear', v)}
           />
         </div>
 
         <TextField
-          label={bi('step3.cgpa')}
+          label={data.college.currentlyStudying === 'no' ? bi('step3.pastCgpa') : bi('step3.cgpa')}
           required
           value={data.college.cgpa}
           onChange={(v) => setField('college.cgpa', v)}
