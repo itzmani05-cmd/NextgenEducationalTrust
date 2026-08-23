@@ -20,6 +20,7 @@ const DRAFT_KEY = 'ngc_scholarship_application_draft'
 
 const initialData = {
   // Step 1
+  examCategory: '', examName: '',
   fullName: '', dob: '', gender: '', mobile: '', email: '', district: '',
   address: { doorNo: '', street: '', place: '', pincode: '' },
 
@@ -190,15 +191,16 @@ function ApplyForm() {
     }
   }, [step, data, submitted])
 
-  // Name and email are locked to the signed-in Google account (see Step1Student's
-  // readOnly fields), so keep them synced to `user` rather than the editable draft —
-  // otherwise a stale value from a restored draft would be frozen in with no way
-  // for the applicant to correct it.
+  // Email stays locked to the signed-in Google account (see Step1Student's
+  // readOnly email field), so keep it synced to `user` rather than the editable
+  // draft. Full name is only seeded from Google once, as a starting point —
+  // it's editable, so a later `user` change must never overwrite what the
+  // applicant has since typed.
   useEffect(() => {
     if (!user) return
     setData((prev) => ({
       ...prev,
-      fullName: user.user_metadata?.full_name || prev.fullName || '',
+      fullName: prev.fullName || user.user_metadata?.full_name || '',
       email: user.email || prev.email || '',
     }))
   }, [user])

@@ -14,19 +14,46 @@ const DISTRICTS = [
   'Viluppuram', 'Virudhunagar',
 ]
 
+const SDP_ABBR = (
+  <abbr title={bi('step1.sdpFullForm')} className="underline decoration-dotted decoration-brand-muted cursor-help">
+    SDP
+  </abbr>
+)
+
+const COURSE_OPTIONS = [
+  { value: 'state_govt', exam: bi('step1.courseStateGovt') },
+  { value: 'central_govt', exam: bi('step1.courseCentralGovt') },
+  { value: 'gate', exam: bi('step1.courseGate') },
+]
+
 export default function Step1Student({ data, setField }) {
   const districts = [...DISTRICTS, bi('common.other')].map((d) => ({ value: d, label: d }))
 
+  const setCourse = (value) => {
+    const opt = COURSE_OPTIONS.find((o) => o.value === value)
+    setField('examCategory', value)
+    setField('examName', opt ? opt.exam : '')
+  }
+
   return (
     <SectionCard title={bi('step1.title')} description={bi('step1.description')}>
+      <OptionPills
+        label={bi('step1.courseApplied')}
+        required
+        value={data.examCategory}
+        onChange={setCourse}
+        options={COURSE_OPTIONS.map((o) => ({
+          value: o.value,
+          label: <>{SDP_ABBR} - {o.exam}</>,
+        }))}
+      />
+
       <div className="grid sm:grid-cols-2 gap-5">
         <TextField
           label={`${bi('step1.fullName')} (${bi('step1.fullNameExample')})`}
           required
           value={data.fullName}
           onChange={(v) => setField('fullName', v)}
-          readOnly
-          helper={bi('step1.googleLocked')}
         />
         <TextField
           label={bi('step1.dob')}

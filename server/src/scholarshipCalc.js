@@ -4,13 +4,14 @@
 
 const INCOME_BASED_KEYS = ['income_1', 'income_2', 'income_3']
 
-function academicBonus(pct) {
-  const n = parseFloat(pct)
-  if (Number.isNaN(n)) return 0
-  if (n >= 80) return 5
-  if (n >= 60) return 3
-  if (n >= 50) return 1
-  return 0
+// Flat +5% if the average of 10th & 12th percentage is excellent (≥80%) —
+// an all-or-nothing bonus rather than a scaled one.
+function tenthTwelfthBonus(tenthPct, twelfthPct) {
+  const a = parseFloat(tenthPct)
+  const b = parseFloat(twelfthPct)
+  if (Number.isNaN(a) || Number.isNaN(b)) return 0
+  const avg = (a + b) / 2
+  return avg >= 80 ? 5 : 0
 }
 
 function getCategory(app) {
@@ -22,11 +23,11 @@ function getCategory(app) {
   }
   switch (app.annualIncome) {
     case 'upto_1_5':
-      return { key: 'income_1', label: 'Category 3 — Income Tier 1', base: 75, cap: 75 }
+      return { key: 'income_1', label: 'Category 3 — Income Tier 1', base: 50, cap: 50 }
     case '1_5_to_3':
-      return { key: 'income_2', label: 'Category 3 — Income Tier 2', base: 50, cap: 75 }
+      return { key: 'income_2', label: 'Category 3 — Income Tier 2', base: 40, cap: 50 }
     case '3_to_5':
-      return { key: 'income_3', label: 'Category 3 — Income Tier 3', base: 25, cap: 75 }
+      return { key: 'income_3', label: 'Category 3 — Income Tier 3', base: 25, cap: 50 }
     case 'above_5':
       return { key: 'income_4', label: 'Category 4 — Standard Fee', base: 0, cap: 0 }
     default:
@@ -43,12 +44,12 @@ export function getProvisional(app) {
     const bothGovtSchool =
       app.tenth?.schoolType === 'government' && app.twelfth?.schoolType === 'government'
 
-    if (app.selfEarning === 'yes' && app.supportsDependents === 'yes') {
-      additions.push({ label: 'Financial Self-Support', value: 10 })
+    if (app.selfEarning === 'yes') {
+      additions.push({ label: 'Financial Self-Support', value: 5 })
     }
-    const academic = academicBonus(app.latestAcademicPercentage)
+    const academic = tenthTwelfthBonus(app.tenth?.percentage, app.twelfth?.percentage)
     if (academic > 0) {
-      additions.push({ label: 'Academic Performance', value: academic })
+      additions.push({ label: 'Academic Performance (10th & 12th)', value: academic })
     }
     if (app.tamilMediumTill12 === 'yes') {
       additions.push({ label: 'Tamil Medium', value: 5 })

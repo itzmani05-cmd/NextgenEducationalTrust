@@ -32,6 +32,7 @@ const INCOME_LABELS = {
   above_5: bi('step2.incomeTier4'),
 }
 const YES_NO_LABELS = { yes: bi('common.yes'), no: bi('common.no') }
+const SOCIAL_CATEGORY_LABELS = { 'SC/ST': bi('step2.scSt'), 'Not SC/ST': bi('step2.notScSt') }
 
 export default function StepSummary({ data, goToStep }) {
   return (
@@ -47,6 +48,7 @@ export default function StepSummary({ data, goToStep }) {
 
       <SectionCard title={bi('step6.studentDetails')} action={<EditButton onClick={() => goToStep(1)} />}>
         <div>
+          <Row label={bi('step1.courseApplied')} value={data.examName} />
           <Row label={bi('step1.gender')} value={data.gender} />
           <Row label={bi('step1.dob')} value={data.dob} />
         </div>
@@ -58,7 +60,7 @@ export default function StepSummary({ data, goToStep }) {
           <Row label={bi('step6.bothDeceasedLabel')} value={YES_NO_LABELS[data.bothParentsDeceased]} />
           <Row label={bi('step6.singleParentLabel')} value={YES_NO_LABELS[data.singleParent]} />
           <Row label={bi('step2.incomeTitle')} value={INCOME_LABELS[data.annualIncome]} />
-          <Row label={bi('step2.socialCategoryTitle')} value={data.socialCategory} />
+          <Row label={bi('step2.socialCategoryTitle')} value={SOCIAL_CATEGORY_LABELS[data.socialCategory]} />
           <Row label={bi('step2.scholarshipTitle')} value={YES_NO_LABELS[data.existingScholarship]} />
         </div>
       </SectionCard>

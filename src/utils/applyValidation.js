@@ -6,7 +6,7 @@ function filled(v) {
 }
 
 function isStep1Valid(data) {
-  const basicOk = ['fullName', 'dob', 'gender', 'mobile', 'email', 'district'].every((k) => filled(data[k]))
+  const basicOk = ['fullName', 'dob', 'gender', 'mobile', 'email', 'district', 'examCategory'].every((k) => filled(data[k]))
   const addressOk = ['doorNo', 'street', 'place', 'pincode'].every((k) => filled(data.address?.[k]))
   return basicOk && addressOk
 }

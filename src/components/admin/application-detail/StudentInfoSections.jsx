@@ -2,10 +2,13 @@ import Section from './Section.jsx'
 import Row from './Row.jsx'
 import { enOnly } from '../../../i18n/bilingual.js'
 
+const SOCIAL_CATEGORY_LABELS = { 'SC/ST': 'Scheduled Caste', 'Not SC/ST': 'Not Scheduled Caste' }
+
 export default function StudentInfoSections({ app }) {
   return (
     <>
       <Section title={enOnly('admin.detail.studentDetails')}>
+        <Row label={enOnly('admin.detail.fields.courseApplied')} value={app.examName || app.examCategory} />
         <Row label={enOnly('admin.detail.fields.fullName')} value={app.fullName} />
         <Row label={enOnly('admin.detail.fields.dob')} value={app.dob} />
         <Row label={enOnly('admin.detail.fields.gender')} value={app.gender} />
@@ -40,7 +43,7 @@ export default function StudentInfoSections({ app }) {
       </Section>
 
       <Section title={enOnly('admin.detail.socialCategoryScholarship')}>
-        <Row label={enOnly('admin.detail.fields.socialCategory')} value={app.socialCategory} />
+        <Row label={enOnly('admin.detail.fields.socialCategory')} value={SOCIAL_CATEGORY_LABELS[app.socialCategory] || app.socialCategory} />
         <Row label={enOnly('admin.detail.fields.existingScholarship')} value={app.existingScholarship} />
         <Row label={enOnly('admin.detail.fields.scholarshipName')} value={app.scholarshipName} />
         <Row label={enOnly('admin.detail.fields.scholarshipProvider')} value={app.scholarshipProvider} />

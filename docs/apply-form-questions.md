@@ -11,7 +11,8 @@ marked **(required)**; fields that only appear based on an earlier answer are ma
 
 | Field | Notes |
 |---|---|
-| Full Name | **(required)** Locked — pulled from the applicant's Google account. Shown with the example "e.g. Manikandan K. — ends with initial" |
+| Which Course Are You Applying For? | **(required)** SDP - State Govt Exam / SDP - Central Govt Exam / SDP - Gate Exam. "SDP" (Skill Development Program) is shown as a hover-tooltip abbreviation. Sets the application's exam category/name used later in admin review and certificate numbering. |
+| Full Name | **(required)** Pre-filled from the applicant's Google account, but editable. Shown with the example "e.g. Manikandan K. — ends with initial" |
 | Date of Birth | **(required)** |
 | Gender | **(required)** Male / Female / Other |
 | Mobile Number | **(required)** |
@@ -38,13 +39,13 @@ marked **(required)**; fields that only appear based on an earlier answer are ma
 | Guardian's Name | Optional — "if applicable" |
 | Relation to Guardian | Optional |
 | Guardian's Contact | Optional |
-| Parent Status | **(required)** Both Parents Living / Single Parent / Orphan / Under Legal Guardian |
+| Parent Status | **(required)** Both Parents Living / Single Parent / No Living Parents / Under Legal Guardian |
 
 ### Family Circumstances (conditional on Parent Status above)
 | Field | Notes |
 |---|---|
-| Father's Death Certificate (upload) | **(conditional — required if Parent Status = Orphan)** |
-| Mother's Death Certificate (upload) | **(conditional — required if Parent Status = Orphan)** |
+| Father's Death Certificate (upload) | **(conditional — required if Parent Status = No Living Parents)** |
+| Mother's Death Certificate (upload) | **(conditional — required if Parent Status = No Living Parents)** |
 | Supporting Parent | **(conditional — required if Parent Status = Single Parent)** Father / Mother / Legal Guardian |
 | Supporting Document (upload) | **(conditional — required if Parent Status = Single Parent)** Proof of single-parent status |
 
@@ -69,8 +70,8 @@ marked **(required)**; fields that only appear based on an earlier answer are ma
 ### Social Category
 | Field | Notes |
 |---|---|
-| Do you belong to SC/ST/SC(A) category? | **(required)** SC / ST / SC (Arunthathiyar) / No |
-| Valid Community Certificate (upload) | **(conditional — required if SC, ST, or SC(A))** |
+| Do you belong to the Scheduled Caste category? | **(required)** Scheduled Caste / Not Scheduled Caste |
+| Valid Community Certificate (upload) | **(conditional — required if Scheduled Caste)** |
 
 ---
 
@@ -107,8 +108,6 @@ marked **(required)**; fields that only appear based on an earlier answer are ma
 | Academic Year | **(required)** e.g. 2025-2026 |
 | Expected Graduation Year | Optional |
 | Current CGPA / Percentage | **(required)** |
-| Latest Semester Percentage | **(required)** |
-| Number of Backlogs | Optional |
 | Latest College Mark Sheet (upload) | **(required)** |
 
 ### Existing Scholarships / Financial Assistance
@@ -148,10 +147,9 @@ are collected together on this step.
 **Basic documents (every applicant):**
 1. Student Photograph
 2. Identity Document
-3. Educational Certificates / Mark Sheets
-4. 10th Mark Sheet
-5. 12th Mark Sheet
-6. Latest College Mark Sheet
+3. 10th Mark Sheet
+4. 12th Mark Sheet
+5. Latest College Mark Sheet
 
 **Additional documents (only shown if applicable):**
 - Father's Death Certificate — if both parents deceased
@@ -161,7 +159,7 @@ are collected together on this step.
 - Diploma Mark Sheet — if diploma held
 - Tamil-Medium Evidence — if Tamil medium through 10th/12th
 - Government-School Evidence — if both 10th and 12th were government schools
-- SC/ST/SC(A) Community Certificate — if SC, ST, or SC(A) category
+- Community Certificate — if Scheduled Caste
 - Financial Self-Support Evidence — if self-earning
 - Existing Scholarship Proof — if already receiving another scholarship
 
