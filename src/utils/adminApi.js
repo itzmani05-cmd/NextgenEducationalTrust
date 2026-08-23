@@ -33,6 +33,19 @@ export function listApplications(token, status) {
   return request(`/api/applications${query}`, { token })
 }
 
+export function listDonations(token, status) {
+  const query = status ? `?status=${encodeURIComponent(status)}` : ''
+  return request(`/api/donations${query}`, { token })
+}
+
+export function updateDonationStatus(token, id, status, rejectionReason) {
+  return request(`/api/donations/${id}/status`, { token, method: 'PATCH', body: { status, rejectionReason } })
+}
+
+export function getDonationReceiptSignedUrl(token, id) {
+  return request(`/api/donations/${id}/receipt/signed-url`, { token })
+}
+
 export function getApplication(token, id) {
   return request(`/api/applications/${id}`, { token })
 }

@@ -65,10 +65,11 @@ export default function StepSummary({ data, goToStep }) {
 
       <SectionCard title={bi('step6.education')} action={<EditButton onClick={() => goToStep(3)} />}>
         <div>
+          <Row label={bi('step3.studyingInCollegeQ')} value={YES_NO_LABELS[data.college.currentlyStudying]} />
           <Row label={bi('step3.collegeName')} value={data.college.name} />
           <Row label={bi('step3.degree')} value={data.college.degree} />
           <Row label={bi('step3.currentYear')} value={data.college.year} />
-          <Row label={bi('step3.mediumTitle')} value={data.medium} />
+          <Row label={bi('step3.mediumTitle')} value={YES_NO_LABELS[data.tamilMediumTill12]} />
         </div>
       </SectionCard>
 

@@ -8,7 +8,7 @@ import IncomeTierGrid from '../fields/IncomeTierGrid.jsx'
 import { bi } from '../../../i18n/bilingual.js'
 
 export default function Step2Family({ data, setField }) {
-  const isScSt = data.socialCategory === 'SC' || data.socialCategory === 'ST' || data.socialCategory === 'SC(A)'
+  const isScSt = data.socialCategory === 'SC/ST'
 
   const parentStatusOptions = [
     { value: 'both_alive', label: bi('step2.parentStatusBothAlive') },
@@ -172,10 +172,8 @@ export default function Step2Family({ data, setField }) {
           value={data.socialCategory}
           onChange={(v) => setField('socialCategory', v)}
           options={[
-            { value: 'SC', label: bi('step2.sc') },
-            { value: 'ST', label: bi('step2.st') },
-            { value: 'SC(A)', label: bi('step2.scA') },
-            { value: 'No', label: bi('step2.no') },
+            { value: 'SC/ST', label: bi('step2.scSt') },
+            { value: 'Not SC/ST', label: bi('step2.notScSt') },
           ]}
         />
 

@@ -107,9 +107,15 @@ export default function Step4Education({ data, setField }) {
       </SectionCard>
 
       <SectionCard title={bi('step3.collegeTitle')}>
+        <YesNoRow
+          question={bi('step3.studyingInCollegeQ')}
+          value={data.college.currentlyStudying}
+          onChange={(v) => setField('college.currentlyStudying', v)}
+        />
+
         <div className="grid sm:grid-cols-2 gap-5">
           <TextField
-            label={bi('step3.collegeName')}
+            label={data.college.currentlyStudying === 'no' ? bi('step3.pastCollegeName') : bi('step3.collegeName')}
             required
             value={data.college.name}
             onChange={(v) => setField('college.name', v)}
@@ -151,23 +157,25 @@ export default function Step4Education({ data, setField }) {
           />
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-5">
-          <SelectField
-            label={bi('step3.currentYear')}
-            required
-            value={data.college.year}
-            onChange={(v) => setField('college.year', v)}
-            options={YEAR_OPTIONS}
-            placeholder={bi('common.selectPlaceholder')}
-          />
-          <SelectField
-            label={bi('step3.currentSemester')}
-            value={data.college.semester}
-            onChange={(v) => setField('college.semester', v)}
-            options={SEMESTER_OPTIONS}
-            placeholder={bi('common.selectPlaceholder')}
-          />
-        </div>
+        {data.college.currentlyStudying === 'yes' && (
+          <div className="grid sm:grid-cols-2 gap-5">
+            <SelectField
+              label={bi('step3.currentYear')}
+              required
+              value={data.college.year}
+              onChange={(v) => setField('college.year', v)}
+              options={YEAR_OPTIONS}
+              placeholder={bi('common.selectPlaceholder')}
+            />
+            <SelectField
+              label={bi('step3.currentSemester')}
+              value={data.college.semester}
+              onChange={(v) => setField('college.semester', v)}
+              options={SEMESTER_OPTIONS}
+              placeholder={bi('common.selectPlaceholder')}
+            />
+          </div>
+        )}
 
         <div className="grid sm:grid-cols-2 gap-5">
           <TextField
@@ -184,27 +192,11 @@ export default function Step4Education({ data, setField }) {
           />
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-5">
-          <TextField
-            label={bi('step3.cgpa')}
-            required
-            value={data.college.cgpa}
-            onChange={(v) => setField('college.cgpa', v)}
-          />
-          <TextField
-            label={bi('step3.latestPercentage')}
-            type="number"
-            required
-            value={data.college.latestPercentage}
-            onChange={(v) => setField('college.latestPercentage', v)}
-          />
-        </div>
-
         <TextField
-          label={bi('step3.backlogs')}
-          type="number"
-          value={data.college.backlogs}
-          onChange={(v) => setField('college.backlogs', v)}
+          label={bi('step3.cgpa')}
+          required
+          value={data.college.cgpa}
+          onChange={(v) => setField('college.cgpa', v)}
         />
 
         <UploadField
@@ -297,20 +289,8 @@ export default function Step4Education({ data, setField }) {
       </SectionCard>
 
       <SectionCard title={bi('step3.mediumTitle')}>
-        <OptionPills
-          label={bi('step3.mediumQ')}
-          required
-          value={data.medium}
-          onChange={(v) => setField('medium', v)}
-          options={[
-            { value: 'tamil', label: bi('step3.tamil') },
-            { value: 'english', label: bi('step3.english') },
-            { value: 'other', label: bi('common.other') },
-          ]}
-        />
-
         <YesNoRow
-          question={bi('step3.tamilTill12Q')}
+          question={bi('step3.pstmQ')}
           value={data.tamilMediumTill12}
           onChange={(v) => setField('tamilMediumTill12', v)}
         />

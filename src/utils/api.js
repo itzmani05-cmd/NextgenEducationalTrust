@@ -113,6 +113,20 @@ export async function getCertificateSignedUrl(applicationId, accessToken) {
   return body
 }
 
+export async function submitDonation({ fullName, email, mobile, amount, purpose, pan, transactionRef }) {
+  const res = await fetch(`${API_BASE_URL}/api/donations`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fullName, email, mobile, amount, purpose, pan, transactionRef }),
+  })
+
+  const body = await res.json().catch(() => null)
+  if (!res.ok) {
+    throw new Error(body?.error || 'Failed to submit donation.')
+  }
+  return body
+}
+
 export async function lookupApplication(mobile, email) {
   const res = await fetch(`${API_BASE_URL}/api/applications/lookup`, {
     method: 'POST',

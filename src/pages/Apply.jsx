@@ -43,7 +43,7 @@ const initialData = {
   college: {
     name: '', type: '', address: '', rollNumber: '', degree: '', branch: '', year: '',
     semester: '', academicYear: '', gradYear: '', cgpa: '',
-    latestPercentage: '', backlogs: '', markSheet: null,
+    currentlyStudying: '', markSheet: null,
   },
   existingScholarship: '', scholarshipName: '', scholarshipProvider: '',
   scholarshipAmount: '', scholarshipYear: '', scholarshipDoc: null,
@@ -53,13 +53,13 @@ const initialData = {
   latestAcademicPercentage: '',
 
   // Step 6
-  medium: '', tamilMediumTill12: '', tamilMediumEvidence: null,
+  tamilMediumTill12: '', tamilMediumEvidence: null,
 
   // Step 7
   socialCategory: '', communityCertificate: null,
 
   // Step 9
-  studentPhoto: null, identityDocument: null, educationalCertificates: null,
+  studentPhoto: null, identityDocument: null,
 
   // Step 11
   declarationAccepted: false,

@@ -8,12 +8,14 @@ import Apply from './pages/Apply.jsx'
 import StatusCheck from './pages/StatusCheck.jsx'
 import Profile from './pages/Profile.jsx'
 import Payment from './pages/Payment.jsx'
+import Donate from './pages/Donate.jsx'
 import Login from './pages/Login.jsx'
 import SignUp from './pages/SignUp.jsx'
 import Contact from './pages/Contact.jsx'
 import Faq from './pages/Faq.jsx'
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx'
 import TermsOfService from './pages/TermsOfService.jsx'
+import NotFound from './pages/NotFound.jsx'
 
 import { AdminAuthProvider } from './context/AdminAuthContext.jsx'
 import AdminLayout from './components/admin/AdminLayout.jsx'
@@ -22,6 +24,7 @@ import AdminAnalytics from './pages/admin/AdminAnalytics.jsx'
 import AdminApplications from './pages/admin/AdminApplications.jsx'
 import AdminApplicationDetail from './pages/admin/AdminApplicationDetail.jsx'
 import AdminVerification from './pages/admin/AdminVerification.jsx'
+import AdminDonations from './pages/admin/AdminDonations.jsx'
 import AdminSettings from './pages/admin/AdminSettings.jsx'
 import AdminSupport from './pages/admin/AdminSupport.jsx'
 
@@ -37,10 +40,12 @@ function App() {
         <Route path="/status" element={<StatusCheck />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/donate" element={<Donate />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/faq" element={<Faq />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
 
       <Route path="/login" element={<AuthProvider><Login /></AuthProvider>} />
@@ -58,6 +63,7 @@ function App() {
                 <Route path="applications/:id" element={<AdminApplicationDetail />} />
                 <Route path="verification" element={<AdminVerification />} />
                 <Route path="verification/:id" element={<AdminVerification />} />
+                <Route path="donations" element={<AdminDonations />} />
                 <Route path="settings" element={<AdminSettings />} />
                 <Route path="support" element={<AdminSupport />} />
               </Route>

@@ -70,9 +70,9 @@ export function getProvisional(data) {
     // Wizard state holds a File under `communityCertificate`; the stored
     // application row holds its uploaded path under `communityCertificateUrl`.
     const hasCommunityCert = Boolean(data.communityCertificate || data.communityCertificateUrl)
-    const isScSt = ['SC', 'ST', 'SC(A)'].includes(data.socialCategory)
+    const isScSt = data.socialCategory === 'SC/ST'
     if (isScSt && hasCommunityCert) {
-      additions.push({ label: 'SC/ST/SC(A)', value: 5 })
+      additions.push({ label: 'SC/ST', value: 5 })
     }
   }
 

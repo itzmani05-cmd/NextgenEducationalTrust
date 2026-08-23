@@ -9,10 +9,10 @@ export default function Footer() {
         <div>
           <p className="flex items-center gap-2 text-white font-bold text-lg mb-2">
             <img src={logo} alt="" className="w-8 h-8 object-contain" />
-            NextGen College Solutions
+            NextGen Solutions
           </p>
           <p className="text-sm mb-4">
-            &copy; 2026 NextGen College Solutions. All rights reserved.
+            &copy; 2026 NextGen Solutions. All rights reserved.
           </p>
           <ul className="space-y-2 text-sm">
             <li className="flex items-center gap-2">
@@ -44,6 +44,11 @@ export default function Footer() {
           <li>
             <Link to="/terms-of-service" className="hover:text-white transition-colors">
               Terms of Service
+            </Link>
+          </li>
+          <li>
+            <Link to="/donate" className="hover:text-white transition-colors">
+              Donate
             </Link>
           </li>
           <li>

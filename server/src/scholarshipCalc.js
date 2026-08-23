@@ -56,7 +56,7 @@ export function getProvisional(app) {
     if (bothGovtSchool) {
       additions.push({ label: 'Government School', value: 5 })
     }
-    if ((app.socialCategory === 'SC' || app.socialCategory === 'ST') && app.communityCertificateUrl) {
+    if (app.socialCategory === 'SC/ST' && app.communityCertificateUrl) {
       additions.push({ label: 'SC/ST', value: 5 })
     }
   }

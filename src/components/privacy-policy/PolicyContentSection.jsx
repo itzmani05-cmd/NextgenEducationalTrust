@@ -60,7 +60,7 @@ export default function PolicyContentSection() {
   return (
     <section className="max-w-3xl mx-auto px-6 py-16">
       <p className="text-brand-muted mb-10">
-        This Privacy Policy explains how NextGen College Solutions (&ldquo;we&rdquo;,
+        This Privacy Policy explains how NextGen Solutions (&ldquo;we&rdquo;,
         &ldquo;us&rdquo;, or &ldquo;the Trust&rdquo;) collects, uses, and protects your
         information when you use our website and scholarship platform.
       </p>

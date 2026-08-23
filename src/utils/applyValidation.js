@@ -33,7 +33,7 @@ function isStep2Valid(data) {
   }
 
   if (!filled(data.socialCategory)) return false
-  const isScSt = ['SC', 'ST', 'SC(A)'].includes(data.socialCategory)
+  const isScSt = data.socialCategory === 'SC/ST'
   if (isScSt && !data.communityCertificate) return false
 
   return true
@@ -46,10 +46,13 @@ function isStep3Valid(data) {
   const twelfthOk = filled(twelfth.schoolName) && filled(twelfth.percentage) && filled(twelfth.schoolType) && twelfth.markSheet
   if (!tenthOk || !twelfthOk) return false
 
+  if (!filled(college.currentlyStudying)) return false
+  if (college.currentlyStudying === 'yes' && !filled(college.year)) return false
+
   const collegeOk =
     filled(college.name) && filled(college.rollNumber) && filled(college.type) &&
-    filled(college.address) && filled(college.degree) && filled(college.year) &&
-    filled(college.academicYear) && filled(college.cgpa) && filled(college.latestPercentage) &&
+    filled(college.address) && filled(college.degree) &&
+    filled(college.academicYear) && filled(college.cgpa) &&
     college.markSheet
   if (!collegeOk) return false
 
@@ -64,7 +67,6 @@ function isStep3Valid(data) {
     if (!filled(data.latestAcademicPercentage)) return false
   }
 
-  if (!filled(data.medium)) return false
   if (!filled(data.tamilMediumTill12)) return false
   if (data.tamilMediumTill12 === 'yes' && !data.tamilMediumEvidence) return false
 

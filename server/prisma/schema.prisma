@@ -27,6 +27,12 @@ enum PaymentStatus {
   rejected
 }
 
+enum DonationStatus {
+  pending
+  verified
+  rejected
+}
+
 model Application {
   id        String            @id @default(uuid())
   createdAt DateTime          @default(now())
@@ -192,6 +198,35 @@ model Certificate {
   createdAt       DateTime @default(now())
 
   @@map("certificates")
+}
+
+model Donation {
+  id        String         @id @default(uuid())
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  status    DonationStatus @default(pending)
+
+  fullName       String
+  email          String
+  mobile         String
+  amount         Int
+  purpose        String
+  pan            String?
+  transactionRef String
+
+  verifiedByEmail String?
+  verifiedAt      DateTime?
+  rejectionReason String?
+
+  // Issued the moment a donation is verified (see PATCH /:id/status) — a PDF
+  // receipt generated and emailed to the donor. receiptEmailSentAt is only
+  // set once the email actually goes out, kept separate from issuance so a
+  // delivery failure can be retried without regenerating the receipt/number.
+  receiptNumber      String?   @unique
+  receiptPath        String?
+  receiptEmailSentAt DateTime?
+
+  @@map("donations")
 }
 
 // A single admin identity, layered on top of the existing shared ADMIN_PASSWORD

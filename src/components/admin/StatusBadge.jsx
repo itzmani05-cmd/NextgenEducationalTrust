@@ -9,6 +9,8 @@ const STATUS_STYLES = {
   payment_approved: { labelKey: 'admin.status.paymentApproved', className: 'bg-green-50 text-green-700' },
   payment_rejected: { labelKey: 'admin.status.paymentRejected', className: 'bg-red-50 text-brand-red' },
   certificate_issued: { labelKey: 'admin.status.certificateIssued', className: 'bg-brand-navy/10 text-brand-navy' },
+  pending: { labelKey: 'admin.status.pending', className: 'bg-amber-50 text-brand-amber' },
+  verified: { labelKey: 'admin.status.verified', className: 'bg-green-50 text-green-700' },
 }
 
 export default function StatusBadge({ status }) {

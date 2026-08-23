@@ -1,7 +1,6 @@
 export const BASIC_DOCUMENTS = [
   { key: 'studentPhoto', labelKey: 'step5.studentPhoto' },
   { key: 'identityDocument', labelKey: 'step5.identityDocument' },
-  { key: 'educationalCertificates', labelKey: 'step5.educationalCertificates' },
   { key: 'tenth.markSheet', labelKey: 'step5.tenthMarkSheet' },
   { key: 'twelfth.markSheet', labelKey: 'step5.twelfthMarkSheet' },
   { key: 'college.markSheet', labelKey: 'step5.latestCollegeMarkSheet' },
@@ -10,7 +9,7 @@ export const BASIC_DOCUMENTS = [
 export function getConditionalDocuments(data) {
   const bothGovtSchool =
     data.tenth.schoolType === 'government' && data.twelfth.schoolType === 'government'
-  const isScSt = ['SC', 'ST', 'SC(A)'].includes(data.socialCategory)
+  const isScSt = data.socialCategory === 'SC/ST'
 
   return [
     data.bothParentsDeceased === 'yes' && { key: 'fatherDeathCert', labelKey: 'step5.fatherDeathCert' },

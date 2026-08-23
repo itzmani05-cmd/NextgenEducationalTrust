@@ -1,6 +1,6 @@
 import { Outlet, NavLink, Navigate } from 'react-router-dom'
 import {
-  LayoutGrid, FileText, ShieldCheck, Calculator, Wallet, Settings, HelpCircle, LogOut,
+  LayoutGrid, FileText, ShieldCheck, Calculator, Wallet, Settings, HelpCircle, LogOut, HeartHandshake,
 } from 'lucide-react'
 import { useAdminAuth } from '../../context/AdminAuthContext.jsx'
 import { enOnly } from '../../i18n/bilingual.js'
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: '/admin/applications', label: enOnly('admin.nav.applications'), icon: FileText, end: true },
   { to: '/admin/applications?status=payment_submitted', label: enOnly('admin.nav.payments'), icon: Wallet },
   { to: '/admin/verification', label: enOnly('admin.nav.verification'), icon: ShieldCheck },
+  { to: '/admin/donations', label: enOnly('admin.nav.donations'), icon: HeartHandshake },
   { to: '/admin/settings', label: enOnly('admin.nav.settings'), icon: Settings },
 ]
 

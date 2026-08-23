@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { HelpCircle, User, LogIn, LogOut, Menu, X } from 'lucide-react'
-import logo from '../assests/FullLogo.png'
+import { HelpCircle, User, LogIn, LogOut, Menu, X, HeartHandshake } from 'lucide-react'
+import logo from '../assests/TrustLogo.png'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const links = [
   { to: '/', label: 'Home' },
   { to: '/platform', label: 'C³ Platform' },
-  { to: '/events', label: 'Events' },
+  { to: '/events', label: 'News & Events' },
+  {to:'/donate', label:'Donate'},
 ]
 
 export default function Navbar() {
@@ -46,7 +47,7 @@ export default function Navbar() {
     >
       <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 h-20 flex items-center justify-between gap-6">
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <img src={logo} alt="NextGen Education Trust" className="h-16 w-auto max-w-[200px] object-contain" />
+          <img src={logo} alt="NextGen Education Trust" className="h-17 w-auto max-w-[230px] object-contain" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-9 text-[0.9rem] font-medium tracking-wide">
@@ -59,16 +60,6 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-3">
-            <Link
-              to="/faq"
-              className="p-2 rounded-full text-brand-text/60 hover:text-brand-navy hover:bg-brand-surface transition-colors"
-              aria-label="Help / FAQ"
-              title="Help / FAQ"
-            >
-              <HelpCircle className="w-5 h-5" />
-            </Link>
-
-            <div className="w-px h-6 bg-brand-border" />
 
             {!loading && (
               user ? (
@@ -140,7 +131,7 @@ export default function Navbar() {
             to="/contact"
             className="hidden sm:inline-flex bg-brand-red text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-sm hover:bg-brand-redDark hover:shadow-md transition-all"
           >
-            Enquire Now
+            Contact Us
           </Link>
 
           <button
@@ -184,6 +175,13 @@ export default function Navbar() {
                 <LogIn className="w-4 h-4" /> Sign In
               </Link>
             )}
+            <Link
+              to="/donate"
+              onClick={() => setMobileOpen(false)}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-semibold text-brand-navy border border-brand-navy/30 px-3.5 py-2 rounded-full"
+            >
+              <HeartHandshake className="w-4 h-4" /> Donate
+            </Link>
             <Link
               to="/contact"
               onClick={() => setMobileOpen(false)}

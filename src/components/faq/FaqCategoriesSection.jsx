@@ -5,7 +5,7 @@ const categories = [
     title: 'General',
     faqs: [
       {
-        q: 'What does NextGen College Solutions do?',
+        q: 'What does NextGen Solutions do?',
         a: 'We help students make informed decisions about higher education and careers, and administer scholarships that fund tuition support alongside GATE and government competitive exam coaching through the C3 Educational Platform.',
       },
       {

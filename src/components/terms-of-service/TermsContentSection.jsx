@@ -66,7 +66,7 @@ export default function TermsContentSection() {
   return (
     <section className="max-w-3xl mx-auto px-6 py-16">
       <p className="text-brand-muted mb-10">
-        These Terms of Service govern your use of the NextGen College Solutions website and
+        These Terms of Service govern your use of the NextGen Solutions website and
         scholarship platform, including applications processed through the C3 Educational
         Platform.
       </p>

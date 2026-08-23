@@ -61,6 +61,7 @@ export default function StudentInfoSections({ app }) {
       </Section>
 
       <Section title={enOnly('admin.detail.collegeInstitution')}>
+        <Row label={enOnly('admin.detail.fields.currentlyStudying')} value={app.college?.currentlyStudying} />
         <Row label={enOnly('admin.detail.fields.name')} value={app.college?.name} />
         <Row label={enOnly('admin.detail.fields.type')} value={app.college?.type} />
         <Row label={enOnly('admin.detail.fields.address')} value={app.college?.address} />
@@ -72,16 +73,13 @@ export default function StudentInfoSections({ app }) {
         <Row label={enOnly('admin.detail.fields.academicYear')} value={app.college?.academicYear} />
         <Row label={enOnly('admin.detail.fields.expectedGraduation')} value={app.college?.gradYear} />
         <Row label={enOnly('admin.detail.fields.cgpaPercentage')} value={app.college?.cgpa} />
-        <Row label={enOnly('admin.detail.fields.latestPercentage')} value={app.college?.latestPercentage} />
-        <Row label={enOnly('admin.detail.fields.backlogs')} value={app.college?.backlogs} />
       </Section>
 
       <Section title={enOnly('admin.detail.academicMedium')}>
         <Row label={enOnly('admin.detail.fields.diploma')} value={app.hasDiploma} />
         <Row label={enOnly('admin.detail.fields.diplomaPercentage')} value={app.diplomaPercentage} />
         <Row label={enOnly('admin.detail.fields.latestAcademicPercentage')} value={app.latestAcademicPercentage} />
-        <Row label={enOnly('admin.detail.fields.mediumOfInstruction')} value={app.medium} />
-        <Row label={enOnly('admin.detail.fields.tamilMediumTill12')} value={app.tamilMediumTill12} />
+        <Row label={enOnly('admin.detail.fields.pstm')} value={app.tamilMediumTill12} />
       </Section>
     </>
   )
