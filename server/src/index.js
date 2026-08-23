@@ -8,11 +8,11 @@ import donationsRouter from './routes/donations.js'
 
 const app = express()
 const port = process.env.PORT || 4000
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim())
 
-// Wide open — no origin allowlist. Auth is Bearer-token based (never cookies),
-// so an unrestricted origin doesn't expose credentialed requests. Revisit if
-// CORS_ORIGIN-based restriction is wanted back later.
-app.use(cors())
+app.use(cors({ origin: allowedOrigins }))
 app.use(express.json({ limit: '1mb' }))
 
 app.get('/health', (req, res) => res.json({ ok: true }))

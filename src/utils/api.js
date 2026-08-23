@@ -113,6 +113,19 @@ export async function getCertificateSignedUrl(applicationId, accessToken) {
   return body
 }
 
+// Signed download URL for the applicant's own fee receipt.
+export async function getFeeReceiptSignedUrl(applicationId, accessToken) {
+  const res = await fetch(`${API_BASE_URL}/api/applications/${applicationId}/payment/receipt-signed-url`, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+  })
+
+  const body = await res.json().catch(() => null)
+  if (!res.ok) {
+    throw new Error(body?.error || 'Failed to get fee receipt download link.')
+  }
+  return body
+}
+
 export async function submitDonation({ fullName, email, mobile, amount, purpose, pan, transactionRef }) {
   const res = await fetch(`${API_BASE_URL}/api/donations`, {
     method: 'POST',

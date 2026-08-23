@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CheckCircle2, Clock } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
-import { getMyApplication, submitPayment } from '../utils/api.js'
+import { getMyApplication, submitPayment, getFeeReceiptSignedUrl } from '../utils/api.js'
 import SignInGate from '../components/apply/SignInGate.jsx'
 import PaymentWrap from '../components/payment/PaymentWrap.jsx'
 import PaymentHeader from '../components/payment/PaymentHeader.jsx'
@@ -50,6 +50,21 @@ function PaymentContent({ accessToken }) {
 
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
+
+  const [receiptLoading, setReceiptLoading] = useState(false)
+  const [receiptError, setReceiptError] = useState('')
+  const handleDownloadReceipt = async (applicationId) => {
+    setReceiptLoading(true)
+    setReceiptError('')
+    try {
+      const { url } = await getFeeReceiptSignedUrl(applicationId, accessToken)
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      setReceiptError(err.message || 'Failed to open fee receipt.')
+    } finally {
+      setReceiptLoading(false)
+    }
+  }
 
   const load = () =>
     getMyApplication(accessToken)
@@ -119,12 +134,23 @@ function PaymentContent({ accessToken }) {
           desc="Your certificate is now available."
         />
         <SummaryCard application={application} amountDue={amountDue} payment={payment} />
-        <Link
-          to="/profile"
-          className="inline-flex items-center gap-2 bg-brand-red text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:bg-brand-redDark transition-colors mt-6"
-        >
-          View Certificate
-        </Link>
+        {receiptError && <p className="text-sm text-brand-red mt-4">{receiptError}</p>}
+        <div className="flex flex-wrap items-center gap-3 mt-6">
+          <Link
+            to="/profile"
+            className="inline-flex items-center gap-2 bg-brand-red text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:bg-brand-redDark transition-colors"
+          >
+            View Certificate
+          </Link>
+          <button
+            type="button"
+            onClick={() => handleDownloadReceipt(application.id)}
+            disabled={receiptLoading}
+            className="inline-flex items-center gap-2 bg-white border border-brand-navy text-brand-navy px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-brand-surface transition-colors disabled:opacity-40"
+          >
+            {receiptLoading ? 'Opening…' : 'Download Fee Receipt'}
+          </button>
+        </div>
       </PaymentWrap>
     )
   }

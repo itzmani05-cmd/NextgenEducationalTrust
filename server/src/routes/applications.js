@@ -10,6 +10,7 @@ import {
 import { getProvisional } from '../scholarshipCalc.js'
 import { logAudit } from '../audit.js'
 import { issueCertificateForApplication } from '../certificate.js'
+import { issueFeeReceiptForPayment } from '../studentFeeReceipt.js'
 import { renderApplicationPdf } from '../applicationPdf.js'
 
 const router = Router()
@@ -481,6 +482,31 @@ router.get('/:id/payment/proof-signed-url', requireAdmin, async (req, res) => {
   }
 })
 
+// Either the Trust (admin) or the payment's own applicant can download the
+// fee receipt, same access pattern as the certificate below.
+router.get(
+  '/:id/payment/receipt-signed-url',
+  requireAdminOrOwner(async (req) => {
+    const application = await prisma.application.findUnique({ where: { id: req.params.id } })
+    return application?.authUserId || null
+  }),
+  async (req, res) => {
+    try {
+      const payment = await prisma.payment.findUnique({ where: { applicationId: req.params.id } })
+      if (!payment?.receiptPath) return res.status(404).json({ error: 'Fee receipt not available yet.' })
+
+      const supabase = getSupabaseAdmin()
+      const { data, error } = await supabase.storage.from(STORAGE_BUCKET).createSignedUrl(payment.receiptPath, 30 * 60)
+      if (error) throw error
+
+      res.json({ url: data.signedUrl, receiptNumber: payment.receiptNumber })
+    } catch (err) {
+      console.error('Failed to create fee receipt signed URL:', err)
+      res.status(500).json({ error: 'Failed to create signed URL.' })
+    }
+  },
+)
+
 router.patch('/:id/payment/approve', requireAdmin, async (req, res) => {
   try {
     const application = await prisma.application.findUnique({
@@ -520,12 +546,27 @@ router.patch('/:id/payment/approve', requireAdmin, async (req, res) => {
       action: 'PAYMENT_APPROVED', oldStatus: 'payment_submitted', newStatus: 'payment_approved',
     })
 
+    // Fee receipt generation is best-effort here too, for the same reason as
+    // the certificate below — it itemizes the course fee/discount/amount
+    // paid, distinct from the Certificate's formal concession statement.
+    let updatedPaymentWithReceipt = updatedPayment
+    try {
+      const { payment: withReceipt } = await issueFeeReceiptForPayment(updatedApplication, updatedPayment)
+      updatedPaymentWithReceipt = withReceipt
+      await logAudit({
+        adminEmail: req.admin.email, applicationId: application.id, paymentId: payment.id,
+        action: 'FEE_RECEIPT_ISSUED', newValue: { receiptNumber: withReceipt.receiptNumber },
+      })
+    } catch (receiptErr) {
+      console.error('Payment approved but fee receipt generation failed:', receiptErr)
+    }
+
     // Certificate generation is best-effort here: payment approval itself is
     // already committed and correct even if PDF/storage hiccups — an admin
     // can retry via POST /:id/certificate/generate.
     let certificate = null
     try {
-      certificate = await issueCertificateForApplication(updatedApplication, updatedPayment, req.admin.email)
+      certificate = await issueCertificateForApplication(updatedApplication, updatedPaymentWithReceipt, req.admin.email)
       updatedApplication = await prisma.application.update({
         where: { id: application.id },
         data: { status: 'certificate_issued' },
@@ -538,7 +579,7 @@ router.patch('/:id/payment/approve', requireAdmin, async (req, res) => {
       console.error('Payment approved but certificate generation failed:', certErr)
     }
 
-    res.json({ ...updatedApplication, payment: updatedPayment, certificate })
+    res.json({ ...updatedApplication, payment: updatedPaymentWithReceipt, certificate })
   } catch (err) {
     console.error('Failed to approve payment:', err)
     res.status(500).json({ error: 'Failed to approve payment.' })
@@ -580,6 +621,37 @@ router.patch('/:id/payment/reject', requireAdmin, async (req, res) => {
   } catch (err) {
     console.error('Failed to reject payment:', err)
     res.status(500).json({ error: 'Failed to reject payment.' })
+  }
+})
+
+// Manual/idempotent trigger — normally fee receipts are issued automatically
+// the moment a payment is approved (see above); this exists to retry after a
+// transient failure there, or to re-fetch an already-issued receipt.
+router.post('/:id/payment/receipt/generate', requireAdmin, async (req, res) => {
+  try {
+    const application = await prisma.application.findUnique({
+      where: { id: req.params.id },
+      include: { payment: true },
+    })
+    if (!application) return res.status(404).json({ error: 'Application not found.' })
+    if (!application.payment || application.payment.status !== 'approved') {
+      return res.status(400).json({ error: 'A fee receipt can only be issued after payment has been approved.' })
+    }
+
+    const alreadyExisted = Boolean(application.payment.receiptPath)
+    const { payment } = await issueFeeReceiptForPayment(application, application.payment)
+
+    if (!alreadyExisted) {
+      await logAudit({
+        adminEmail: req.admin.email, applicationId: application.id, paymentId: payment.id,
+        action: 'FEE_RECEIPT_ISSUED', newValue: { receiptNumber: payment.receiptNumber },
+      })
+    }
+
+    res.json(payment)
+  } catch (err) {
+    console.error('Failed to generate fee receipt:', err)
+    res.status(500).json({ error: 'Failed to generate fee receipt.' })
   }
 })
 

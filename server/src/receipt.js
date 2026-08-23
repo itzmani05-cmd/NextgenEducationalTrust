@@ -7,6 +7,30 @@ import { getSupabaseAdmin, STORAGE_BUCKET } from './supabaseAdmin.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'TrustLogo.png')
+const WATERMARK_LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'Logo.png')
+const SIGNATURE_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'signature.png')
+
+function drawWatermark(doc) {
+  if (!fs.existsSync(WATERMARK_LOGO_PATH)) return
+  try {
+    const size = 320
+    doc.save()
+    doc.opacity(0.06)
+    doc.image(WATERMARK_LOGO_PATH, doc.page.width / 2 - size / 2, doc.page.height / 2 - size / 2, { width: size })
+    doc.opacity(1)
+    doc.restore()
+  } catch {}
+}
+
+function drawSignature(doc, x, y) {
+  if (fs.existsSync(SIGNATURE_PATH)) {
+    try {
+      doc.image(SIGNATURE_PATH, x, y - 34, { width: 130 })
+      return
+    } catch {}
+  }
+  doc.fontSize(10).fillColor('#222').font('Helvetica').text('_______________________', x, y)
+}
 
 const ONES = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
   'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen']
@@ -23,7 +47,6 @@ function threeDigits(n) {
   return [hundreds ? `${ONES[hundreds]} Hundred` : '', rest ? twoDigits(rest) : ''].filter(Boolean).join(' ')
 }
 
-// Indian numbering (lakh/crore), used only for the receipt's "in words" line.
 function amountInWords(n) {
   n = Math.round(n)
   if (n === 0) return 'Zero'
@@ -49,6 +72,8 @@ function renderReceiptPdf({ receiptNumber, donation, issuedAt }) {
     doc.on('end', () => resolve(Buffer.concat(chunks)))
     doc.on('error', reject)
 
+    drawWatermark(doc)
+
     doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).lineWidth(2).strokeColor('#1B2A4A').stroke()
     doc.rect(26, 26, doc.page.width - 52, doc.page.height - 52).lineWidth(0.5).strokeColor('#B3261E').stroke()
 
@@ -57,9 +82,7 @@ function renderReceiptPdf({ receiptNumber, donation, issuedAt }) {
       try {
         doc.image(LOGO_PATH, doc.page.width / 2 - 35, 45, { width: 70 })
         logoDrawn = true
-      } catch {
-        // Logo is a nice-to-have — never let a bad image file block issuance.
-      }
+      } catch {}
     }
 
     doc.y = logoDrawn ? 125 : 55
@@ -126,8 +149,8 @@ function renderReceiptPdf({ receiptNumber, donation, issuedAt }) {
     )
 
     doc.y = Math.max(doc.y + 60, doc.page.height - 160)
+    drawSignature(doc, 350, doc.y)
     doc.fontSize(10).fillColor('#222').font('Helvetica')
-    doc.text('_______________________', 350, doc.y)
     doc.text('For, NextGen Solutions Educational Trust', 350, doc.y + 16, { width: 200 })
     doc.text('Authorized Signatory', 350, doc.y + 32)
 
@@ -140,10 +163,6 @@ function renderReceiptPdf({ receiptNumber, donation, issuedAt }) {
   })
 }
 
-// Idempotent: if a receipt already exists for this donation, re-downloads its
-// PDF bytes (e.g. to retry a failed email send) rather than generating a
-// duplicate. Only ever call this once the donation has been verified — this
-// function does not itself re-check that. Returns { donation, pdfBuffer }.
 export async function issueReceiptForDonation(donation) {
   const supabase = getSupabaseAdmin()
 
@@ -178,7 +197,7 @@ export async function issueReceiptForDonation(donation) {
     } catch (err) {
       if (err.code === 'P2002') {
         lastErr = err
-        continue // receiptNumber collision (concurrent issuance) — retry with a bumped sequence
+        continue
       }
       throw err
     }
@@ -186,4 +205,4 @@ export async function issueReceiptForDonation(donation) {
   throw lastErr || new Error('Failed to generate a unique receipt number.')
 }
 
-export { renderReceiptPdf, amountInWords }
+export { renderReceiptPdf, amountInWords, drawWatermark, drawSignature }

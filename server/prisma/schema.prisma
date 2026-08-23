@@ -175,6 +175,12 @@ model Payment {
   rejectionReason String?
   adminRemarks    String?
 
+  // Fee receipt (course amount / discount / amount paid), issued the moment
+  // payment is approved — separate from the Certificate model, which is the
+  // formal concession document rather than an itemized payment receipt.
+  receiptNumber String? @unique
+  receiptPath   String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

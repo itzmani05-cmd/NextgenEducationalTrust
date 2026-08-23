@@ -5,6 +5,7 @@ import {
   getApplication, updateApplicationStatus, deleteApplication, updateConcession,
   getPaymentProofSignedUrl, approvePayment, rejectPayment,
   generateCertificate, getCertificateSignedUrlAdmin, downloadApplicationPdf, AuthError,
+  getFeeReceiptSignedUrlAdmin, generateFeeReceipt,
 } from '../../utils/adminApi.js'
 import { getAllRequiredDocuments } from '../../utils/documentChecklist.js'
 import { getProvisional } from '../../utils/scholarshipCalc.js'
@@ -14,6 +15,7 @@ import ActionsBar from '../../components/admin/application-detail/ActionsBar.jsx
 import ConcessionPanel from '../../components/admin/application-detail/ConcessionPanel.jsx'
 import PaymentVerificationSection from '../../components/admin/application-detail/PaymentVerificationSection.jsx'
 import CertificateSection from '../../components/admin/application-detail/CertificateSection.jsx'
+import FeeReceiptSection from '../../components/admin/application-detail/FeeReceiptSection.jsx'
 import DownloadApplicationSection from '../../components/admin/application-detail/DownloadApplicationSection.jsx'
 import StudentInfoSections from '../../components/admin/application-detail/StudentInfoSections.jsx'
 import DocumentsSection from '../../components/admin/application-detail/DocumentsSection.jsx'
@@ -55,6 +57,8 @@ export default function AdminApplicationDetail() {
   const [proofLoading, setProofLoading] = useState(false)
   const [certBusy, setCertBusy] = useState(false)
   const [certError, setCertError] = useState('')
+  const [receiptBusy, setReceiptBusy] = useState(false)
+  const [receiptError, setReceiptError] = useState('')
   const [downloadBusy, setDownloadBusy] = useState(false)
   const [downloadError, setDownloadError] = useState('')
 
@@ -231,6 +235,34 @@ export default function AdminApplicationDetail() {
     }
   }
 
+  const handleViewReceipt = async () => {
+    setReceiptBusy(true)
+    setReceiptError('')
+    try {
+      const { url } = await getFeeReceiptSignedUrlAdmin(token, id)
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      if (err instanceof AuthError) return logout()
+      setReceiptError(err.message || 'Failed to open fee receipt.')
+    } finally {
+      setReceiptBusy(false)
+    }
+  }
+
+  const handleGenerateReceipt = async () => {
+    setReceiptBusy(true)
+    setReceiptError('')
+    try {
+      const payment = await generateFeeReceipt(token, id)
+      setApp((prev) => ({ ...prev, payment }))
+    } catch (err) {
+      if (err instanceof AuthError) return logout()
+      setReceiptError(err.message || 'Failed to generate fee receipt.')
+    } finally {
+      setReceiptBusy(false)
+    }
+  }
+
   const handleDownloadApplication = async () => {
     setDownloadBusy(true)
     setDownloadError('')
@@ -336,6 +368,16 @@ export default function AdminApplicationDetail() {
           onRejectReasonChange={setRejectReason}
           onApprove={handleApprovePayment}
           onReject={handleRejectPayment}
+        />
+      )}
+
+      {app.payment?.status === 'approved' && (
+        <FeeReceiptSection
+          app={app}
+          receiptError={receiptError}
+          receiptBusy={receiptBusy}
+          onViewReceipt={handleViewReceipt}
+          onGenerateReceipt={handleGenerateReceipt}
         />
       )}
 
