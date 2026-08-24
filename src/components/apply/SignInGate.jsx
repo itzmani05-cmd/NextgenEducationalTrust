@@ -1,12 +1,22 @@
 import { useState } from 'react'
-import { Landmark, Building2, GraduationCap, LogIn, FileText, UploadCloud, BadgeCheck } from 'lucide-react'
+import { LogIn, FileText, UploadCloud, BadgeCheck } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import GoogleIcon from '../GoogleIcon.jsx'
 
-const exams = [
-  { icon: Landmark, title: 'State Government Service Examinations' },
-  { icon: Building2, title: 'Central Government Service Examinations' },
-  { icon: GraduationCap, title: 'GATE Preparation' },
+const documents = [
+  { title: 'Student Photograph' },
+  { title: 'Identity Document' },
+  { title: '10th Mark Sheet' },
+  { title: '12th Mark Sheet' },
+  { title: 'Latest College Mark Sheet' },
+  { title: 'Government-issued Income Certificate' },
+  { title: "Father's / Mother's Death Certificate", conditional: true },
+  { title: 'Single-Parent Supporting Proof', conditional: true },
+  { title: 'Diploma Mark Sheet', conditional: true },
+  { title: 'Tamil-Medium Evidence', conditional: true },
+  { title: 'SC/ST Community Certificate', conditional: true },
+  { title: 'Financial Self-Support Evidence', conditional: true },
+  { title: 'Existing Scholarship Proof', conditional: true },
 ]
 
 const steps = [
@@ -48,17 +58,20 @@ export default function SignInGate() {
             program for competitive government and GATE examinations.
           </p>
 
-          <h2 className="text-sm font-bold text-brand-ink uppercase tracking-wide mb-3">Exams We Offer</h2>
-          <div className="space-y-2 mb-8">
-            {exams.map(({ icon: Icon, title }) => (
-              <div key={title} className="flex items-center gap-3 bg-white border border-brand-border rounded-lg px-4 py-3">
-                <div className="w-9 h-9 rounded-lg bg-brand-rust/10 text-brand-rust flex items-center justify-center shrink-0">
-                  <Icon className="w-4.5 h-4.5" />
-                </div>
+          <h2 className="text-sm font-bold text-brand-ink uppercase tracking-wide mb-3">Documents You&apos;ll Need</h2>
+          <div className="space-y-2 mb-2">
+            {documents.map(({ title, conditional }) => (
+              <div key={title} className="flex items-center justify-between gap-3 bg-white border border-brand-border rounded-lg px-4 py-3">
                 <span className="text-sm font-medium text-brand-text">{title}</span>
+                {conditional && (
+                  <span className="text-xs text-brand-muted shrink-0">(if applicable)</span>
+                )}
               </div>
             ))}
           </div>
+          <p className="text-xs text-brand-muted mb-8">
+            The Trust may request an additional supporting certificate if any submitted document needs further verification.
+          </p>
 
           <h2 className="text-sm font-bold text-brand-ink uppercase tracking-wide mb-3">Application Steps</h2>
           <div className="space-y-3">

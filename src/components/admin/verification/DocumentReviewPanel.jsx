@@ -6,6 +6,7 @@ export default function DocumentReviewPanel({
   signedUrl,
   signedUrlLoading,
   selectedDocHasFile,
+  selectedDocIsPdf,
   comment,
   onCommentChange,
   selectedReview,
@@ -35,7 +36,10 @@ export default function DocumentReviewPanel({
         {selectedDocHasFile && signedUrlLoading && (
           <p className="text-sm text-brand-muted">{enOnly('admin.verification.loadingDocument')}</p>
         )}
-        {selectedDocHasFile && !signedUrlLoading && signedUrl && (
+        {selectedDocHasFile && !signedUrlLoading && signedUrl && selectedDocIsPdf && (
+          <iframe src={signedUrl} title={selectedDocMeta ? enOnly(selectedDocMeta.labelKey) : 'Document preview'} className="w-full h-full rounded-lg" />
+        )}
+        {selectedDocHasFile && !signedUrlLoading && signedUrl && !selectedDocIsPdf && (
           <img src={signedUrl} alt="" className="max-h-full max-w-full object-contain rounded-lg" />
         )}
         {selectedDocHasFile && !signedUrlLoading && !signedUrl && (

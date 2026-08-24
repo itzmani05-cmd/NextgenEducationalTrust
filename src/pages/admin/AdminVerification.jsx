@@ -201,7 +201,9 @@ export default function AdminVerification() {
     return <div className="max-w-6xl 3xl:max-w-[1500px] 4xl:max-w-[1800px] 5xl:max-w-[2000px] 6xl:max-w-[2300px] mx-auto px-6 py-10 text-brand-muted">{enOnly('admin.common.loading')}</div>
   }
 
-  const selectedDocHasFile = selectedDoc ? Boolean(getPath(app, getDocumentFieldPath(selectedDoc))) : false
+  const selectedDocPath = selectedDoc ? getPath(app, getDocumentFieldPath(selectedDoc)) : null
+  const selectedDocHasFile = Boolean(selectedDocPath)
+  const selectedDocIsPdf = typeof selectedDocPath === 'string' && selectedDocPath.toLowerCase().endsWith('.pdf')
   const selectedReview = app.documentReviews?.[selectedDoc]
   const selectedDocMeta = docs.find((d) => d.key === selectedDoc)
 
@@ -238,6 +240,7 @@ export default function AdminVerification() {
               signedUrl={signedUrl}
               signedUrlLoading={signedUrlLoading}
               selectedDocHasFile={selectedDocHasFile}
+              selectedDocIsPdf={selectedDocIsPdf}
               comment={comment}
               onCommentChange={setComment}
               selectedReview={selectedReview}
