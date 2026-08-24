@@ -37,9 +37,7 @@ export default function FocusSection() {
                 <div className="w-11 h-11 rounded-lg bg-brand-rust/10 text-brand-rust flex items-center justify-center shrink-0">
                   <Icon className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-semibold text-brand-rust tracking-wide">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
+                
               </div>
               <h3 className="font-serif text-lg text-brand-ink mb-2">{title}</h3>
               <p className="text-brand-muted text-sm leading-relaxed">{desc}</p>
