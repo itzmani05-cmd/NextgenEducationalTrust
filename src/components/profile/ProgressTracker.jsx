@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import {
-  Award, CheckCircle2, Circle, Clock, FileText, Percent, ShieldCheck, Wallet, XCircle,
+  CheckCircle2, Circle, Clock, FileText, Percent, ShieldCheck, Wallet, XCircle,
 } from 'lucide-react'
 
 const STEP_ICONS = {
@@ -21,7 +21,6 @@ export default function ProgressTracker({ application }) {
   const verificationDone = !['submitted', 'under_review'].includes(application.status)
   const concessionApproved = application.finalApprovedConcession != null
   const payment = application.payment
-  const certificate = application.certificate
 
   let paymentState = 'pending'
   let paymentSubtitle = 'Not started'
@@ -54,12 +53,6 @@ export default function ProgressTracker({ application }) {
       subtitle: concessionApproved ? `Approved — ${application.finalApprovedConcession}%` : 'Pending',
     },
     { state: paymentState, icon: Wallet, title: 'Payment', subtitle: paymentSubtitle },
-    {
-      state: certificate ? 'done' : 'pending',
-      icon: Award,
-      title: 'Certificate',
-      subtitle: certificate ? 'Available' : 'Not available',
-    },
   ]
 
   return (

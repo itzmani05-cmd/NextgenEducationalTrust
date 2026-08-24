@@ -131,7 +131,7 @@ function PaymentContent({ accessToken }) {
           tone="green"
           icon={CheckCircle2}
           title="Payment Verified Successfully"
-          desc="Your certificate is now available."
+          desc="Your scholarship payment has been confirmed."
         />
         <SummaryCard application={application} amountDue={amountDue} payment={payment} />
         {receiptError && <p className="text-sm text-brand-red mt-4">{receiptError}</p>}
@@ -140,7 +140,7 @@ function PaymentContent({ accessToken }) {
             to="/profile"
             className="inline-flex items-center gap-2 bg-brand-red text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:bg-brand-redDark transition-colors"
           >
-            View Certificate
+            Back to Profile
           </Link>
           <button
             type="button"

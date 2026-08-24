@@ -4,7 +4,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext.jsx'
 import {
   getApplication, updateApplicationStatus, deleteApplication, updateConcession,
   getPaymentProofSignedUrl, approvePayment, rejectPayment,
-  generateCertificate, getCertificateSignedUrlAdmin, downloadApplicationPdf, AuthError,
+  downloadApplicationPdf, AuthError,
   getFeeReceiptSignedUrlAdmin, generateFeeReceipt,
 } from '../../utils/adminApi.js'
 import { getAllRequiredDocuments } from '../../utils/documentChecklist.js'
@@ -14,7 +14,6 @@ import ApplicantHeader from '../../components/admin/application-detail/Applicant
 import ActionsBar from '../../components/admin/application-detail/ActionsBar.jsx'
 import ConcessionPanel from '../../components/admin/application-detail/ConcessionPanel.jsx'
 import PaymentVerificationSection from '../../components/admin/application-detail/PaymentVerificationSection.jsx'
-import CertificateSection from '../../components/admin/application-detail/CertificateSection.jsx'
 import FeeReceiptSection from '../../components/admin/application-detail/FeeReceiptSection.jsx'
 import DownloadApplicationSection from '../../components/admin/application-detail/DownloadApplicationSection.jsx'
 import StudentInfoSections from '../../components/admin/application-detail/StudentInfoSections.jsx'
@@ -55,8 +54,6 @@ export default function AdminApplicationDetail() {
   const [showRejectPaymentForm, setShowRejectPaymentForm] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
   const [proofLoading, setProofLoading] = useState(false)
-  const [certBusy, setCertBusy] = useState(false)
-  const [certError, setCertError] = useState('')
   const [receiptBusy, setReceiptBusy] = useState(false)
   const [receiptError, setReceiptError] = useState('')
   const [downloadBusy, setDownloadBusy] = useState(false)
@@ -173,7 +170,7 @@ export default function AdminApplicationDetail() {
   }
 
   const handleApprovePayment = async () => {
-    if (!window.confirm('Approve this payment? A certificate will be issued automatically once approved.')) return
+    if (!window.confirm('Approve this payment?')) return
     setPaymentBusy(true)
     setPaymentError('')
     try {
@@ -204,34 +201,6 @@ export default function AdminApplicationDetail() {
       setPaymentError(err.message || 'Failed to reject payment.')
     } finally {
       setPaymentBusy(false)
-    }
-  }
-
-  const handleGenerateCertificate = async () => {
-    setCertBusy(true)
-    setCertError('')
-    try {
-      const certificate = await generateCertificate(token, id)
-      setApp((prev) => ({ ...prev, certificate, status: 'certificate_issued' }))
-    } catch (err) {
-      if (err instanceof AuthError) return logout()
-      setCertError(err.message || 'Failed to generate certificate.')
-    } finally {
-      setCertBusy(false)
-    }
-  }
-
-  const handleViewCertificate = async () => {
-    setCertBusy(true)
-    setCertError('')
-    try {
-      const { url } = await getCertificateSignedUrlAdmin(token, id)
-      window.open(url, '_blank', 'noopener,noreferrer')
-    } catch (err) {
-      if (err instanceof AuthError) return logout()
-      setCertError(err.message || 'Failed to open certificate.')
-    } finally {
-      setCertBusy(false)
     }
   }
 
@@ -316,8 +285,8 @@ export default function AdminApplicationDetail() {
   }).length
   const verificationComplete = docs.length > 0 && reviewedCount === docs.length
   // True once the application has been accepted, whether or not it has since
-  // moved further along into the payment/certificate stages — used to keep
-  // the Accept button and the concession panel correct at every later status.
+  // moved further along into the payment stages — used to keep the Accept
+  // button and the concession panel correct at every later status.
   const acceptedOrBeyond = !['submitted', 'under_review', 'rejected'].includes(app.status)
   const paymentApproved = app.payment?.status === 'approved'
 
@@ -378,16 +347,6 @@ export default function AdminApplicationDetail() {
           receiptBusy={receiptBusy}
           onViewReceipt={handleViewReceipt}
           onGenerateReceipt={handleGenerateReceipt}
-        />
-      )}
-
-      {app.payment?.status === 'approved' && (
-        <CertificateSection
-          app={app}
-          certError={certError}
-          certBusy={certBusy}
-          onViewCertificate={handleViewCertificate}
-          onGenerateCertificate={handleGenerateCertificate}
         />
       )}
 

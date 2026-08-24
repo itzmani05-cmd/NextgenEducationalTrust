@@ -11,7 +11,7 @@ marked **(required)**; fields that only appear based on an earlier answer are ma
 
 | Field | Notes |
 |---|---|
-| Which Course Are You Applying For? | **(required)** SDP - State Govt Exam / SDP - Central Govt Exam / SDP - Gate Exam. "SDP" (Skill Development Program) is shown as a hover-tooltip abbreviation. Sets the application's exam category/name used later in admin review and certificate numbering. |
+| Which Course Are You Applying For? | **(required)** SDP - State Govt Exam / SDP - Central Govt Exam / SDP - Gate Exam. "SDP" (Skill Development Program) is shown as a hover-tooltip abbreviation. Sets the application's exam category/name used later in admin review. |
 | Full Name | **(required)** Pre-filled from the applicant's Google account, but editable. Shown with the example "e.g. Manikandan K. — ends with initial" |
 | Date of Birth | **(required)** |
 | Gender | **(required)** Male / Female / Other |

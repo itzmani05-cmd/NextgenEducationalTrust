@@ -86,14 +86,6 @@ export function generateFeeReceipt(token, id) {
   return request(`/api/applications/${id}/payment/receipt/generate`, { token, method: 'POST' })
 }
 
-export function generateCertificate(token, id) {
-  return request(`/api/applications/${id}/certificate/generate`, { token, method: 'POST' })
-}
-
-export function getCertificateSignedUrlAdmin(token, id) {
-  return request(`/api/applications/${id}/certificate/signed-url`, { token })
-}
-
 export function updateDocumentReview(token, id, docKey, status, comment) {
   return request(`/api/applications/${id}/documents/${encodeURIComponent(docKey)}`, {
     token,

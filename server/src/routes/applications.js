@@ -10,16 +10,15 @@ import {
 } from '../documentFieldPatch.js'
 import { getProvisional } from '../scholarshipCalc.js'
 import { logAudit } from '../audit.js'
-import { issueCertificateForApplication } from '../certificate.js'
 import { issueFeeReceiptForPayment } from '../studentFeeReceipt.js'
 import { renderApplicationPdf } from '../applicationPdf.js'
 
 const router = Router()
 
 // Only 'approved'/'rejected'/'under_review' are settable via the generic
-// PATCH /:id/status route below — the payment_* and certificate_issued
-// states are only ever reached through their dedicated endpoints further
-// down, each with its own validation, so the state machine can't be skipped.
+// PATCH /:id/status route below — the payment_* states are only ever
+// reached through their dedicated endpoints further down, each with its own
+// validation, so the state machine can't be skipped.
 const STATUS_VALUES = ['submitted', 'under_review', 'approved', 'rejected']
 const DOC_STATUS_VALUES = ['pending', 'approved', 'rejected']
 const PAYMENT_METHODS = ['upi', 'bank_transfer', 'other']
@@ -71,7 +70,7 @@ router.get('/mine', requireApplicantAuth, async (req, res) => {
     const application = await prisma.application.findFirst({
       where: { authUserId: req.authUser.id },
       orderBy: { createdAt: 'desc' },
-      include: { payment: true, certificate: true },
+      include: { payment: true },
     })
     res.json({ application: application || null })
   } catch (err) {
@@ -96,7 +95,7 @@ router.post('/lookup', async (req, res) => {
         mobile: String(mobile).trim(),
         email: { equals: String(email).trim(), mode: 'insensitive' },
       },
-      include: { payment: true, certificate: true },
+      include: { payment: true },
     })
 
     if (matches.length !== 1) {
@@ -132,9 +131,9 @@ router.post('/lookup', async (req, res) => {
       concession: app.finalApprovedConcession != null
         ? { category: app.concessionCategory, percentage: app.finalApprovedConcession }
         : null,
-      // Read-only summary — no proof/certificate file paths. Submitting a
-      // payment or downloading the certificate requires signing in (see
-      // /profile and /payment), since those need requireApplicantAuth.
+      // Read-only summary — no proof/document file paths. Submitting a
+      // payment requires signing in (see /profile and /payment), since that
+      // needs requireApplicantAuth.
       payment: app.payment
         ? {
           status: app.payment.status,
@@ -143,9 +142,6 @@ router.post('/lookup', async (req, res) => {
           rejectionReason: app.payment.rejectionReason,
           verifiedAt: app.payment.verifiedAt,
         }
-        : null,
-      certificate: app.certificate
-        ? { certificateNumber: app.certificate.certificateNumber, issuedAt: app.certificate.issuedAt }
         : null,
     })
   } catch (err) {
@@ -173,7 +169,7 @@ router.get('/:id', requireAdmin, async (req, res) => {
   try {
     const application = await prisma.application.findUnique({
       where: { id: req.params.id },
-      include: { payment: true, certificate: true },
+      include: { payment: true },
     })
     if (!application) return res.status(404).json({ error: 'Application not found.' })
     res.json(application)
@@ -375,7 +371,7 @@ router.get('/:id/documents/:docKey/signed-url', requireAdmin, async (req, res) =
 })
 
 // ---------------------------------------------------------------------------
-// Payment + certificate workflow
+// Payment workflow
 // ---------------------------------------------------------------------------
 
 // Student submits (or resubmits, after a rejection) their payment details.
@@ -457,7 +453,7 @@ router.post('/:id/payment', requireApplicantAuth, upload.single('proof'), async 
     const updated = await prisma.application.update({
       where: { id: application.id },
       data: { status: 'payment_submitted' },
-      include: { payment: true, certificate: true },
+      include: { payment: true },
     })
 
     res.json(updated)
@@ -484,7 +480,7 @@ router.get('/:id/payment/proof-signed-url', requireAdmin, async (req, res) => {
 })
 
 // Either the Trust (admin) or the payment's own applicant can download the
-// fee receipt, same access pattern as the certificate below.
+// fee receipt.
 router.get(
   '/:id/payment/receipt-signed-url',
   requireAdminOrOwner(async (req) => {
@@ -547,9 +543,9 @@ router.patch('/:id/payment/approve', requireAdmin, async (req, res) => {
       action: 'PAYMENT_APPROVED', oldStatus: 'payment_submitted', newStatus: 'payment_approved',
     })
 
-    // Fee receipt generation is best-effort here too, for the same reason as
-    // the certificate below — it itemizes the course fee/discount/amount
-    // paid, distinct from the Certificate's formal concession statement.
+    // Fee receipt generation is best-effort here: payment approval itself is
+    // already committed and correct even if PDF/storage hiccups — an admin
+    // can retry via POST /:id/payment/receipt/generate.
     let updatedPaymentWithReceipt = updatedPayment
     try {
       const { payment: withReceipt } = await issueFeeReceiptForPayment(updatedApplication, updatedPayment)
@@ -562,25 +558,7 @@ router.patch('/:id/payment/approve', requireAdmin, async (req, res) => {
       console.error('Payment approved but fee receipt generation failed:', receiptErr)
     }
 
-    // Certificate generation is best-effort here: payment approval itself is
-    // already committed and correct even if PDF/storage hiccups — an admin
-    // can retry via POST /:id/certificate/generate.
-    let certificate = null
-    try {
-      certificate = await issueCertificateForApplication(updatedApplication, updatedPaymentWithReceipt, req.admin.email)
-      updatedApplication = await prisma.application.update({
-        where: { id: application.id },
-        data: { status: 'certificate_issued' },
-      })
-      await logAudit({
-        adminEmail: req.admin.email, applicationId: application.id,
-        action: 'CERTIFICATE_ISSUED', newValue: { certificateNumber: certificate.certificateNumber },
-      })
-    } catch (certErr) {
-      console.error('Payment approved but certificate generation failed:', certErr)
-    }
-
-    res.json({ ...updatedApplication, payment: updatedPaymentWithReceipt, certificate })
+    res.json({ ...updatedApplication, payment: updatedPaymentWithReceipt })
   } catch (err) {
     console.error('Failed to approve payment:', err)
     res.status(500).json({ error: 'Failed to approve payment.' })
@@ -655,64 +633,6 @@ router.post('/:id/payment/receipt/generate', requireAdmin, async (req, res) => {
     res.status(500).json({ error: 'Failed to generate fee receipt.' })
   }
 })
-
-// Manual/idempotent trigger — normally certificates are issued automatically
-// the moment a payment is approved (see above); this exists to retry after a
-// transient failure there, or to re-fetch an already-issued certificate.
-router.post('/:id/certificate/generate', requireAdmin, async (req, res) => {
-  try {
-    const application = await prisma.application.findUnique({
-      where: { id: req.params.id },
-      include: { payment: true, certificate: true },
-    })
-    if (!application) return res.status(404).json({ error: 'Application not found.' })
-    if (!application.payment || application.payment.status !== 'approved') {
-      return res.status(400).json({ error: 'A certificate can only be issued after payment has been approved.' })
-    }
-
-    const alreadyExisted = Boolean(application.certificate)
-    const certificate = await issueCertificateForApplication(application, application.payment, req.admin.email)
-
-    if (!alreadyExisted) {
-      await prisma.application.update({ where: { id: application.id }, data: { status: 'certificate_issued' } })
-      await logAudit({
-        adminEmail: req.admin.email, applicationId: application.id,
-        action: 'CERTIFICATE_ISSUED', newValue: { certificateNumber: certificate.certificateNumber },
-      })
-    }
-
-    res.json(certificate)
-  } catch (err) {
-    console.error('Failed to generate certificate:', err)
-    res.status(500).json({ error: 'Failed to generate certificate.' })
-  }
-})
-
-// Either the Trust (admin) or the certificate's own applicant can download it.
-router.get(
-  '/:id/certificate/signed-url',
-  requireAdminOrOwner(async (req) => {
-    const application = await prisma.application.findUnique({ where: { id: req.params.id } })
-    return application?.authUserId || null
-  }),
-  async (req, res) => {
-    try {
-      const certificate = await prisma.certificate.findUnique({ where: { applicationId: req.params.id } })
-      if (!certificate?.certificatePath) return res.status(404).json({ error: 'Certificate not available yet.' })
-
-      const supabase = getSupabaseAdmin()
-      const { data, error } = await supabase.storage
-        .from(STORAGE_BUCKET)
-        .createSignedUrl(certificate.certificatePath, 30 * 60)
-      if (error) throw error
-
-      res.json({ url: data.signedUrl, certificateNumber: certificate.certificateNumber, issuedAt: certificate.issuedAt })
-    } catch (err) {
-      console.error('Failed to create certificate signed URL:', err)
-      res.status(500).json({ error: 'Failed to create signed URL.' })
-    }
-  },
-)
 
 // Full application record as a PDF, for the Trust to keep or share offline.
 // Only available once payment has been approved — before that the record is
@@ -807,7 +727,7 @@ router.get('/:id/application-pdf', requireAdmin, async (req, res) => {
   try {
     const application = await prisma.application.findUnique({
       where: { id: req.params.id },
-      include: { payment: true, certificate: true },
+      include: { payment: true },
     })
     if (!application) return res.status(404).json({ error: 'Application not found.' })
     if (!application.payment || application.payment.status !== 'approved') {

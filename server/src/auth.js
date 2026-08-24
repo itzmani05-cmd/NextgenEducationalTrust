@@ -58,7 +58,7 @@ export function requireAdmin(req, res, next) {
 }
 
 // Allows either an admin token or the Supabase-authenticated owner of the
-// resource through — used for endpoints (certificate download) both sides
+// resource through — used for endpoints (fee receipt download) both sides
 // legitimately need to read. `getOwnerAuthUserId(req)` resolves the resource's
 // owning authUserId; access is denied if it doesn't match the caller.
 export function requireAdminOrOwner(getOwnerAuthUserId) {

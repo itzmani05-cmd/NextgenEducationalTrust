@@ -11,7 +11,6 @@ import ApplicationReferenceCard from '../components/profile/ApplicationReference
 import ApprovalCard from '../components/profile/ApprovalCard.jsx'
 import ProgressTracker from '../components/profile/ProgressTracker.jsx'
 import PaymentStatusLink from '../components/profile/PaymentStatusLink.jsx'
-import CertificateCard from '../components/profile/CertificateCard.jsx'
 
 export default function Profile() {
   const { user, loading: authLoading, accessToken, signOut } = useAuth()
@@ -69,16 +68,6 @@ function ProfileContent({ user, accessToken, signOut }) {
             )}
 
             <PaymentStatusLink payment={application.payment} />
-
-            {application.certificate && (
-              <div className="mb-6">
-                <CertificateCard
-                  applicationId={application.id}
-                  accessToken={accessToken}
-                  certificate={application.certificate}
-                />
-              </div>
-            )}
 
             {application.finalApprovedConcession != null && !showApprovalScreen && (
               <p className="text-sm text-brand-muted mb-6">

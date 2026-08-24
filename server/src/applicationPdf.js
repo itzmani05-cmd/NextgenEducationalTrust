@@ -197,12 +197,6 @@ export function renderApplicationPdf(app) {
       }
     }
 
-    if (app.certificate) {
-      section(doc, 'Certificate')
-      row(doc, 'Certificate Number', app.certificate.certificateNumber)
-      row(doc, 'Issued At', date(app.certificate.issuedAt))
-    }
-
     section(doc, 'Declaration')
     row(doc, 'Declaration Accepted', app.declarationAccepted)
 

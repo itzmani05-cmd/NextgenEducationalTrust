@@ -4,7 +4,6 @@ import StatusLookupForm from '../components/status-check/StatusLookupForm.jsx'
 import ApplicationSummaryCard from '../components/status-check/ApplicationSummaryCard.jsx'
 import ConcessionCard from '../components/status-check/ConcessionCard.jsx'
 import PaymentCard from '../components/status-check/PaymentCard.jsx'
-import CertificateBanner from '../components/status-check/CertificateBanner.jsx'
 import DocumentsSection from '../components/status-check/DocumentsSection.jsx'
 
 export default function StatusCheck() {
@@ -49,7 +48,6 @@ export default function StatusCheck() {
             <ApplicationSummaryCard app={app} />
             {app.concession && <ConcessionCard concession={app.concession} />}
             {app.payment && <PaymentCard payment={app.payment} />}
-            {app.certificate && <CertificateBanner certificate={app.certificate} />}
             <DocumentsSection app={app} onReupload={refresh} />
           </div>
         )}

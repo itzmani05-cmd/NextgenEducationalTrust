@@ -10,7 +10,6 @@ const FILTERS = [
   { value: 'payment_submitted', labelKey: 'admin.applications.filterPaymentSubmitted' },
   { value: 'payment_approved', labelKey: 'admin.applications.filterPaymentApproved' },
   { value: 'payment_rejected', labelKey: 'admin.applications.filterPaymentRejected' },
-  { value: 'certificate_issued', labelKey: 'admin.applications.filterCertificateIssued' },
 ]
 
 export default function FiltersBar({ statusFilter, onStatusFilterChange, search, onSearchChange }) {
