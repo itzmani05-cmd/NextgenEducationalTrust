@@ -7,8 +7,6 @@ export const BASIC_DOCUMENTS = [
 ]
 
 export function getConditionalDocuments(data) {
-  const bothGovtSchool =
-    data.tenth.schoolType === 'government' && data.twelfth.schoolType === 'government'
   const isScSt = data.socialCategory === 'SC/ST'
 
   return [
@@ -18,7 +16,6 @@ export function getConditionalDocuments(data) {
     { key: 'incomeCertificate', labelKey: 'step5.incomeCertificate' },
     data.hasDiploma === 'yes' && { key: 'diplomaMarkSheet', labelKey: 'step5.diplomaMarkSheet' },
     data.tamilMediumTill12 === 'yes' && { key: 'tamilMediumEvidence', labelKey: 'step5.tamilEvidence' },
-    bothGovtSchool && { key: 'govtSchoolEvidence', labelKey: 'step5.govtSchoolEvidence' },
     isScSt && { key: 'communityCertificate', labelKey: 'step5.scCert' },
     data.selfEarning === 'yes' && { key: 'selfIncomeDoc', labelKey: 'step5.selfSupportEvidence' },
     data.existingScholarship === 'yes' && { key: 'scholarshipDoc', labelKey: 'step5.scholarshipProof' },

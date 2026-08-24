@@ -22,7 +22,6 @@ export const DOCUMENT_LABELS = [
   ['incomeCertificate', 'Income Certificate'],
   ['diplomaMarkSheet', 'Diploma Mark Sheet'],
   ['tamilMediumEvidence', 'Tamil-Medium Evidence'],
-  ['govtSchoolEvidence', 'Government-School Evidence'],
   ['communityCertificate', 'SC/ST Community Certificate'],
   ['selfIncomeDoc', 'Financial Self-Support Evidence'],
   ['scholarshipDoc', 'Existing Scholarship Proof'],

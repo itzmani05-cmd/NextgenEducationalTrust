@@ -14,9 +14,6 @@ const SEMESTER_OPTIONS = Array.from({ length: 10 }, (_, i) => i + 1).map((n) => 
 }))
 
 export default function Step4Education({ data, setField }) {
-  const bothGovtSchool =
-    data.tenth.schoolType === 'government' && data.twelfth.schoolType === 'government'
-
   const schoolTypes = [
     { value: 'government', label: bi('step3.govtSchool') },
     { value: 'govt_aided', label: bi('step3.govtAided') },
@@ -95,15 +92,6 @@ export default function Step4Education({ data, setField }) {
           file={data.twelfth.markSheet}
           onChange={(f) => setField('twelfth.markSheet', f)}
         />
-
-        {bothGovtSchool && (
-          <UploadField
-            label={bi('step3.govtEvidence')}
-            helper={bi('step3.govtEvidenceHelper')}
-            file={data.govtSchoolEvidence}
-            onChange={(f) => setField('govtSchoolEvidence', f)}
-          />
-        )}
       </SectionCard>
 
       <SectionCard title={bi('step3.collegeTitle')}>

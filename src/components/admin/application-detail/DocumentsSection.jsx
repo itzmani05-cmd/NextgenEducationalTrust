@@ -16,7 +16,6 @@ export default function DocumentsSection({ app, token, logout }) {
     { label: enOnly('admin.detail.docs.incomeCertificate'), docKey: 'incomeCertificate', hasFile: Boolean(app.incomeCertificateUrl) },
     { label: enOnly('admin.detail.docs.diplomaMarkSheet'), docKey: 'diplomaMarkSheet', hasFile: Boolean(app.diplomaMarkSheetUrl) },
     { label: enOnly('admin.detail.docs.tamilEvidence'), docKey: 'tamilMediumEvidence', hasFile: Boolean(app.tamilMediumEvidenceUrl) },
-    { label: enOnly('admin.detail.docs.govtSchoolEvidence'), docKey: 'govtSchoolEvidence', hasFile: Boolean(app.govtSchoolEvidenceUrl) },
     { label: enOnly('admin.detail.docs.communityCertificate'), docKey: 'communityCertificate', hasFile: Boolean(app.communityCertificateUrl) },
     { label: enOnly('admin.detail.docs.selfSupportEvidence'), docKey: 'selfIncomeDoc', hasFile: Boolean(app.selfIncomeDocUrl) },
     { label: enOnly('admin.detail.docs.scholarshipProof'), docKey: 'scholarshipDoc', hasFile: Boolean(app.scholarshipDocUrl) },

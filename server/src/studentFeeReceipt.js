@@ -121,10 +121,12 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     )
 
     doc.y = Math.min(Math.max(doc.y + 40, doc.page.height - 160), doc.page.height - 100)
-    drawSignature(doc, 350, doc.y)
-    doc.fontSize(10).fillColor('#222').font('Helvetica')
-    doc.text('For, NEXTGEN SOLUTIONS EDUCATIONAL TRUST', 350, doc.y + 16, { width: 200 })
-    doc.text('Authorized Signatory', 350, doc.y + 32)
+    const sigX = 290
+    const sigWidth = doc.page.width - doc.page.margins.right - sigX
+    drawSignature(doc, sigX, doc.y)
+    doc.fontSize(9.5).fillColor('#222').font('Helvetica')
+    doc.text('For, NEXTGEN SOLUTIONS EDUCATIONAL TRUST', sigX, doc.y + 16, { width: sigWidth, lineBreak: false })
+    doc.text('Managing Trustee / Authorized Signatory', sigX, doc.y + 32, { width: sigWidth, lineBreak: false })
 
     doc.fontSize(7.5).fillColor('#999').font('Helvetica').text(
       'This receipt confirms a fee payment recorded in the NEXTGEN SOLUTIONS EDUCATIONAL TRUST scholarship portal.',

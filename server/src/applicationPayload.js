@@ -29,7 +29,7 @@ const JSON_FIELDS = ['tenth', 'twelfth', 'college']
 // Storage upload is wired up); Prisma stores the eventual URL under `${key}Url`.
 export const FILE_FIELDS = [
   'fatherDeathCert', 'motherDeathCert', 'supportingDocument', 'incomeCertificate',
-  'selfIncomeDoc', 'communityCertificate', 'scholarshipDoc', 'govtSchoolEvidence',
+  'selfIncomeDoc', 'communityCertificate', 'scholarshipDoc',
   'diplomaMarkSheet', 'tamilMediumEvidence', 'studentPhoto', 'identityDocument',
   'educationalCertificates',
 ]

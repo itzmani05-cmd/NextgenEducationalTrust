@@ -40,7 +40,6 @@ const initialData = {
   // Step 4
   tenth: { schoolName: '', schoolType: '', percentage: '', markSheet: null },
   twelfth: { schoolName: '', schoolType: '', percentage: '', markSheet: null },
-  govtSchoolEvidence: null,
   college: {
     name: '', type: '', address: '', rollNumber: '', degree: '', branch: '', year: '',
     semester: '', academicYear: '', gradYear: '', cgpa: '',

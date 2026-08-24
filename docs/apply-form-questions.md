@@ -92,7 +92,6 @@ marked **(required)**; fields that only appear based on an earlier answer are ma
 | Percentage | **(required)** |
 | Where did you study 12th? | **(required)** Government School / Government Aided / Private / Other |
 | 12th Mark Sheet (upload) | **(required)** |
-| Government School Evidence (upload) | **(conditional, optional — shown if both 10th and 12th were Government School)** e.g. school transfer certificate |
 
 ### Current College / Institution
 | Field | Notes |
@@ -157,7 +156,6 @@ are collected together on this step.
 - Income Certificate — every applicant
 - Diploma Mark Sheet — if diploma held
 - Tamil-Medium Evidence — if Tamil medium through 10th/12th
-- Government-School Evidence — if both 10th and 12th were government schools
 - Community Certificate — if Scheduled Caste
 - Financial Self-Support Evidence — if self-earning
 - Existing Scholarship Proof — if already receiving another scholarship
