@@ -95,7 +95,7 @@ export default function ConcessionPanel({
             value={courseFee}
             onChange={(e) => onCourseFeeChange(e.target.value)}
             placeholder="e.g. 20000"
-            className="w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy transition-colors"
+            className="w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy transition-colors"
           />
         </label>
         <label className="block">
@@ -106,7 +106,7 @@ export default function ConcessionPanel({
             max="100"
             value={finalAmount}
             onChange={(e) => onFinalAmountChange(e.target.value)}
-            className="w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy transition-colors"
+            className="w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy transition-colors"
           />
         </label>
       </div>
@@ -125,7 +125,7 @@ export default function ConcessionPanel({
           onChange={(e) => onConcessionNoteChange(e.target.value)}
           rows={3}
           placeholder={enOnly('admin.detail.rationalePlaceholder')}
-          className="w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy transition-colors resize-none"
+          className="w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy transition-colors resize-none"
         />
       </label>
 

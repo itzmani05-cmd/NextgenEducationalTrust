@@ -104,7 +104,7 @@ function renderReceiptPdf({ receiptNumber, donation, issuedAt }) {
 
     doc.moveDown(1.4)
     const rows = [
-      ['Received with thanks from', donation.fullName],
+      ['Received with thanks from', String(donation.fullName || '').toUpperCase()],
       ['Email', donation.email],
       ['Mobile', donation.mobile],
       ['PAN', donation.pan || 'Not provided'],

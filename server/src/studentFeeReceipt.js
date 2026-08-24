@@ -54,7 +54,7 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     doc.moveDown(1.4)
     const courseName = application.examName || application.college?.degree || '—'
     const rows = [
-      ['Received from', application.fullName],
+      ['Received from', String(application.fullName || '').toUpperCase()],
       ['Course', courseName],
       ['Mobile', application.mobile],
       ['Email', application.email],
@@ -98,7 +98,7 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     doc.fontSize(11).fillColor('#1B2A4A').font('Helvetica-Bold').text('Payment Details', 50, doc.y)
     doc.moveDown(0.4)
     const payRows = [
-      ['Payment Mode', payment.paymentMethod || '—'],
+      ['Payment Mode', payment.paymentMethod ? payment.paymentMethod.replace(/_/g, ' ').toUpperCase() : '—'],
       ['Payment Date', payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'],
       ['UTR / Transaction ID', payment.transactionId || '—'],
       ['Purpose', `${courseName} Fee`],

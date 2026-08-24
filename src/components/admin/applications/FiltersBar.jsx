@@ -40,7 +40,7 @@ export default function FiltersBar({ statusFilter, onStatusFilterChange, search,
           placeholder={enOnly('admin.applications.searchPlaceholder')}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full rounded-lg border border-brand-border pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy"
+          className="w-full rounded-lg border border-brand-border pl-9 pr-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy"
         />
       </div>
     </div>

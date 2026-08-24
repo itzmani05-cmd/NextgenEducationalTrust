@@ -3,7 +3,7 @@ const QUICK_AMOUNTS = ['500', '1000', '2500', '5000']
 const PURPOSE_OPTIONS = ['General Fund', 'Scholarship Support', 'Event Sponsorship', 'Other']
 
 const inputClasses =
-  'w-full rounded-lg border border-brand-border bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-rust/30 focus:border-brand-rust transition-colors'
+  'w-full rounded-lg border border-brand-border bg-white px-3.5 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-rust/30 focus:border-brand-rust transition-colors'
 
 const labelClasses = 'block text-sm font-semibold text-brand-ink mb-1.5'
 

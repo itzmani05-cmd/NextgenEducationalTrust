@@ -21,7 +21,7 @@ export default function TextField({
         placeholder={placeholder}
         readOnly={readOnly}
         aria-readonly={readOnly}
-        className={`w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-sm placeholder:text-brand-muted/60 focus:outline-none transition-colors ${
+        className={`w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-base sm:text-sm placeholder:text-brand-muted/60 focus:outline-none transition-colors ${
           readOnly
             ? 'bg-brand-surface text-brand-muted cursor-not-allowed'
             : 'text-brand-text focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy'

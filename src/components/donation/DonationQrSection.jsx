@@ -5,6 +5,13 @@ import qrCode from '../../assests/QrPic.jpeg'
 const UPI_NUMBER = '6369925623'
 const ACCOUNT_NAME = 'Manikandan Muralikrishna'
 
+const BANK_NAME = 'City Union Bank'
+const BANK_ACCOUNT_NAME = 'NEXTGEN SOLUTIONS EDUCATIONAL TRUST'
+const BANK_ACCOUNT_NUMBER = '510909010405740'
+const BANK_IFSC = 'CIUB0000138'
+const BANK_BRANCH = 'Udumalpet'
+const BANK_ACCOUNT_TYPE = 'Current Account'
+
 export default function DonationQrSection() {
   const [copied, setCopied] = useState(false)
 
@@ -64,6 +71,38 @@ export default function DonationQrSection() {
               </div>
             </div>
             {copied && <p className="text-xs text-emerald-700 mt-3">Number copied to clipboard</p>}
+          </div>
+        </div>
+
+        <div className="border border-brand-border rounded-2xl p-8 md:p-10 mt-8">
+          <p className="text-xs font-semibold tracking-[0.15em] uppercase text-brand-muted mb-5 text-center sm:text-left">
+            Or Pay Via Bank Transfer
+          </p>
+          <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4">
+            <div>
+              <span className="block text-xs text-brand-muted mb-1">Bank Name</span>
+              <span className="text-sm font-semibold text-brand-ink">{BANK_NAME}</span>
+            </div>
+            <div>
+              <span className="block text-xs text-brand-muted mb-1">Account Name</span>
+              <span className="text-sm font-semibold text-brand-ink">{BANK_ACCOUNT_NAME}</span>
+            </div>
+            <div>
+              <span className="block text-xs text-brand-muted mb-1">Account Number</span>
+              <span className="text-sm font-semibold text-brand-ink">{BANK_ACCOUNT_NUMBER}</span>
+            </div>
+            <div>
+              <span className="block text-xs text-brand-muted mb-1">IFSC Code</span>
+              <span className="text-sm font-semibold text-brand-ink">{BANK_IFSC}</span>
+            </div>
+            <div>
+              <span className="block text-xs text-brand-muted mb-1">Branch</span>
+              <span className="text-sm font-semibold text-brand-ink">{BANK_BRANCH}</span>
+            </div>
+            <div>
+              <span className="block text-xs text-brand-muted mb-1">Account Type</span>
+              <span className="text-sm font-semibold text-brand-ink">{BANK_ACCOUNT_TYPE}</span>
+            </div>
           </div>
         </div>
       </div>

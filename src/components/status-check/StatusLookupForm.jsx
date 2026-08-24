@@ -23,7 +23,7 @@ export default function StatusLookupForm({ mobile, setMobile, email, setEmail, l
               type="tel"
               value={mobile}
               onChange={(e) => setMobile(e.target.value)}
-              className="w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy"
+              className="w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy"
             />
           </label>
           <label className="block">
@@ -32,7 +32,7 @@ export default function StatusLookupForm({ mobile, setMobile, email, setEmail, l
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy"
+              className="w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy"
             />
           </label>
         </div>

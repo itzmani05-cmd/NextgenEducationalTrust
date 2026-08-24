@@ -9,7 +9,7 @@ export default function AuthField({ icon: Icon, label, type = 'text', value, onC
           required={required}
           value={value}
           onChange={onChange}
-          className="w-full rounded-lg border border-brand-border pl-10 pr-3.5 py-2.5 text-sm text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy transition-colors"
+          className="w-full rounded-lg border border-brand-border pl-10 pr-3.5 py-2.5 text-base sm:text-sm text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy transition-colors"
         />
       </div>
     </label>

@@ -1,4 +1,8 @@
 import PDFDocument from 'pdfkit'
+import { DOCUMENT_LABELS } from './documentFieldPatch.js'
+
+const IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png'])
+const PDF_EXTS = new Set(['pdf'])
 
 function inr(n) {
   return n != null ? `Rs. ${Number(n).toLocaleString('en-IN')}` : '—'
@@ -34,16 +38,53 @@ function row(doc, label, value) {
   doc.moveDown(0.35)
 }
 
-function docRow(doc, label, present) {
+function docKeyPresent(app, docKey) {
+  if (docKey.includes('.')) {
+    const [parent, child] = docKey.split('.')
+    return Boolean(app[parent]?.[child])
+  }
+  return Boolean(app[`${docKey}Url`])
+}
+
+// Embeds an actual preview of the uploaded file directly under its row —
+// an inline thumbnail for images, or a pointer to the merged pages at the
+// end of the document for PDFs (pdfkit can't inline another PDF's pages;
+// the caller merges those in with pdf-lib after this buffer is built).
+function docRow(doc, label, present, attachment) {
   row(doc, label, present ? 'Uploaded' : 'Not uploaded')
+  if (!present) return
+
+  const noteX = doc.page.margins.left + 170
+  const ext = attachment?.ext
+
+  if (attachment?.buffer && IMAGE_EXTS.has(ext)) {
+    const maxSize = 150
+    if (doc.y + maxSize + 12 > doc.page.height - doc.page.margins.bottom) doc.addPage()
+    try {
+      doc.image(attachment.buffer, noteX, doc.y, { fit: [maxSize, maxSize] })
+      doc.y += maxSize + 10
+    } catch {
+      doc.fontSize(8.5).fillColor('#999').font('Helvetica-Oblique').text('(Could not render a preview for this image)', noteX, doc.y)
+      doc.moveDown(0.4)
+    }
+  } else if (PDF_EXTS.has(ext)) {
+    doc.fontSize(8.5).fillColor('#999').font('Helvetica-Oblique').text('(Attached as additional pages at the end of this document)', noteX, doc.y)
+    doc.moveDown(0.4)
+  } else if (ext) {
+    doc.fontSize(8.5).fillColor('#999').font('Helvetica-Oblique').text('(Uploaded — open separately, preview not available for this file type)', noteX, doc.y)
+    doc.moveDown(0.4)
+  }
 }
 
 // Renders the entire application record as a PDF — every field the applicant
 // submitted, plus current verification, concession, and payment status — for
 // the Trust admin team to keep or hand off offline. Generated fresh on every
 // request rather than stored, so it always reflects the latest admin
-// decisions (concession overrides, payment approval, etc).
-export function renderApplicationPdf(app) {
+// decisions (concession overrides, payment approval, etc). `attachments` is
+// an optional { [docKey]: { buffer, ext } } map of the actual uploaded files,
+// used to embed image previews inline (PDF attachments are merged in by the
+// caller after this buffer is built — see routes/applications.js).
+export function renderApplicationPdf(app, attachments = {}) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: 50 })
     const chunks = []
@@ -129,21 +170,9 @@ export function renderApplicationPdf(app) {
     row(doc, 'PSTM (Studied in Tamil Medium)', app.tamilMediumTill12)
 
     section(doc, 'Documents')
-    docRow(doc, 'Student Photograph', Boolean(app.studentPhotoUrl))
-    docRow(doc, 'Identity Document', Boolean(app.identityDocumentUrl))
-    docRow(doc, '10th Mark Sheet', Boolean(app.tenth?.markSheet))
-    docRow(doc, '12th Mark Sheet', Boolean(app.twelfth?.markSheet))
-    docRow(doc, 'Latest College Mark Sheet', Boolean(app.college?.markSheet))
-    docRow(doc, "Father's Death Certificate", Boolean(app.fatherDeathCertUrl))
-    docRow(doc, "Mother's Death Certificate", Boolean(app.motherDeathCertUrl))
-    docRow(doc, 'Single-Parent Proof', Boolean(app.supportingDocumentUrl))
-    docRow(doc, 'Income Certificate', Boolean(app.incomeCertificateUrl))
-    docRow(doc, 'Diploma Mark Sheet', Boolean(app.diplomaMarkSheetUrl))
-    docRow(doc, 'Tamil-Medium Evidence', Boolean(app.tamilMediumEvidenceUrl))
-    docRow(doc, 'Government-School Evidence', Boolean(app.govtSchoolEvidenceUrl))
-    docRow(doc, 'SC/ST Community Certificate', Boolean(app.communityCertificateUrl))
-    docRow(doc, 'Financial Self-Support Evidence', Boolean(app.selfIncomeDocUrl))
-    docRow(doc, 'Existing Scholarship Proof', Boolean(app.scholarshipDocUrl))
+    for (const [docKey, label] of DOCUMENT_LABELS) {
+      docRow(doc, label, docKeyPresent(app, docKey), attachments[docKey])
+    }
 
     section(doc, 'Concession Decision')
     row(doc, 'System-Calculated Concession', app.calculatedConcession != null ? `${app.calculatedConcession}%` : null)

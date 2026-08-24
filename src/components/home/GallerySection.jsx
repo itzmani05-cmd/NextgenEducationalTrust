@@ -17,11 +17,11 @@ export default function GallerySection() {
           <h2 className="font-serif text-2xl md:text-3xl text-brand-ink">Moments of Hope</h2>
         </div>
 
-        <div className="grid grid-cols-3 grid-rows-2 gap-4 h-[520px]">
+        <div className="grid grid-cols-2 sm:grid-cols-3 grid-rows-3 sm:grid-rows-2 gap-4 h-[440px] sm:h-[520px]">
           <img
             src={images[0]}
             alt="Youth sports tournament team photo"
-            className="row-span-2 w-full h-full object-cover rounded-xl"
+            className="col-span-2 sm:col-span-1 row-span-1 sm:row-span-2 w-full h-full object-cover rounded-xl"
           />
           <img src={images[1]} alt="Exam kit distribution to government school students" className="w-full h-full object-cover rounded-xl" />
           <img src={images[2]} alt="Community blood donation camp" className="w-full h-full object-cover rounded-xl" />

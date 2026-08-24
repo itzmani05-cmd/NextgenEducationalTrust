@@ -4,8 +4,9 @@ import { prisma } from '../prismaClient.js'
 import { mapApplicationPayload } from '../applicationPayload.js'
 import { requireAdmin, requireApplicantAuth, requireAdminOrOwner } from '../auth.js'
 import { getSupabaseAdmin, STORAGE_BUCKET } from '../supabaseAdmin.js'
+import { PDFDocument as PdfLibDocument, StandardFonts, rgb } from 'pdf-lib'
 import {
-  isKnownDocumentKey, buildDocumentUrlPatch, getDocumentPath, getDocumentPresenceMap,
+  isKnownDocumentKey, buildDocumentUrlPatch, getDocumentPath, getDocumentPresenceMap, DOCUMENT_LABELS,
 } from '../documentFieldPatch.js'
 import { getProvisional } from '../scholarshipCalc.js'
 import { logAudit } from '../audit.js'
@@ -717,6 +718,60 @@ router.get(
 // Only available once payment has been approved — before that the record is
 // still in flux and isn't considered final. Generated fresh on every
 // request (not cached) so it always reflects the latest state.
+// Fetches the actual bytes for every document the applicant uploaded, keyed
+// by docKey, so the PDF can embed real previews instead of just "Uploaded".
+// A single missing/unreadable file is logged and skipped rather than failing
+// the whole download — the record itself is more important than any one attachment.
+async function loadDocumentAttachments(application) {
+  const supabase = getSupabaseAdmin()
+  const attachments = {}
+
+  for (const [docKey] of DOCUMENT_LABELS) {
+    const path = getDocumentPath(application, docKey)
+    if (!path) continue
+
+    try {
+      const { data, error } = await supabase.storage.from(STORAGE_BUCKET).download(path)
+      if (error) throw error
+      const ext = (path.split('.').pop() || '').toLowerCase()
+      attachments[docKey] = { buffer: Buffer.from(await data.arrayBuffer()), ext }
+    } catch (err) {
+      console.error(`Failed to fetch document "${docKey}" for application ${application.id}:`, err)
+    }
+  }
+
+  return attachments
+}
+
+// Appends a labeled divider page followed by every page of an uploaded PDF —
+// pdfkit (used for the main record) can't inline another PDF's pages, so any
+// PDF attachments are merged on afterward with pdf-lib.
+const A4_SIZE = [595.28, 841.89]
+
+async function appendPdfAttachments(baseBuffer, attachments) {
+  const pdfEntries = DOCUMENT_LABELS.filter(([docKey]) => attachments[docKey]?.ext === 'pdf')
+  if (pdfEntries.length === 0) return baseBuffer
+
+  const merged = await PdfLibDocument.load(baseBuffer)
+  const font = await merged.embedFont(StandardFonts.HelveticaBold)
+
+  for (const [docKey, label] of pdfEntries) {
+    try {
+      const divider = merged.addPage(A4_SIZE)
+      divider.drawText('Attachment', { x: 50, y: A4_SIZE[1] - 80, size: 12, font, color: rgb(0.7, 0.15, 0.18) })
+      divider.drawText(label, { x: 50, y: A4_SIZE[1] - 105, size: 20, font, color: rgb(0.11, 0.16, 0.29) })
+
+      const srcDoc = await PdfLibDocument.load(attachments[docKey].buffer)
+      const copiedPages = await merged.copyPages(srcDoc, srcDoc.getPageIndices())
+      copiedPages.forEach((page) => merged.addPage(page))
+    } catch (err) {
+      console.error(`Failed to merge PDF attachment "${docKey}":`, err)
+    }
+  }
+
+  return Buffer.from(await merged.save())
+}
+
 router.get('/:id/application-pdf', requireAdmin, async (req, res) => {
   try {
     const application = await prisma.application.findUnique({
@@ -728,7 +783,9 @@ router.get('/:id/application-pdf', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'The application download is available once payment has been approved.' })
     }
 
-    const pdfBuffer = await renderApplicationPdf(application)
+    const attachments = await loadDocumentAttachments(application)
+    const basePdfBuffer = await renderApplicationPdf(application, attachments)
+    const pdfBuffer = await appendPdfAttachments(basePdfBuffer, attachments)
     const refNumber = `NGC-${application.id.slice(0, 8).toUpperCase()}`
 
     res.setHeader('Content-Type', 'application/pdf')

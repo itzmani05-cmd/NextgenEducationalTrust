@@ -6,6 +6,29 @@ const NESTED_DOC_KEYS = [
 
 export const ALL_DOCUMENT_KEYS = [...FILE_FIELDS, ...NESTED_DOC_KEYS]
 
+// Display order + human labels for every document key — the single source of
+// truth shared by the application PDF (doc list + embedded attachments) and
+// anywhere else that needs to show a document by name instead of its raw key.
+export const DOCUMENT_LABELS = [
+  ['studentPhoto', 'Student Photograph'],
+  ['identityDocument', 'Identity Document'],
+  ['tenth.markSheet', '10th Mark Sheet'],
+  ['twelfth.markSheet', '12th Mark Sheet'],
+  ['college.markSheet', 'Latest College Mark Sheet'],
+  ['college.bonafide', 'College Bonafide Certificate'],
+  ['fatherDeathCert', "Father's Death Certificate"],
+  ['motherDeathCert', "Mother's Death Certificate"],
+  ['supportingDocument', 'Single-Parent Proof'],
+  ['incomeCertificate', 'Income Certificate'],
+  ['diplomaMarkSheet', 'Diploma Mark Sheet'],
+  ['tamilMediumEvidence', 'Tamil-Medium Evidence'],
+  ['govtSchoolEvidence', 'Government-School Evidence'],
+  ['communityCertificate', 'SC/ST Community Certificate'],
+  ['selfIncomeDoc', 'Financial Self-Support Evidence'],
+  ['scholarshipDoc', 'Existing Scholarship Proof'],
+  ['educationalCertificates', 'Educational Certificates'],
+]
+
 export function isKnownDocumentKey(docKey) {
   return ALL_DOCUMENT_KEYS.includes(docKey)
 }

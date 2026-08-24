@@ -52,7 +52,7 @@ export default function DocumentReviewPanel({
           onChange={(e) => onCommentChange(e.target.value)}
           rows={1}
           placeholder={enOnly('admin.verification.reviewerCommentsPlaceholder')}
-          className="w-full rounded-lg border border-brand-border px-3.5 py-21 text-sm text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy transition-colors resize-none"
+          className="w-full rounded-lg border border-brand-border px-3.5 py-2.5 text-base sm:text-sm text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy transition-colors resize-none"
         />
       </label>
 

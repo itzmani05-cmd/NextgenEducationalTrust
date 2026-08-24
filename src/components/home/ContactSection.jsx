@@ -79,7 +79,7 @@ export default function ContactSection() {
                 value={form.firstName}
                 onChange={handleChange}
                 placeholder="Jane"
-                className="w-full rounded-lg border border-brand-border bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-rust/30 focus:border-brand-rust transition-colors"
+                className="w-full rounded-lg border border-brand-border bg-white px-3.5 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-rust/30 focus:border-brand-rust transition-colors"
               />
             </label>
             <label className="block">
@@ -91,7 +91,7 @@ export default function ContactSection() {
                 value={form.lastName}
                 onChange={handleChange}
                 placeholder="Doe"
-                className="w-full rounded-lg border border-brand-border bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-rust/30 focus:border-brand-rust transition-colors"
+                className="w-full rounded-lg border border-brand-border bg-white px-3.5 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-rust/30 focus:border-brand-rust transition-colors"
               />
             </label>
           </div>
@@ -105,7 +105,7 @@ export default function ContactSection() {
               value={form.email}
               onChange={handleChange}
               placeholder="jane@example.com"
-              className="w-full rounded-lg border border-brand-border bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-rust/30 focus:border-brand-rust transition-colors"
+              className="w-full rounded-lg border border-brand-border bg-white px-3.5 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-rust/30 focus:border-brand-rust transition-colors"
             />
           </label>
 
@@ -118,7 +118,7 @@ export default function ContactSection() {
               value={form.message}
               onChange={handleChange}
               placeholder="How can we help?"
-              className="w-full rounded-lg border border-brand-border bg-white px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-rust/30 focus:border-brand-rust transition-colors resize-none"
+              className="w-full rounded-lg border border-brand-border bg-white px-3.5 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-rust/30 focus:border-brand-rust transition-colors resize-none"
             />
           </label>
 

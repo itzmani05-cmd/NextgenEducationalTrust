@@ -102,7 +102,7 @@ export default function DonationRow({ donation, onVerify, onReject, onViewReceip
                   onChange={(e) => setReason(e.target.value)}
                   rows={2}
                   placeholder={enOnly('admin.donations.rejectionReasonPlaceholder')}
-                  className="w-full rounded-lg border border-brand-border px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy transition-colors resize-none mb-2"
+                  className="w-full rounded-lg border border-brand-border px-2.5 py-1.5 text-base sm:text-xs focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy transition-colors resize-none mb-2"
                 />
                 <div className="flex items-center gap-2">
                   <button
