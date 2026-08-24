@@ -9,14 +9,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'Logo.png')
 const WATERMARK_LOGO_PATH = LOGO_PATH
 const SIGNATURE_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'signature.png')
+const SEAL_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'seal.png')
 
-function drawWatermark(doc) {
-  if (!fs.existsSync(WATERMARK_LOGO_PATH)) return
+function drawWatermark(doc, imagePath = WATERMARK_LOGO_PATH) {
+  if (!fs.existsSync(imagePath)) return
   try {
     const size = 320
     doc.save()
     doc.opacity(0.06)
-    doc.image(WATERMARK_LOGO_PATH, doc.page.width / 2 - size / 2, doc.page.height / 2 - size / 2, { width: size })
+    doc.image(imagePath, doc.page.width / 2 - size / 2, doc.page.height / 2 - size / 2, { width: size })
     doc.opacity(1)
     doc.restore()
   } catch {}
@@ -25,11 +26,26 @@ function drawWatermark(doc) {
 function drawSignature(doc, x, y) {
   if (fs.existsSync(SIGNATURE_PATH)) {
     try {
-      doc.image(SIGNATURE_PATH, x, y - 34, { width: 130 })
+      // Constrained by height, not width — the signature image's aspect
+      // ratio isn't guaranteed (it gets swapped from time to time), and a
+      // fixed width let a taller replacement droop down into the "For, ..."
+      // line below. A fixed height keeps the gap above that line consistent
+      // no matter the image's proportions.
+      doc.image(SIGNATURE_PATH, x, y - 48, { height: 50 })
       return
     } catch {}
   }
   doc.fontSize(10).fillColor('#222').font('Helvetica').text('_______________________', x, y)
+}
+
+// The Trust's address stamp — placed to the left of the signature block,
+// vertically aligned with it. Best-effort: a missing/unreadable seal image
+// never blocks receipt generation.
+function drawSeal(doc, x, y) {
+  if (!fs.existsSync(SEAL_PATH)) return
+  try {
+    doc.image(SEAL_PATH, x, y - 26, { width: 145 })
+  } catch {}
 }
 
 const ONES = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
@@ -85,14 +101,17 @@ function renderReceiptPdf({ receiptNumber, donation, issuedAt }) {
     doc.y = logoDrawn ? 155 : 85
     doc.fontSize(18).fillColor('#1B2A4A').font('Helvetica-Bold')
       .text('NEXTGEN SOLUTIONS EDUCATIONAL TRUST', { align: 'center' })
-    doc.moveDown(0.2)
+    doc.moveDown(0.1)
+    doc.fontSize(8.5).fillColor('#666').font('Helvetica')
+      .text('Regn.No. 75/2025/AAETN9142QF2025101', { align: 'center' })
+    doc.moveDown(0.15)
     doc.fontSize(9).fillColor('#666').font('Helvetica')
       .text('4/1023-D, Ayyalu Meenakshi Nagar, Udumalpet - 642 126, Tiruppur (Dt.), Tamil Nadu', { align: 'center' })
     doc.text('nextgencollegesolutions@gmail.com  |  93423 79043 / 97902 13628', { align: 'center' })
 
     doc.moveDown(1)
     doc.moveTo(doc.page.width / 2 - 90, doc.y).lineTo(doc.page.width / 2 + 90, doc.y).lineWidth(1).strokeColor('#1B2A4A').stroke()
-    doc.moveDown(0.5)
+    doc.moveDown(0.8)
     doc.fontSize(15).fillColor('#B3261E').font('Helvetica-Bold').text('DONATION RECEIPT', { align: 'center' })
 
     doc.moveDown(1)
@@ -148,17 +167,43 @@ function renderReceiptPdf({ receiptNumber, donation, issuedAt }) {
       50, doc.y, { width: doc.page.width - 100 },
     )
 
-    doc.y = Math.max(doc.y + 60, doc.page.height - 160)
+    doc.y = Math.max(doc.y + 60, doc.page.height - 205)
     const sigX = 290
     const sigWidth = doc.page.width - doc.page.margins.right - sigX
-    drawSignature(doc, sigX, doc.y)
-    doc.fontSize(9.5).fillColor('#222').font('Helvetica')
-    doc.text('For, NEXTGEN SOLUTIONS EDUCATIONAL TRUST', sigX, doc.y + 16, { width: sigWidth, lineBreak: false })
-    doc.text('Managing Trustee / Authorized Signatory', sigX, doc.y + 32, { width: sigWidth, lineBreak: false })
+    // Captured once: doc.text() below moves doc.y as a side effect, so reading
+    // doc.y again for the second line would stack its +32 on top of that
+    // shift instead of the intended fixed offset from the signature block.
+    const sigY = doc.y - 15
+    drawSeal(doc, 50, sigY)
+    // Conventional order top-to-bottom: "For, <Trust>" line, then the
+    // signature sitting in the gap above the designation, then "Managing
+    // Trustee / Authorized Signatory" — not the signature floating above
+    // the "For, ..." line.
 
-    doc.fontSize(7.5).fillColor('#999').font('Helvetica').text(
-      'This receipt confirms a donation recorded in the NEXTGEN SOLUTIONS EDUCATIONAL TRUST donation portal.',
-      50, doc.page.height - 65, { width: doc.page.width - 100, align: 'center' },
+    doc.fontSize(9.5).fillColor('#222').font('Helvetica')
+
+    doc.text('For,', sigX, sigY, {
+      continued: true
+    })
+
+    doc.fillColor('#B3261E')
+      .text(' NEXTGEN SOLUTIONS EDUCATIONAL TRUST', {
+        continued: false
+      })
+
+    drawSignature(doc, sigX, sigY + 55)
+
+    doc.fillColor('#222')
+      .text(
+        'Managing Trustee / Authorized Signatory',
+        sigX,
+        sigY + 50,
+        { width: sigWidth, lineBreak: false }
+      )
+    doc.fontSize(7.5).fillColor('#444').font('Helvetica-Bold').text(
+      'This Trust PAN: AAETN9142Q is eligible for deduction under Section 80G(5)(VI) of the Income Tax Act, ' +
+      '1961- vide Approval No.Unique Registration No.AAETN9142QF2025101 dated 30-06-2025 Valid upto 31-03-2029(AY 2028-2029)',
+      50, doc.page.height - 85, { width: doc.page.width - 100, align: 'center' },
     )
 
     doc.end()
@@ -207,4 +252,4 @@ export async function issueReceiptForDonation(donation) {
   throw lastErr || new Error('Failed to generate a unique receipt number.')
 }
 
-export { renderReceiptPdf, amountInWords, drawWatermark, drawSignature }
+export { renderReceiptPdf, amountInWords, drawWatermark, drawSignature, drawSeal }

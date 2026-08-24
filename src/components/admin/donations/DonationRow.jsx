@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { Check, XCircle, ExternalLink } from 'lucide-react'
+import { Check, XCircle, ExternalLink, RefreshCw } from 'lucide-react'
 import { enOnly } from '../../../i18n/bilingual.js'
 import StatusBadge from '../StatusBadge.jsx'
 
-export default function DonationRow({ donation, onVerify, onReject, onViewReceipt }) {
+export default function DonationRow({ donation, onVerify, onReject, onViewReceipt, onRetryEmail }) {
   const [showRejectForm, setShowRejectForm] = useState(false)
   const [reason, setReason] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [receiptLoading, setReceiptLoading] = useState(false)
+  const [emailBusy, setEmailBusy] = useState(false)
+  const [emailError, setEmailError] = useState('')
 
   const handleViewReceipt = async () => {
     setReceiptLoading(true)
@@ -16,6 +18,18 @@ export default function DonationRow({ donation, onVerify, onReject, onViewReceip
       await onViewReceipt(donation.id)
     } finally {
       setReceiptLoading(false)
+    }
+  }
+
+  const handleRetryEmail = async () => {
+    setEmailBusy(true)
+    setEmailError('')
+    try {
+      await onRetryEmail(donation.id)
+    } catch (err) {
+      setEmailError(err.message || 'Failed to send the receipt email.')
+    } finally {
+      setEmailBusy(false)
     }
   }
 
@@ -150,6 +164,20 @@ export default function DonationRow({ donation, onVerify, onReject, onViewReceip
                 ? enOnly('admin.donations.receiptEmailSent')
                 : enOnly('admin.donations.receiptEmailPending')}
             </p>
+            {!donation.receiptEmailSentAt && (
+              <>
+                <button
+                  type="button"
+                  onClick={handleRetryEmail}
+                  disabled={emailBusy}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-navy hover:underline disabled:opacity-50 mt-1"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  {emailBusy ? enOnly('admin.donations.sendingEmail') : enOnly('admin.donations.retryEmail')}
+                </button>
+                {emailError && <p className="text-xs text-brand-red mt-1 max-w-[14rem]">{emailError}</p>}
+              </>
+            )}
           </div>
         )}
       </td>

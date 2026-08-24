@@ -46,6 +46,10 @@ export function getDonationReceiptSignedUrl(token, id) {
   return request(`/api/donations/${id}/receipt/signed-url`, { token })
 }
 
+export function retryDonationReceiptEmail(token, id) {
+  return request(`/api/donations/${id}/receipt/retry-email`, { token, method: 'POST' })
+}
+
 export function getApplication(token, id) {
   return request(`/api/applications/${id}`, { token })
 }

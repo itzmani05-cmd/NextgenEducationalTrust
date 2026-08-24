@@ -17,7 +17,7 @@ Numbered sequentially per year, e.g. `NGF/2026/00001`.
 | Address | 4/1023-D, Ayyalu Meenakshi Nagar, Udumalpet - 642 126, Tiruppur (Dt.), Tamil Nadu |
 | Contact | nextgencollegesolutions@gmail.com \| 93423 79043 / 97902 13628 |
 | Document Title | RECEIPT |
-| Watermark | Faint, centered `src/assests/Logo.png`, drawn behind all content |
+| Watermark | Faint, centered `src/assests/C3Logo.png`, drawn behind all content — this receipt uses the C3/SDP logo, not the Trust's general logo used elsewhere |
 
 ---
 
@@ -27,8 +27,9 @@ Numbered sequentially per year, e.g. `NGF/2026/00001`.
 |---|---|
 | Receipt No. | Auto-generated, e.g. `NGF/2026/00001` |
 | Date | Date the receipt is issued (payment approval date) |
+| Application No. | `NGC-{application.id}` (first 8 characters, upper-cased) — same reference format used elsewhere |
 | Received from | `application.fullName`, upper-cased for display |
-| Course | `application.examName` (falls back to `application.college.degree`) |
+| Course | "Skill Development Program - " + `application.examName` (falls back to `application.college.degree`); only the English half is kept if the stored value still has the wizard's legacy "English / Tamil" format |
 | Mobile | `application.mobile` |
 | Email | `application.email` |
 | Amount (in words) | Amount paid, spelled out — e.g. "Ten Thousand Only" |
@@ -56,7 +57,6 @@ The itemized part unique to this receipt:
 | Payment Mode | `payment.paymentMethod` (upi / bank_transfer / other), upper-cased with underscores replaced by spaces — e.g. `BANK TRANSFER` |
 | Payment Date | `payment.paymentDate` |
 | UTR / Transaction ID | `payment.transactionId` |
-| Purpose | "\[Course Name\] Fee" |
 
 ---
 
@@ -66,7 +66,8 @@ The itemized part unique to this receipt:
 |---|---|
 | Note | "This fee is collected for educational purpose only. Not refundable." |
 | Signature | `src/assests/signature.png`, embedded above the signatory line |
-| Signed For | NEXTGEN SOLUTIONS EDUCATIONAL TRUST — Authorized Signatory |
+| Seal | `src/assests/seal.jpeg` (Trust address stamp), placed to the left of the signature block |
+| Signed For | NEXTGEN SOLUTIONS EDUCATIONAL TRUST — Managing Trustee / Authorized Signatory |
 
 ---
 

@@ -1,7 +1,7 @@
 import { enOnly } from '../../../i18n/bilingual.js'
 import DonationRow from './DonationRow.jsx'
 
-export default function DonationsTable({ donations, loading, onVerify, onReject, onViewReceipt }) {
+export default function DonationsTable({ donations, loading, onVerify, onReject, onViewReceipt, onRetryEmail }) {
   return (
     <div className="bg-white border border-brand-border rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -34,6 +34,7 @@ export default function DonationsTable({ donations, loading, onVerify, onReject,
                 onVerify={onVerify}
                 onReject={onReject}
                 onViewReceipt={onViewReceipt}
+                onRetryEmail={onRetryEmail}
               />
             ))}
           </tbody>

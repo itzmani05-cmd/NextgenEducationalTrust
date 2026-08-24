@@ -138,6 +138,33 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
   }
 })
 
+// Verification itself never fails just because the receipt email didn't send
+// (e.g. RESEND_FROM_EMAIL not yet on a verified domain) — that failure is
+// only logged server-side, leaving the donation stuck showing "pending" in
+// the admin UI with no way to retry. This lets an admin retry it directly,
+// once the underlying delivery problem is fixed, without re-verifying.
+router.post('/:id/receipt/retry-email', requireAdmin, async (req, res) => {
+  try {
+    const donation = await prisma.donation.findUnique({ where: { id: req.params.id } })
+    if (!donation) return res.status(404).json({ error: 'Donation not found.' })
+    if (donation.status !== 'verified') {
+      return res.status(400).json({ error: 'Only a verified donation has a receipt to email.' })
+    }
+
+    const { donation: withReceipt, pdfBuffer } = await issueReceiptForDonation(donation)
+    await sendDonationReceiptEmail(withReceipt, pdfBuffer)
+    const updated = await prisma.donation.update({
+      where: { id: donation.id },
+      data: { receiptEmailSentAt: new Date() },
+    })
+
+    res.json(updated)
+  } catch (err) {
+    console.error('Failed to retry donation receipt email:', err)
+    res.status(500).json({ error: err.message || 'Failed to send the receipt email.' })
+  }
+})
+
 router.get('/:id/receipt/signed-url', requireAdmin, async (req, res) => {
   try {
     const donation = await prisma.donation.findUnique({ where: { id: req.params.id } })

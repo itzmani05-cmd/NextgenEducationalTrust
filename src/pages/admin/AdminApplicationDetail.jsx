@@ -10,6 +10,7 @@ import {
 import { getAllRequiredDocuments } from '../../utils/documentChecklist.js'
 import { getProvisional } from '../../utils/scholarshipCalc.js'
 import { enOnly } from '../../i18n/bilingual.js'
+import ConfirmDialog from '../../components/admin/ConfirmDialog.jsx'
 import ApplicantHeader from '../../components/admin/application-detail/ApplicantHeader.jsx'
 import ActionsBar from '../../components/admin/application-detail/ActionsBar.jsx'
 import ConcessionPanel from '../../components/admin/application-detail/ConcessionPanel.jsx'
@@ -58,6 +59,7 @@ export default function AdminApplicationDetail() {
   const [receiptError, setReceiptError] = useState('')
   const [downloadBusy, setDownloadBusy] = useState(false)
   const [downloadError, setDownloadError] = useState('')
+  const [confirmState, setConfirmState] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -169,8 +171,8 @@ export default function AdminApplicationDetail() {
     }
   }
 
-  const handleApprovePayment = async () => {
-    if (!window.confirm('Approve this payment?')) return
+  const doApprovePayment = async () => {
+    setConfirmState(null)
     setPaymentBusy(true)
     setPaymentError('')
     try {
@@ -182,6 +184,10 @@ export default function AdminApplicationDetail() {
     } finally {
       setPaymentBusy(false)
     }
+  }
+
+  const handleApprovePayment = () => {
+    setConfirmState({ message: 'Approve this payment?', onConfirm: doApprovePayment })
   }
 
   const handleRejectPayment = async () => {
@@ -253,8 +259,8 @@ export default function AdminApplicationDetail() {
     }
   }
 
-  const handleDelete = async () => {
-    if (!window.confirm('Permanently delete this application? This cannot be undone.')) return
+  const doDelete = async () => {
+    setConfirmState(null)
     try {
       await deleteApplication(token, id)
       navigate('/admin')
@@ -262,6 +268,16 @@ export default function AdminApplicationDetail() {
       if (err instanceof AuthError) return logout()
       setError(err.message || 'Failed to delete application.')
     }
+  }
+
+  const handleDelete = () => {
+    setConfirmState({
+      title: 'Delete application?',
+      message: 'Permanently delete this application? This cannot be undone.',
+      tone: 'danger',
+      confirmLabel: 'Delete',
+      onConfirm: doDelete,
+    })
   }
 
   if (loading) {
@@ -367,6 +383,16 @@ export default function AdminApplicationDetail() {
         <DocumentsSection app={app} token={token} logout={logout} />
         <DeclarationSection app={app} />
       </div>
+
+      <ConfirmDialog
+        open={Boolean(confirmState)}
+        title={confirmState?.title}
+        message={confirmState?.message}
+        confirmLabel={confirmState?.confirmLabel}
+        tone={confirmState?.tone}
+        onConfirm={confirmState?.onConfirm}
+        onCancel={() => setConfirmState(null)}
+      />
     </div>
   )
 }

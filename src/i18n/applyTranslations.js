@@ -341,6 +341,8 @@ export const translations = {
         viewReceipt: 'View Receipt',
         receiptEmailSent: 'Receipt emailed to donor',
         receiptEmailPending: 'Receipt email pending',
+        retryEmail: 'Retry Email',
+        sendingEmail: 'Sending…',
       },
       verification: {
         noApplications: 'No applications to review yet.',
@@ -870,6 +872,8 @@ export const translations = {
         viewReceipt: 'ரசீதைப் பார்க்க',
         receiptEmailSent: 'ரசீது நன்கொடையாளருக்கு அனுப்பப்பட்டது',
         receiptEmailPending: 'ரசீது மின்னஞ்சல் நிலுவையில் உள்ளது',
+        retryEmail: 'மீண்டும் அனுப்பு',
+        sendingEmail: 'அனுப்பப்படுகிறது…',
       },
       verification: {
         noApplications: 'மதிப்பாய்வு செய்ய விண்ணப்பங்கள் எதுவும் இல்லை.',

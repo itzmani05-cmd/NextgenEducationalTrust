@@ -13,6 +13,7 @@ Numbered sequentially per year, e.g. `NGD/2026/00001`.
 | Field | Value |
 |---|---|
 | Trust Name | NEXTGEN SOLUTIONS EDUCATIONAL TRUST (all caps) |
+| Registration No. | Regn.No. 75/2025/AAETN9142QF2025101 — shown directly below the trust name |
 | Address | 4/1023-D, Ayyalu Meenakshi Nagar, Udumalpet - 642 126, Tiruppur (Dt.), Tamil Nadu |
 | Contact | nextgencollegesolutions@gmail.com \| 93423 79043 / 97902 13628 |
 | Document Title | DONATION RECEIPT |
@@ -52,7 +53,18 @@ Numbered sequentially per year, e.g. `NGD/2026/00001`.
 |---|---|
 | Note | "This donation is voluntary. Please retain this receipt for your records." |
 | Signature | `src/assests/signature.png`, embedded above the signatory line |
-| Signed For | NEXTGEN SOLUTIONS EDUCATIONAL TRUST — Authorized Signatory |
+| Seal | `src/assests/seal.jpeg` (Trust address stamp), placed to the left of the signature block |
+| Signed For | NEXTGEN SOLUTIONS EDUCATIONAL TRUST — Managing Trustee / Authorized Signatory |
+
+---
+
+## 80G Tax Exemption Notice
+
+Fixed text, printed in bold above the footer disclaimer line:
+
+> This Trust PAN: AAETN9142Q is eligible for deduction under Section 80G(5)(VI) of the Income
+> Tax Act, 1961- vide Approval No.Unique Registration No.AAETN9142QF2025101 dated 30-06-2025
+> Valid upto 31-03-2029(AY 2028-2029)
 
 ---
 
@@ -61,6 +73,10 @@ Numbered sequentially per year, e.g. `NGD/2026/00001`.
 - **Donor:** emailed automatically as a PDF attachment once verified (`server/src/email.js`).
 - **Admin:** `GET /api/donations/:id/receipt/signed-url` — "View Receipt" link on the
   Donations admin page once issued.
+- **Admin retry:** `POST /api/donations/:id/receipt/retry-email` — re-sends the receipt email
+  for an already-verified donation whose `receiptEmailSentAt` is still unset (e.g. delivery
+  failed because `RESEND_FROM_EMAIL` wasn't yet on a verified domain). Shown as a "Retry Email"
+  button on the Donations admin page.
 
 *If the generated receipt's layout or fields change, update this list to match
 `server/src/receipt.js`.*

@@ -4,10 +4,13 @@ import { fileURLToPath } from 'url'
 import PDFDocument from 'pdfkit'
 import { prisma } from './prismaClient.js'
 import { getSupabaseAdmin, STORAGE_BUCKET } from './supabaseAdmin.js'
-import { amountInWords, drawWatermark, drawSignature } from './receipt.js'
+import { amountInWords, drawWatermark, drawSignature, drawSeal } from './receipt.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'Logo.png')
+// Fee receipt uses the C3 (Skill Development Program) logo as its watermark
+// instead of the Trust's general logo — the donation receipt is unaffected.
+const WATERMARK_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'C3Logo.png')
 
 function inr(n) {
   return n != null ? `Rs. ${Number(n).toLocaleString('en-IN')}` : '—'
@@ -21,7 +24,7 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     doc.on('end', () => resolve(Buffer.concat(chunks)))
     doc.on('error', reject)
 
-    drawWatermark(doc)
+    drawWatermark(doc, WATERMARK_PATH)
 
     let logoDrawn = false
     if (fs.existsSync(LOGO_PATH)) {
@@ -41,7 +44,7 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
 
     doc.moveDown(1)
     doc.moveTo(doc.page.width / 2 - 90, doc.y).lineTo(doc.page.width / 2 + 90, doc.y).lineWidth(1).strokeColor('#1B2A4A').stroke()
-    doc.moveDown(0.5)
+    doc.moveDown(0.8)
     doc.fontSize(15).fillColor('#B3261E').font('Helvetica-Bold').text('RECEIPT', { align: 'center' })
 
     doc.moveDown(1)
@@ -51,12 +54,19 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     doc.font('Helvetica-Bold').text('Date:', 350, topY)
     doc.font('Helvetica').text(issuedAt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }), 390, topY)
 
-    doc.moveDown(1.4)
+    const appNumberY = topY + 20
+    const applicationRefNumber = `NGC-${application.id.slice(0, 8).toUpperCase()}`
+    doc.fontSize(10).fillColor('#222').font('Helvetica-Bold').text('Application No:', 50, appNumberY)
+    doc.font('Helvetica').text(applicationRefNumber, 130, appNumberY)
+    doc.y = appNumberY + 20
+
+    doc.moveDown(0.6)
     // examName is stored English-only today, but older applications may still
     // hold the wizard's legacy "English / Tamil" display string — keep only
     // the English half so it never leaks onto an official document.
     const rawCourseName = application.examName || application.college?.degree || '—'
-    const courseName = rawCourseName.split(' / ')[0].trim()
+    const cleanCourseName = rawCourseName.split(' / ')[0].trim()
+    const courseName = cleanCourseName === '—' ? cleanCourseName : `Skill Development Program - ${cleanCourseName}`
     const rows = [
       ['Received from', String(application.fullName || '').toUpperCase()],
       ['Course', courseName],
@@ -123,14 +133,39 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     doc.y = Math.min(Math.max(doc.y + 40, doc.page.height - 160), doc.page.height - 100)
     const sigX = 290
     const sigWidth = doc.page.width - doc.page.margins.right - sigX
-    drawSignature(doc, sigX, doc.y)
-    doc.fontSize(9.5).fillColor('#222').font('Helvetica')
-    doc.text('For, NEXTGEN SOLUTIONS EDUCATIONAL TRUST', sigX, doc.y + 16, { width: sigWidth, lineBreak: false })
-    doc.text('Managing Trustee / Authorized Signatory', sigX, doc.y + 32, { width: sigWidth, lineBreak: false })
+    // Captured once: doc.text() below moves doc.y as a side effect, so reading
+    // doc.y again for the second line would stack its +32 on top of that
+    // shift instead of the intended fixed offset from the signature block.
+    const sigY = doc.y
+    drawSeal(doc, 50, sigY)
+    // Conventional order top-to-bottom: "For, <Trust>" line, then the
+    // signature sitting in the gap above the designation, then "Managing
+    // Trustee / Authorized Signatory" — not the signature floating above
+    // the "For, ..." line.
+   doc.fontSize(9.5).fillColor('#222').font('Helvetica')
+
+    doc.text('For,', sigX, sigY, {
+      continued: true
+    })
+
+    doc.fillColor('#B3261E')
+      .text(' NEXTGEN SOLUTIONS EDUCATIONAL TRUST', {
+        continued: false
+      })
+
+    drawSignature(doc, sigX, sigY + 55)
+
+    doc.fillColor('#222')
+      .text(
+        'Managing Trustee / Authorized Signatory',
+        sigX,
+        sigY + 50,
+        { width: sigWidth, lineBreak: false }
+      )
 
     doc.fontSize(7.5).fillColor('#999').font('Helvetica').text(
       'This receipt confirms a fee payment recorded in the NEXTGEN SOLUTIONS EDUCATIONAL TRUST scholarship portal.',
-      50, doc.page.height - 65, { width: doc.page.width - 100, align: 'center' },
+      50, doc.page.height - 60, { width: doc.page.width - 100, align: 'center' },
     )
 
     doc.end()

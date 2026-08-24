@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useAdminAuth } from '../../context/AdminAuthContext.jsx'
-import { listDonations, updateDonationStatus, getDonationReceiptSignedUrl, AuthError } from '../../utils/adminApi.js'
+import {
+  listDonations, updateDonationStatus, getDonationReceiptSignedUrl, retryDonationReceiptEmail, AuthError,
+} from '../../utils/adminApi.js'
 import { enOnly } from '../../i18n/bilingual.js'
 import ErrorBanner from '../../components/admin/ErrorBanner.jsx'
 import DonationsFiltersBar from '../../components/admin/donations/DonationsFiltersBar.jsx'
@@ -51,6 +53,11 @@ export default function AdminDonations() {
 
   const handleReject = async (id, reason) => {
     const updated = await updateDonationStatus(token, id, 'rejected', reason)
+    updateLocal(id, updated)
+  }
+
+  const handleRetryEmail = async (id) => {
+    const updated = await retryDonationReceiptEmail(token, id)
     updateLocal(id, updated)
   }
 
@@ -114,6 +121,7 @@ export default function AdminDonations() {
         onVerify={handleVerify}
         onReject={handleReject}
         onViewReceipt={handleViewReceipt}
+        onRetryEmail={handleRetryEmail}
       />
     </div>
   )

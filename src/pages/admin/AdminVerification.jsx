@@ -8,6 +8,7 @@ import { getAllRequiredDocuments, getDocumentFieldPath } from '../../utils/docum
 import { getPath } from '../../utils/objectPath.js'
 import { enOnly } from '../../i18n/bilingual.js'
 import ErrorBanner from '../../components/admin/ErrorBanner.jsx'
+import ConfirmDialog from '../../components/admin/ConfirmDialog.jsx'
 import ApplicantSummaryCard from '../../components/admin/verification/ApplicantSummaryCard.jsx'
 import VerificationProgressCard from '../../components/admin/verification/VerificationProgressCard.jsx'
 import DocumentTabs from '../../components/admin/verification/DocumentTabs.jsx'
@@ -27,6 +28,7 @@ export default function AdminVerification() {
   const [signedUrl, setSignedUrl] = useState('')
   const [signedUrlLoading, setSignedUrlLoading] = useState(false)
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [confirmState, setConfirmState] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -113,14 +115,8 @@ export default function AdminVerification() {
     setApplications((prev) => prev.map((a) => (a.id === updated.id ? updated : a)))
   }
 
-  const handleReview = async (status) => {
-    if (status === 'rejected') {
-      if (!comment.trim()) {
-        setError(enOnly('admin.verification.rejectRequiresComment'))
-        return
-      }
-      if (!window.confirm(enOnly('admin.verification.confirmReject'))) return
-    }
+  const doReview = async (status) => {
+    setConfirmState(null)
     setSaving(true)
     setError('')
     try {
@@ -134,6 +130,22 @@ export default function AdminVerification() {
     }
   }
 
+  const handleReview = (status) => {
+    if (status === 'rejected') {
+      if (!comment.trim()) {
+        setError(enOnly('admin.verification.rejectRequiresComment'))
+        return
+      }
+      setConfirmState({
+        message: enOnly('admin.verification.confirmReject'),
+        tone: 'danger',
+        onConfirm: () => doReview(status),
+      })
+      return
+    }
+    doReview(status)
+  }
+
   const reviewedCount = docs.filter((d) => {
     const s = app?.documentReviews?.[d.key]?.status
     return s === 'approved' || s === 'rejected'
@@ -143,12 +155,8 @@ export default function AdminVerification() {
   const allReviewed = total > 0 && reviewedCount === total
   const anyRejected = docs.some((d) => app?.documentReviews?.[d.key]?.status === 'rejected')
 
-  const handleComplete = async () => {
-    const confirmMessage = anyRejected
-      ? enOnly('admin.verification.confirmCompleteRejected')
-      : enOnly('admin.verification.confirmCompleteApproved')
-    if (!window.confirm(confirmMessage)) return
-
+  const doComplete = async () => {
+    setConfirmState(null)
     setSaving(true)
     setError('')
     try {
@@ -160,6 +168,16 @@ export default function AdminVerification() {
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleComplete = () => {
+    setConfirmState({
+      message: anyRejected
+        ? enOnly('admin.verification.confirmCompleteRejected')
+        : enOnly('admin.verification.confirmCompleteApproved'),
+      tone: anyRejected ? 'danger' : 'default',
+      onConfirm: doComplete,
+    })
   }
 
   const goPrev = () => index > 0 && navigate(`/admin/verification/${applications[index - 1].id}`)
@@ -229,6 +247,14 @@ export default function AdminVerification() {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={Boolean(confirmState)}
+        message={confirmState?.message}
+        tone={confirmState?.tone}
+        onConfirm={confirmState?.onConfirm}
+        onCancel={() => setConfirmState(null)}
+      />
     </div>
   )
 }
