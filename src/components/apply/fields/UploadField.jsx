@@ -34,7 +34,7 @@ export default function UploadField({ label, file, onChange, required, helper, s
         )}
         {sizeError && <p className="text-xs text-brand-red mt-0.5">{sizeError}</p>}
       </div>
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 sm:shrink-0">
         <DocStatusChip status={computedStatus} />
         <button
           type="button"

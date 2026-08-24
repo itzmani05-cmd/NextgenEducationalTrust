@@ -12,7 +12,7 @@ Numbered sequentially per year, e.g. `NGD/2026/00001`.
 
 | Field | Value |
 |---|---|
-| Trust Name | NEXTGEN SOLUTIONS Educational Trust |
+| Trust Name | NEXTGEN SOLUTIONS EDUCATIONAL TRUST (all caps) |
 | Address | 4/1023-D, Ayyalu Meenakshi Nagar, Udumalpet - 642 126, Tiruppur (Dt.), Tamil Nadu |
 | Contact | nextgencollegesolutions@gmail.com \| 93423 79043 / 97902 13628 |
 | Document Title | DONATION RECEIPT |
@@ -26,7 +26,7 @@ Numbered sequentially per year, e.g. `NGD/2026/00001`.
 |---|---|
 | Receipt No. | Auto-generated, e.g. `NGD/2026/00001` |
 | Date | Date the receipt is issued (verification date) |
-| Received with thanks from | `donation.fullName` |
+| Received with thanks from | `donation.fullName`, upper-cased for display |
 | Email | `donation.email` |
 | Mobile | `donation.mobile` |
 | PAN | `donation.pan` (optional — donor submits this only if they need an 80G receipt) |
@@ -39,7 +39,7 @@ Numbered sequentially per year, e.g. `NGD/2026/00001`.
 
 | Field | Source |
 |---|---|
-| Payment Mode | UPI (fixed — the only donation channel offered on the Donate page) |
+| Payment Mode | UPI, all caps (fixed — the only donation channel offered on the Donate page) |
 | Payment Date | `donation.createdAt` — when the donor submitted the form |
 | UTR / Transaction ID | `donation.transactionRef` |
 | Purpose | `donation.purpose` (General Fund / Scholarship Support / Event Sponsorship / Other) |
@@ -52,7 +52,7 @@ Numbered sequentially per year, e.g. `NGD/2026/00001`.
 |---|---|
 | Note | "This donation is voluntary. Please retain this receipt for your records." |
 | Signature | `src/assests/signature.png`, embedded above the signatory line |
-| Signed For | NextGen Solutions Educational Trust — Authorized Signatory |
+| Signed For | NEXTGEN SOLUTIONS EDUCATIONAL TRUST — Authorized Signatory |
 
 ---
 

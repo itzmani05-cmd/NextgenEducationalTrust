@@ -33,7 +33,7 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
 
     doc.y = logoDrawn ? 125 : 55
     doc.fontSize(18).fillColor('#1B2A4A').font('Helvetica-Bold')
-      .text('NextGen Solutions Educational Trust', { align: 'center' })
+      .text('NEXTGEN SOLUTIONS EDUCATIONAL TRUST', { align: 'center' })
     doc.moveDown(0.2)
     doc.fontSize(9).fillColor('#666').font('Helvetica')
       .text('4/1023-D, Ayyalu Meenakshi Nagar, Udumalpet - 642 126, Tiruppur (Dt.), Tamil Nadu', { align: 'center' })
@@ -119,11 +119,11 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     doc.y = Math.min(Math.max(doc.y + 40, doc.page.height - 160), doc.page.height - 100)
     drawSignature(doc, 350, doc.y)
     doc.fontSize(10).fillColor('#222').font('Helvetica')
-    doc.text('For, NextGen Solutions Educational Trust', 350, doc.y + 16, { width: 200 })
+    doc.text('For, NEXTGEN SOLUTIONS EDUCATIONAL TRUST', 350, doc.y + 16, { width: 200 })
     doc.text('Authorized Signatory', 350, doc.y + 32)
 
     doc.fontSize(7.5).fillColor('#999').font('Helvetica').text(
-      'This receipt confirms a fee payment recorded in the NextGen Solutions Educational Trust scholarship portal.',
+      'This receipt confirms a fee payment recorded in the NEXTGEN SOLUTIONS EDUCATIONAL TRUST scholarship portal.',
       50, doc.page.height - 65, { width: doc.page.width - 100, align: 'center' },
     )
 

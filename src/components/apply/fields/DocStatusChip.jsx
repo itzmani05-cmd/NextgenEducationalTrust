@@ -12,7 +12,7 @@ const STATUS_KEYS = {
 export default function DocStatusChip({ status }) {
   const s = STATUS_KEYS[status] || STATUS_KEYS.missing
   return (
-    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${s.className}`}>
+    <span className={`inline-block min-w-0 max-w-full text-xs font-semibold px-2.5 py-1 rounded-full break-words ${s.className}`}>
       {bi(s.key)}
     </span>
   )

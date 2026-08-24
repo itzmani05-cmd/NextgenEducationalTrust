@@ -1,8 +1,11 @@
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import PDFDocument from 'pdfkit'
 import { DOCUMENT_LABELS } from './documentFieldPatch.js'
 
-const IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png'])
-const PDF_EXTS = new Set(['pdf'])
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'Logo.png')
 
 function inr(n) {
   return n != null ? `Rs. ${Number(n).toLocaleString('en-IN')}` : '—'
@@ -46,45 +49,22 @@ function docKeyPresent(app, docKey) {
   return Boolean(app[`${docKey}Url`])
 }
 
-// Embeds an actual preview of the uploaded file directly under its row —
-// an inline thumbnail for images, or a pointer to the merged pages at the
-// end of the document for PDFs (pdfkit can't inline another PDF's pages;
-// the caller merges those in with pdf-lib after this buffer is built).
-function docRow(doc, label, present, attachment) {
-  row(doc, label, present ? 'Uploaded' : 'Not uploaded')
+// Only ever lists documents the applicant actually uploaded — every uploaded
+// one gets a full-page preview appended at the end of this document (images
+// scaled to fill the page, uploaded PDFs merged in as-is; see
+// appendDocumentAttachments in routes/applications.js), so this row is just
+// a contents pointer, not a status flag.
+function docRow(doc, label, present) {
   if (!present) return
-
-  const noteX = doc.page.margins.left + 170
-  const ext = attachment?.ext
-
-  if (attachment?.buffer && IMAGE_EXTS.has(ext)) {
-    const maxSize = 150
-    if (doc.y + maxSize + 12 > doc.page.height - doc.page.margins.bottom) doc.addPage()
-    try {
-      doc.image(attachment.buffer, noteX, doc.y, { fit: [maxSize, maxSize] })
-      doc.y += maxSize + 10
-    } catch {
-      doc.fontSize(8.5).fillColor('#999').font('Helvetica-Oblique').text('(Could not render a preview for this image)', noteX, doc.y)
-      doc.moveDown(0.4)
-    }
-  } else if (PDF_EXTS.has(ext)) {
-    doc.fontSize(8.5).fillColor('#999').font('Helvetica-Oblique').text('(Attached as additional pages at the end of this document)', noteX, doc.y)
-    doc.moveDown(0.4)
-  } else if (ext) {
-    doc.fontSize(8.5).fillColor('#999').font('Helvetica-Oblique').text('(Uploaded — open separately, preview not available for this file type)', noteX, doc.y)
-    doc.moveDown(0.4)
-  }
+  row(doc, label, 'Uploaded')
 }
 
 // Renders the entire application record as a PDF — every field the applicant
 // submitted, plus current verification, concession, and payment status — for
 // the Trust admin team to keep or hand off offline. Generated fresh on every
 // request rather than stored, so it always reflects the latest admin
-// decisions (concession overrides, payment approval, etc). `attachments` is
-// an optional { [docKey]: { buffer, ext } } map of the actual uploaded files,
-// used to embed image previews inline (PDF attachments are merged in by the
-// caller after this buffer is built — see routes/applications.js).
-export function renderApplicationPdf(app, attachments = {}) {
+// decisions (concession overrides, payment approval, etc).
+export function renderApplicationPdf(app) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: 50 })
     const chunks = []
@@ -93,6 +73,27 @@ export function renderApplicationPdf(app, attachments = {}) {
     doc.on('error', reject)
 
     const refNumber = `NGC-${app.id.slice(0, 8).toUpperCase()}`
+
+    let logoDrawn = false
+    if (fs.existsSync(LOGO_PATH)) {
+      try {
+        doc.image(LOGO_PATH, doc.page.margins.left, doc.y, { width: 40 })
+        logoDrawn = true
+      } catch {
+        // Logo is a nice-to-have — never let a bad image file block generation.
+      }
+    }
+
+    const headerX = logoDrawn ? doc.page.margins.left + 52 : doc.page.margins.left
+    const headerTop = doc.y
+    doc.fontSize(14).fillColor('#1B2A4A').font('Helvetica-Bold')
+      .text('NEXTGEN SOLUTIONS EDUCATIONAL TRUST', headerX, headerTop, { width: doc.page.width - doc.page.margins.right - headerX })
+    doc.fontSize(8.5).fillColor('#666666').font('Helvetica')
+      .text('4/1023-D, Ayyalu Meenakshi Nagar, Udumalpet - 642 126, Tiruppur (Dt.), Tamil Nadu', headerX)
+    doc.text('nextgencollegesolutions@gmail.com  |  93423 79043 / 97902 13628', headerX)
+    doc.y = Math.max(doc.y, headerTop + 40) + 8
+    doc.moveTo(doc.page.margins.left, doc.y).lineTo(doc.page.width - doc.page.margins.right, doc.y).strokeColor('#DDDDDD').lineWidth(0.5).stroke()
+    doc.moveDown(0.8)
 
     doc.fontSize(18).fillColor('#1B2A4A').font('Helvetica-Bold').text('Scholarship Application Record')
     doc.fontSize(9.5).fillColor('#666666').font('Helvetica')
@@ -171,7 +172,7 @@ export function renderApplicationPdf(app, attachments = {}) {
 
     section(doc, 'Documents')
     for (const [docKey, label] of DOCUMENT_LABELS) {
-      docRow(doc, label, docKeyPresent(app, docKey), attachments[docKey])
+      docRow(doc, label, docKeyPresent(app, docKey))
     }
 
     section(doc, 'Concession Decision')

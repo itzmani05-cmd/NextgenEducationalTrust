@@ -743,29 +743,60 @@ async function loadDocumentAttachments(application) {
   return attachments
 }
 
-// Appends a labeled divider page followed by every page of an uploaded PDF —
-// pdfkit (used for the main record) can't inline another PDF's pages, so any
-// PDF attachments are merged on afterward with pdf-lib.
+// Appends every uploaded document as its own full page — pdfkit (used for
+// the main record) can't inline an image full-bleed or merge another PDF's
+// pages, so this pass does both with pdf-lib after the base record is built.
+// Each document gets exactly one page of content: an image is scaled up to
+// fill it, an uploaded PDF is merged in as-is (its own page count, since
+// that's the source file's actual content — but no separate divider page is
+// wasted on it). A slim label band is drawn on the page itself so it's
+// unambiguous which document each page belongs to.
 const A4_SIZE = [595.28, 841.89]
+const PAGE_MARGIN = 36
+const LABEL_BAND_HEIGHT = 26
+const IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png'])
+const PDF_EXTS = new Set(['pdf'])
 
-async function appendPdfAttachments(baseBuffer, attachments) {
-  const pdfEntries = DOCUMENT_LABELS.filter(([docKey]) => attachments[docKey]?.ext === 'pdf')
-  if (pdfEntries.length === 0) return baseBuffer
+async function appendDocumentAttachments(baseBuffer, attachments) {
+  const entries = DOCUMENT_LABELS.filter(([docKey]) => {
+    const ext = attachments[docKey]?.ext
+    return ext && (IMAGE_EXTS.has(ext) || PDF_EXTS.has(ext))
+  })
+  if (entries.length === 0) return baseBuffer
 
   const merged = await PdfLibDocument.load(baseBuffer)
   const font = await merged.embedFont(StandardFonts.HelveticaBold)
 
-  for (const [docKey, label] of pdfEntries) {
-    try {
-      const divider = merged.addPage(A4_SIZE)
-      divider.drawText('Attachment', { x: 50, y: A4_SIZE[1] - 80, size: 12, font, color: rgb(0.7, 0.15, 0.18) })
-      divider.drawText(label, { x: 50, y: A4_SIZE[1] - 105, size: 20, font, color: rgb(0.11, 0.16, 0.29) })
+  const drawLabelBand = (page, label) => {
+    const { width, height } = page.getSize()
+    page.drawRectangle({ x: 0, y: height - LABEL_BAND_HEIGHT, width, height: LABEL_BAND_HEIGHT, color: rgb(0.11, 0.16, 0.29) })
+    page.drawText(label, { x: PAGE_MARGIN, y: height - LABEL_BAND_HEIGHT + 8, size: 11, font, color: rgb(1, 1, 1) })
+  }
 
-      const srcDoc = await PdfLibDocument.load(attachments[docKey].buffer)
-      const copiedPages = await merged.copyPages(srcDoc, srcDoc.getPageIndices())
-      copiedPages.forEach((page) => merged.addPage(page))
+  for (const [docKey, label] of entries) {
+    const { buffer, ext } = attachments[docKey]
+    try {
+      if (IMAGE_EXTS.has(ext)) {
+        const image = ext === 'png' ? await merged.embedPng(buffer) : await merged.embedJpg(buffer)
+        const page = merged.addPage(A4_SIZE)
+        const [pw, ph] = A4_SIZE
+        const availW = pw - PAGE_MARGIN * 2
+        const availH = ph - LABEL_BAND_HEIGHT - PAGE_MARGIN * 2
+        const scale = Math.min(availW / image.width, availH / image.height)
+        const w = image.width * scale
+        const h = image.height * scale
+        page.drawImage(image, { x: (pw - w) / 2, y: PAGE_MARGIN + (availH - h) / 2, width: w, height: h })
+        drawLabelBand(page, label)
+      } else {
+        const srcDoc = await PdfLibDocument.load(buffer)
+        const copiedPages = await merged.copyPages(srcDoc, srcDoc.getPageIndices())
+        copiedPages.forEach((page, i) => {
+          merged.addPage(page)
+          if (i === 0) drawLabelBand(page, label)
+        })
+      }
     } catch (err) {
-      console.error(`Failed to merge PDF attachment "${docKey}":`, err)
+      console.error(`Failed to attach document "${docKey}":`, err)
     }
   }
 
@@ -784,8 +815,8 @@ router.get('/:id/application-pdf', requireAdmin, async (req, res) => {
     }
 
     const attachments = await loadDocumentAttachments(application)
-    const basePdfBuffer = await renderApplicationPdf(application, attachments)
-    const pdfBuffer = await appendPdfAttachments(basePdfBuffer, attachments)
+    const basePdfBuffer = await renderApplicationPdf(application)
+    const pdfBuffer = await appendDocumentAttachments(basePdfBuffer, attachments)
     const refNumber = `NGC-${application.id.slice(0, 8).toUpperCase()}`
 
     res.setHeader('Content-Type', 'application/pdf')

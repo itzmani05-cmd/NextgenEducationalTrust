@@ -14,7 +14,7 @@ Numbered sequentially per year, e.g. `NGF/2026/00001`.
 
 | Field | Value |
 |---|---|
-| Trust Name | NEXTGEN SOLUTIONS EDUCATIONAL TRUST |
+| Trust Name | NEXTGEN SOLUTIONS EDUCATIONAL TRUST (all caps) |
 | Address | 4/1023-D, Ayyalu Meenakshi Nagar, Udumalpet - 642 126, Tiruppur (Dt.), Tamil Nadu |
 | Contact | nextgencollegesolutions@gmail.com \| 93423 79043 / 97902 13628 |
 | Document Title | RECEIPT |
@@ -28,7 +28,7 @@ Numbered sequentially per year, e.g. `NGF/2026/00001`.
 |---|---|
 | Receipt No. | Auto-generated, e.g. `NGF/2026/00001` |
 | Date | Date the receipt is issued (payment approval date) |
-| Received from | `application.fullName` |
+| Received from | `application.fullName`, upper-cased for display |
 | Course | `application.examName` (falls back to `application.college.degree`) |
 | Mobile | `application.mobile` |
 | Email | `application.email` |
@@ -54,7 +54,7 @@ The itemized part unique to this receipt:
 
 | Field | Source |
 |---|---|
-| Payment Mode | `payment.paymentMethod` (UPI) |
+| Payment Mode | `payment.paymentMethod` (upi / bank_transfer / other), upper-cased with underscores replaced by spaces — e.g. `BANK TRANSFER` |
 | Payment Date | `payment.paymentDate` |
 | UTR / Transaction ID | `payment.transactionId` |
 | Purpose | "\[Course Name\] Fee" |
@@ -67,7 +67,7 @@ The itemized part unique to this receipt:
 |---|---|
 | Note | "This fee is collected for educational purpose only. Not refundable." |
 | Signature | `src/assests/signature.png`, embedded above the signatory line |
-| Signed For | NextGen Solutions Educational Trust — Authorized Signatory |
+| Signed For | NEXTGEN SOLUTIONS EDUCATIONAL TRUST — Authorized Signatory |
 
 ---
 

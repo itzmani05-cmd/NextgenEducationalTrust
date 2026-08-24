@@ -59,7 +59,7 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
 
             {!loading && (
               user ? (
@@ -129,7 +129,7 @@ export default function Navbar() {
 
           <Link
             to="/contact"
-            className="hidden sm:inline-flex bg-brand-red text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-sm hover:bg-brand-redDark hover:shadow-md transition-all"
+            className="hidden md:inline-flex bg-brand-red text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-sm hover:bg-brand-redDark hover:shadow-md transition-all"
           >
             Contact Us
           </Link>
@@ -164,6 +164,45 @@ export default function Navbar() {
               </NavLink>
             ))}
           </nav>
+
+          {!loading && user && (
+            <div className="pt-2 border-t border-brand-border">
+              <Link
+                to="/profile"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 py-2 rounded-lg hover:bg-brand-surface transition-colors"
+              >
+                {user.user_metadata?.avatar_url ? (
+                  <img
+                    src={user.user_metadata.avatar_url}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    className="w-8 h-8 rounded-full object-cover ring-2 ring-white shrink-0"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-brand-navy/10 flex items-center justify-center text-brand-navy shrink-0">
+                    <User className="w-4 h-4" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-brand-text truncate">
+                    {user.user_metadata?.full_name || 'Profile'}
+                  </p>
+                  <p className="text-xs text-brand-muted truncate">{user.email}</p>
+                </div>
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileOpen(false)
+                  signOut()
+                }}
+                className="w-full flex items-center gap-2 py-2 text-sm font-medium text-brand-text hover:text-brand-red transition-colors"
+              >
+                <LogOut className="w-4 h-4" /> Sign Out
+              </button>
+            </div>
+          )}
 
           <div className="flex items-center gap-3 pt-2 border-t border-brand-border">
             {!loading && !user && (
