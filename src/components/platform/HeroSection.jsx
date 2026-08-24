@@ -13,15 +13,12 @@ export default function HeroSection() {
             Technical Skill Development Program
           </span>
           <h1 className="font-serif text-4xl md:text-5xl text-brand-ink mb-4 leading-tight">
-            <span className="text-brand-rust">C³</span> Educational Platform
+            <span className="text-brand-rust">C³ Educational Platform</span> 
           </h1>
           
 
           <p className="text-brand-muted text-lg leading-relaxed mb-6">
-            C³ Educational Platform is a Technical Skill Development Program of{' '}
-            <span className="font-semibold text-brand-ink">
-              NEXTGEN SOLUTIONS EDUCATIONAL TRUST
-            </span>
+            C³ Educational Platform is a Technical Skill Development Program of NEXTGEN SOLUTIONS EDUCATIONAL TRUST
             , designed to strengthen the technical knowledge, problem-solving ability and
             examination skills of students aspiring for State and Central Government Services and
             GATE examinations.
