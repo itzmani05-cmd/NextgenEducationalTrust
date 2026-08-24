@@ -26,12 +26,12 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     let logoDrawn = false
     if (fs.existsSync(LOGO_PATH)) {
       try {
-        doc.image(LOGO_PATH, doc.page.width / 2 - 35, 45, { width: 70 })
+        doc.image(LOGO_PATH, doc.page.width / 2 - 35, 75, { width: 70 })
         logoDrawn = true
       } catch {}
     }
 
-    doc.y = logoDrawn ? 125 : 55
+    doc.y = logoDrawn ? 155 : 85
     doc.fontSize(18).fillColor('#1B2A4A').font('Helvetica-Bold')
       .text('NEXTGEN SOLUTIONS EDUCATIONAL TRUST', { align: 'center' })
     doc.moveDown(0.2)
@@ -52,7 +52,11 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     doc.font('Helvetica').text(issuedAt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }), 390, topY)
 
     doc.moveDown(1.4)
-    const courseName = application.examName || application.college?.degree || '—'
+    // examName is stored English-only today, but older applications may still
+    // hold the wizard's legacy "English / Tamil" display string — keep only
+    // the English half so it never leaks onto an official document.
+    const rawCourseName = application.examName || application.college?.degree || '—'
+    const courseName = rawCourseName.split(' / ')[0].trim()
     const rows = [
       ['Received from', String(application.fullName || '').toUpperCase()],
       ['Course', courseName],
@@ -66,9 +70,10 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
       y += 20
     }
 
-    doc.y = y + 6
-    doc.fontSize(10).fillColor('#555').font('Helvetica-Bold').text('A sum of Rupees:', 50, doc.y)
-    doc.fontSize(10).fillColor('#222').font('Helvetica').text(`${amountInWords(payment.amountPaid)} Only`, 220, doc.y, { width: 320 })
+    const sumY = y + 6
+    doc.fontSize(10).fillColor('#555').font('Helvetica-Bold').text('A sum of Rupees:', 50, sumY)
+    doc.fontSize(10).fillColor('#222').font('Helvetica').text(`${amountInWords(payment.amountPaid)} Only`, 220, sumY, { width: 320 })
+    doc.y = sumY + 20
 
     doc.moveDown(1)
     doc.fontSize(11).fillColor('#1B2A4A').font('Helvetica-Bold').text('Fee Breakdown', 50, doc.y)
@@ -101,7 +106,6 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
       ['Payment Mode', payment.paymentMethod ? payment.paymentMethod.replace(/_/g, ' ').toUpperCase() : '—'],
       ['Payment Date', payment.paymentDate ? new Date(payment.paymentDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'],
       ['UTR / Transaction ID', payment.transactionId || '—'],
-      ['Purpose', `${courseName} Fee`],
     ]
     y = doc.y
     for (const [label, value] of payRows) {

@@ -110,6 +110,14 @@ export function renderApplicationPdf(app) {
     row(doc, 'Address', app.address)
     row(doc, 'District', app.district)
 
+    if (app.payment?.receiptNumber) {
+      section(doc, 'Fee Receipt')
+      row(doc, 'Receipt No.', app.payment.receiptNumber)
+      row(doc, 'Amount Paid', app.payment.amountPaid != null ? inr(app.payment.amountPaid) : null)
+      row(doc, 'Payment Date', app.payment.paymentDate ? date(app.payment.paymentDate) : null)
+      row(doc, 'Payment Mode', app.payment.paymentMethod ? app.payment.paymentMethod.replace(/_/g, ' ').toUpperCase() : null)
+    }
+
     section(doc, 'Family')
     row(doc, "Father's Name", app.fatherName)
     row(doc, "Father's Occupation", app.fatherOccupation)

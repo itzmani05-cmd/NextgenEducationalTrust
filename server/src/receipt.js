@@ -77,12 +77,12 @@ function renderReceiptPdf({ receiptNumber, donation, issuedAt }) {
     let logoDrawn = false
     if (fs.existsSync(LOGO_PATH)) {
       try {
-        doc.image(LOGO_PATH, doc.page.width / 2 - 35, 45, { width: 70 })
+        doc.image(LOGO_PATH, doc.page.width / 2 - 35, 75, { width: 70 })
         logoDrawn = true
       } catch {}
     }
 
-    doc.y = logoDrawn ? 125 : 55
+    doc.y = logoDrawn ? 155 : 85
     doc.fontSize(18).fillColor('#1B2A4A').font('Helvetica-Bold')
       .text('NEXTGEN SOLUTIONS EDUCATIONAL TRUST', { align: 'center' })
     doc.moveDown(0.2)
@@ -116,9 +116,10 @@ function renderReceiptPdf({ receiptNumber, donation, issuedAt }) {
       y += 20
     }
 
-    doc.y = y + 6
-    doc.fontSize(10).fillColor('#555').font('Helvetica-Bold').text('A sum of Rupees:', 50, doc.y)
-    doc.fontSize(10).fillColor('#222').font('Helvetica').text(`${amountInWords(donation.amount)} Only`, 220, doc.y, { width: 320 })
+    const sumY = y + 6
+    doc.fontSize(10).fillColor('#555').font('Helvetica-Bold').text('A sum of Rupees:', 50, sumY)
+    doc.fontSize(10).fillColor('#222').font('Helvetica').text(`${amountInWords(donation.amount)} Only`, 220, sumY, { width: 320 })
+    doc.y = sumY + 20
 
     doc.moveDown(1.6)
     doc.rect(50, doc.y, doc.page.width - 100, 34).lineWidth(1).strokeColor('#1B2A4A').stroke()

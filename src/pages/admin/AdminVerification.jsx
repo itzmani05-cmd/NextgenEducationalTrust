@@ -4,7 +4,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext.jsx'
 import {
   listApplications, updateApplicationStatus, updateDocumentReview, getSignedDocumentUrl, AuthError,
 } from '../../utils/adminApi.js'
-import { getAllRequiredDocuments } from '../../utils/documentChecklist.js'
+import { getAllRequiredDocuments, getDocumentFieldPath } from '../../utils/documentChecklist.js'
 import { getPath } from '../../utils/objectPath.js'
 import { enOnly } from '../../i18n/bilingual.js'
 import ErrorBanner from '../../components/admin/ErrorBanner.jsx'
@@ -66,7 +66,7 @@ export default function AdminVerification() {
   }, [app, selectedDoc])
 
   useEffect(() => {
-    const hasPath = app && selectedDoc && getPath(app, selectedDoc)
+    const hasPath = app && selectedDoc && getPath(app, getDocumentFieldPath(selectedDoc))
     if (!hasPath) {
       setSignedUrl('')
       return
@@ -183,7 +183,7 @@ export default function AdminVerification() {
     return <div className="max-w-6xl 3xl:max-w-[1500px] 4xl:max-w-[1800px] 5xl:max-w-[2000px] 6xl:max-w-[2300px] mx-auto px-6 py-10 text-brand-muted">{enOnly('admin.common.loading')}</div>
   }
 
-  const selectedDocHasFile = selectedDoc ? Boolean(getPath(app, selectedDoc)) : false
+  const selectedDocHasFile = selectedDoc ? Boolean(getPath(app, getDocumentFieldPath(selectedDoc))) : false
   const selectedReview = app.documentReviews?.[selectedDoc]
   const selectedDocMeta = docs.find((d) => d.key === selectedDoc)
 

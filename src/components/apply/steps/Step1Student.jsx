@@ -2,7 +2,7 @@ import SectionCard from '../SectionCard.jsx'
 import TextField from '../fields/TextField.jsx'
 import SelectField from '../fields/SelectField.jsx'
 import OptionPills from '../fields/OptionPills.jsx'
-import { bi } from '../../../i18n/bilingual.js'
+import { bi, enOnly } from '../../../i18n/bilingual.js'
 
 const DISTRICTS = [
   'Ariyalur', 'Chengalpattu', 'Chennai', 'Coimbatore', 'Cuddalore', 'Dharmapuri',
@@ -21,18 +21,23 @@ const SDP_ABBR = (
 )
 
 const COURSE_OPTIONS = [
-  { value: 'state_govt', exam: bi('step1.courseStateGovt') },
-  { value: 'central_govt', exam: bi('step1.courseCentralGovt') },
-  { value: 'gate', exam: bi('step1.courseGate') },
+  { value: 'state_govt', exam: bi('step1.courseStateGovt'), examEn: enOnly('step1.courseStateGovt') },
+  { value: 'central_govt', exam: bi('step1.courseCentralGovt'), examEn: enOnly('step1.courseCentralGovt') },
+  { value: 'gate', exam: bi('step1.courseGate'), examEn: enOnly('step1.courseGate') },
 ]
 
 export default function Step1Student({ data, setField }) {
   const districts = [...DISTRICTS, bi('common.other')].map((d) => ({ value: d, label: d }))
 
+  // Stored as English-only — this value ends up on official documents (fee
+  // receipts, the downloadable application record), where the bilingual
+  // "English / Tamil" display string used for the pill label above would
+  // look broken. Every other field here stores the plain value with only
+  // its on-screen label shown bilingually; examName should be no different.
   const setCourse = (value) => {
     const opt = COURSE_OPTIONS.find((o) => o.value === value)
     setField('examCategory', value)
-    setField('examName', opt ? opt.exam : '')
+    setField('examName', opt ? opt.examEn : '')
   }
 
   return (
