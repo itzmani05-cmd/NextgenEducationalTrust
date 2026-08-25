@@ -16,13 +16,13 @@ export default function FindUsSection() {
         <div className="flex items-start gap-3 justify-center text-center sm:text-left sm:justify-start mb-6">
           <MapPin className="w-5 h-5 text-brand-rust shrink-0 mt-0.5" />
           <p className="text-sm text-brand-muted">
-            4/1023 D, Ayyalu Meenakshi Nagar, Udumalpet – 642 126, Tamil Nadu
+            2nd Floor, Lawley Road Signal, R.S. Puram, Coimbatore, Tamil Nadu – 641002, India
           </p>
         </div>
 
         <div className="rounded-2xl overflow-hidden border border-brand-border shadow-sm">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d125318.51229401889!2d76.85763176120761!3d11.023352455007315!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba8594f36886f69%3A0x99d441e392c3e41b!2sC%5E3%20_%20Civil%20engineering%20Coaching%20Centre!5e0!3m2!1sen!2sin!4v1787423532985!5m2!1sen!2sin"
+            src="https://www.google.com/maps?q=C3+Educational+Platform,+Lawley+Road+Signal,+R.S.+Puram,+Coimbatore,+Tamil+Nadu+641002&output=embed"
             width="100%"
             height="450"
             style={{ border: 0 }}
