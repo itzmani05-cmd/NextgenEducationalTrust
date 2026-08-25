@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Copy, Check } from 'lucide-react'
 import qrCode from '../../assests/QrPic.jpeg'
 
-const UPI_NUMBER = '6369925623'
-const ACCOUNT_NAME = 'Manikandan Muralikrishna'
+const UPI_NUMBER = '9790213628'
+const ACCOUNT_NAME = 'S RAMESH kUMAR'
 
 const BANK_NAME = 'City Union Bank'
 const BANK_ACCOUNT_NAME = 'NEXTGEN SOLUTIONS EDUCATIONAL TRUST'
@@ -21,7 +21,7 @@ export default function DonationQrSection() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      // clipboard access unavailable — user can still copy the number manually
+
     }
   }
 
