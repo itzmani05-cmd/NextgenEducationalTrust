@@ -70,7 +70,7 @@ export default function DocumentReviewPanel({
         <button
           type="button"
           onClick={() => onReview('rejected')}
-          disabled={saving}
+          disabled={saving || !selectedDocHasFile}
           className="inline-flex items-center gap-2 border border-brand-red text-brand-red px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors disabled:opacity-40"
         >
           <XCircle className="w-4 h-4" /> {enOnly('admin.verification.rejectDocument')}
@@ -78,7 +78,7 @@ export default function DocumentReviewPanel({
         <button
           type="button"
           onClick={() => onReview('approved')}
-          disabled={saving}
+          disabled={saving || !selectedDocHasFile}
           className="inline-flex items-center gap-2 bg-brand-navy text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:brightness-110 transition-all disabled:opacity-40"
         >
           <CheckCircle2 className="w-4 h-4" /> {enOnly('admin.verification.approveDocument')}

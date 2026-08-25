@@ -12,6 +12,7 @@ import { getProvisional } from '../scholarshipCalc.js'
 import { logAudit } from '../audit.js'
 import { issueFeeReceiptForPayment } from '../studentFeeReceipt.js'
 import { renderApplicationPdf } from '../applicationPdf.js'
+import { sendVerificationDecisionEmail, sendPaymentApprovedEmail, sendPaymentRejectedEmail } from '../email.js'
 
 const router = Router()
 
@@ -211,6 +212,14 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
       })
     }
 
+    // Best-effort: the status change itself is already committed above, so an
+    // email delivery failure here is only logged, never surfaced as a request error.
+    if ((status === 'approved' || status === 'rejected') && before?.status !== status) {
+      sendVerificationDecisionEmail(application, status).catch((err) => {
+        console.error('Failed to send verification decision email:', err)
+      })
+    }
+
     res.json(application)
   } catch (err) {
     console.error('Failed to update application status:', err)
@@ -281,6 +290,10 @@ router.patch('/:id/documents/:docKey', requireAdmin, async (req, res) => {
   try {
     const existing = await prisma.application.findUnique({ where: { id: req.params.id } })
     if (!existing) return res.status(404).json({ error: 'Application not found.' })
+
+    if (status !== 'pending' && !getDocumentPath(existing, req.params.docKey)) {
+      return res.status(400).json({ error: 'Cannot review a document that has not been uploaded.' })
+    }
 
     const documentReviews = { ...(existing.documentReviews || {}) }
     documentReviews[req.params.docKey] = { status, comment: comment || '' }
@@ -547,9 +560,11 @@ router.patch('/:id/payment/approve', requireAdmin, async (req, res) => {
     // already committed and correct even if PDF/storage hiccups — an admin
     // can retry via POST /:id/payment/receipt/generate.
     let updatedPaymentWithReceipt = updatedPayment
+    let receiptPdfBuffer
     try {
-      const { payment: withReceipt } = await issueFeeReceiptForPayment(updatedApplication, updatedPayment)
+      const { payment: withReceipt, pdfBuffer } = await issueFeeReceiptForPayment(updatedApplication, updatedPayment)
       updatedPaymentWithReceipt = withReceipt
+      receiptPdfBuffer = pdfBuffer
       await logAudit({
         adminEmail: req.admin.email, applicationId: application.id, paymentId: payment.id,
         action: 'FEE_RECEIPT_ISSUED', newValue: { receiptNumber: withReceipt.receiptNumber },
@@ -557,6 +572,11 @@ router.patch('/:id/payment/approve', requireAdmin, async (req, res) => {
     } catch (receiptErr) {
       console.error('Payment approved but fee receipt generation failed:', receiptErr)
     }
+
+    // Best-effort — never blocks the already-committed approval above.
+    sendPaymentApprovedEmail(updatedApplication, updatedPaymentWithReceipt, receiptPdfBuffer).catch((err) => {
+      console.error('Failed to send payment approved email:', err)
+    })
 
     res.json({ ...updatedApplication, payment: updatedPaymentWithReceipt })
   } catch (err) {
@@ -596,6 +616,11 @@ router.patch('/:id/payment/reject', requireAdmin, async (req, res) => {
       action: 'PAYMENT_REJECTED', oldStatus: 'payment_submitted', newStatus: 'payment_rejected', remarks: reason,
     })
 
+    // Best-effort — never blocks the already-committed rejection above.
+    sendPaymentRejectedEmail(updatedApplication, updatedPayment).catch((err) => {
+      console.error('Failed to send payment rejected email:', err)
+    })
+
     res.json({ ...updatedApplication, payment: updatedPayment })
   } catch (err) {
     console.error('Failed to reject payment:', err)
@@ -618,12 +643,17 @@ router.post('/:id/payment/receipt/generate', requireAdmin, async (req, res) => {
     }
 
     const alreadyExisted = Boolean(application.payment.receiptPath)
-    const { payment } = await issueFeeReceiptForPayment(application, application.payment)
+    const { payment, pdfBuffer } = await issueFeeReceiptForPayment(application, application.payment)
 
     if (!alreadyExisted) {
       await logAudit({
         adminEmail: req.admin.email, applicationId: application.id, paymentId: payment.id,
         action: 'FEE_RECEIPT_ISSUED', newValue: { receiptNumber: payment.receiptNumber },
+      })
+      // Only on first issuance — catches up the email the student would have
+      // gotten at approval time if receipt generation hadn't failed then.
+      sendPaymentApprovedEmail(application, payment, pdfBuffer).catch((err) => {
+        console.error('Failed to send payment approved email:', err)
       })
     }
 

@@ -51,7 +51,7 @@ export default function Navbar() {
       <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 h-20 flex items-center justify-between gap-6">
         <div className="flex items-center gap-3 shrink-0">
           <Link to="/" className="flex items-center shrink-0">
-            <img src={logo} alt="NextGen Education Trust" className="h-16 w-[96px] object-contain" />
+            <img src={logo} alt="NextGen Education Trust" className="h-20 w-[120px] object-contain" />
           </Link>
           {onPlatform && (
             <>
