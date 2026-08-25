@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { NavLink, Link, useLocation } from 'react-router-dom'
 import { HelpCircle, User, LogIn, LogOut, Menu, X, HeartHandshake } from 'lucide-react'
 import logo from '../assests/TrustLogo.png'
-import c3Logo from '../assests/C3Logo.png'
+import c3Logo from '../assests/C3LogoBg.jpeg'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const links = [
