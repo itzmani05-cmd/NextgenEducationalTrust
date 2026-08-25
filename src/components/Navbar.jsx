@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { NavLink, Link, useLocation } from 'react-router-dom'
 import { HelpCircle, User, LogIn, LogOut, Menu, X, HeartHandshake } from 'lucide-react'
 import logo from '../assests/TrustLogo.png'
-import c3Logo from '../assests/C3LogoBg.jpeg'
+import c3Logo from '../assests/c3LogoBg.png'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const links = [
@@ -48,16 +48,16 @@ export default function Navbar() {
         scrolled ? 'border-brand-border shadow-[0_1px_12px_rgba(23,35,60,0.06)]' : 'border-brand-border/70'
       }`}
     >
-      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 h-20 flex items-center justify-between gap-6">
-        <div className="flex items-center gap-3 shrink-0">
+      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-3 sm:gap-6">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
           <Link to="/" className="flex items-center shrink-0">
-            <img src={logo} alt="NextGen Education Trust" className="h-20 w-[120px] object-contain" />
+            <img src={logo} alt="NextGen Education Trust" className="h-16 w-[96px] sm:h-20 sm:w-[120px] object-contain" />
           </Link>
           {onPlatform && (
             <>
-              <span className="w-px h-8 bg-brand-border" aria-hidden="true" />
+              <span className="w-px h-8 bg-brand-border shrink-0" aria-hidden="true" />
               <Link to="/platform" className="flex items-center shrink-0">
-                <img src={c3Logo} alt="C³ Educational Platform" className="h-11 w-11 object-contain" />
+                <img src={c3Logo} alt="C³ Educational Platform" className="h-40 w-40 object-contain -my-10" />
               </Link>
             </>
           )}

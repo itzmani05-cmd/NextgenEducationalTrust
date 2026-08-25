@@ -2,16 +2,19 @@
 // Application row rather than in-progress wizard state. Kept authoritative
 // here so `calculatedConcession` can never be set from a client-sent value.
 
-const INCOME_BASED_KEYS = ['income_1', 'income_2', 'income_3']
+const INCOME_BASED_KEYS = ['income_1', 'income_2', 'income_3', 'income_4']
 
-// Flat +5% if the average of 10th & 12th percentage is excellent (≥80%) —
-// an all-or-nothing bonus rather than a scaled one.
+// Tiered bonus based on the average of 10th & 12th percentage:
+// ≥80% -> +5%, 60-79.99% -> +3%, 50-59.99% -> +1%, <50% -> +0%.
 function tenthTwelfthBonus(tenthPct, twelfthPct) {
   const a = parseFloat(tenthPct)
   const b = parseFloat(twelfthPct)
   if (Number.isNaN(a) || Number.isNaN(b)) return 0
   const avg = (a + b) / 2
-  return avg >= 80 ? 5 : 0
+  if (avg >= 80) return 5
+  if (avg >= 60) return 3
+  if (avg >= 50) return 1
+  return 0
 }
 
 function getCategory(app) {
@@ -29,7 +32,7 @@ function getCategory(app) {
     case '3_to_5':
       return { key: 'income_3', label: 'Category 3 — Income Tier 3', base: 25, cap: 50 }
     case 'above_5':
-      return { key: 'income_4', label: 'Category 4 — Standard Fee', base: 0, cap: 0 }
+      return { key: 'income_4', label: 'Category 4 — Standard Fee', base: 0, cap: 25 }
     default:
       return { key: 'pending', label: 'Awaiting Selection', base: 0, cap: 0 }
   }

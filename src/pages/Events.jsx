@@ -5,7 +5,7 @@ export default function Events() {
   return (
     <div className="bg-white">
       <HeroSection />
-      <EventsGridSection />
+      <div data-reveal><EventsGridSection /></div>
     </div>
   )
 }

@@ -13,7 +13,7 @@ export default function Contact() {
         </div>
       </section>
 
-      <ContactSection />
+      <div data-reveal><ContactSection /></div>
     </div>
   )
 }

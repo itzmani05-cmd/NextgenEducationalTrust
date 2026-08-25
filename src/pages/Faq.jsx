@@ -5,7 +5,7 @@ export default function Faq() {
   return (
     <div className="bg-white">
       <HeroSection />
-      <FaqCategoriesSection />
+      <div data-reveal><FaqCategoriesSection /></div>
     </div>
   )
 }

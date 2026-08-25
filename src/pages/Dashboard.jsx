@@ -15,17 +15,17 @@ export default function Dashboard() {
   return (
     <div>
       <HeroSection />
-      <AboutSection />
-      <InitiativesSection />
-      <ObjectivesSection />
-      <ProgramHighlightSection />
-      <EventsPreviewSection />
+      <div data-reveal><AboutSection /></div>
+      <div data-reveal><InitiativesSection /></div>
+      <div data-reveal><ObjectivesSection /></div>
+      <div data-reveal><ProgramHighlightSection /></div>
+      <div data-reveal><EventsPreviewSection /></div>
       {/* <ImpactStorySection /> */}
-      <VoicesOfImpactSection />
-      <GuidingPrinciplesSection />
-      <GallerySection />
-      <ContactSection />
-      <CtaSection />
+      <div data-reveal><VoicesOfImpactSection /></div>
+      <div data-reveal><GuidingPrinciplesSection /></div>
+      <div data-reveal><GallerySection /></div>
+      <div data-reveal><ContactSection /></div>
+      <div data-reveal><CtaSection /></div>
     </div>
   )
 }

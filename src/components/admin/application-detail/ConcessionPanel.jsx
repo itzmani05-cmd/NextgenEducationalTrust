@@ -8,7 +8,11 @@ const CONCESSION_OPTIONS = [
     labelKey: 'admin.detail.concession.category3',
     sub: (s) => `25% / 40% / 50% base + factors, capped at 50% — calculated ${s?.provisional ?? 0}%`,
   },
-  { value: 'category4', labelKey: 'admin.detail.concession.category4', sub: () => enOnly('admin.detail.concession.noDiscount') },
+  {
+    value: 'category4',
+    labelKey: 'admin.detail.concession.category4',
+    sub: (s) => `0% base + factors, capped at 25% — calculated ${s?.provisional ?? 0}%`,
+  },
   { value: 'exceptional', labelKey: 'admin.detail.concession.exceptional', sub: () => enOnly('admin.detail.concession.trustCommitteeReview') },
 ]
 
@@ -65,7 +69,7 @@ export default function ConcessionPanel({
         })}
       </div>
 
-      {concessionCategory === 'category3' && suggestion && (
+      {(concessionCategory === 'category3' || concessionCategory === 'category4') && suggestion && (
         <div className="bg-brand-surface border border-brand-border rounded-lg p-4 mb-5 text-sm">
           <div className="flex items-center justify-between py-1">
             <span className="text-brand-muted">{enOnly('admin.detail.base')} ({suggestion.category.label})</span>

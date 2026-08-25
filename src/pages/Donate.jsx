@@ -66,8 +66,10 @@ export default function Donate() {
   return (
     <div className="bg-white">
       <DonationHero />
-      <DonationQrSection />
-      <DonationForm form={form} errors={errors} onChange={handleChange} submitting={submitting} onSubmit={handleSubmit} />
+      <div data-reveal><DonationQrSection /></div>
+      <div data-reveal>
+        <DonationForm form={form} errors={errors} onChange={handleChange} submitting={submitting} onSubmit={handleSubmit} />
+      </div>
     </div>
   )
 }

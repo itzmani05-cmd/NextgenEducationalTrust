@@ -5,7 +5,7 @@ export default function PrivacyPolicy() {
   return (
     <div className="bg-white">
       <HeroSection />
-      <PolicyContentSection />
+      <div data-reveal><PolicyContentSection /></div>
     </div>
   )
 }

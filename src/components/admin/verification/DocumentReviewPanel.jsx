@@ -66,7 +66,7 @@ export default function DocumentReviewPanel({
         </p>
       )}
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={() => onReview('rejected')}

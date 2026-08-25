@@ -96,7 +96,7 @@ export default function AdminApplicationDetail() {
     if (cat === 'category1') return 100
     if (cat === 'category2') return 50
     if (cat === 'category3') return suggestion?.provisional ?? 0
-    if (cat === 'category4') return 0
+    if (cat === 'category4') return suggestion?.provisional ?? 0
     return '' // exceptional — no auto-calculated figure
   }
 

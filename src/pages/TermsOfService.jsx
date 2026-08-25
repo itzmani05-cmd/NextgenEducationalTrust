@@ -5,7 +5,7 @@ export default function TermsOfService() {
   return (
     <div className="bg-white">
       <HeroSection />
-      <TermsContentSection />
+      <div data-reveal><TermsContentSection /></div>
     </div>
   )
 }
