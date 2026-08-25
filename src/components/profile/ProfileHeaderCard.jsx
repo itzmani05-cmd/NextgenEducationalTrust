@@ -4,7 +4,7 @@ export default function ProfileHeaderCard({ user, onSignOut }) {
   return (
     <div className="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden mb-6">
       <div className="h-20 bg-gradient-to-r from-brand-navy to-[#1d4ba8]" />
-      <div className="px-6 sm:px-8 pb-6">
+      <div className="px-5 sm:px-8 pb-6">
         <div className="flex items-end justify-between -mt-9 mb-3">
           {user.user_metadata?.avatar_url ? (
             <img

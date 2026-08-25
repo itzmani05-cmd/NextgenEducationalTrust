@@ -56,11 +56,45 @@ export default function ProgressTracker({ application }) {
   ]
 
   return (
-    <div className="bg-white border border-brand-border rounded-2xl shadow-sm p-6 sm:p-8">
-      <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted mb-6">
+    <div className="bg-white border border-brand-border rounded-2xl shadow-sm p-5 sm:p-8">
+      <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted mb-5 sm:mb-6">
         Application Progress
       </p>
-      <div className="overflow-x-auto">
+
+      {/* Stacked vertical timeline on narrow screens — a 4-up horizontal strip
+          doesn't fit without forcing an easy-to-miss horizontal scroll. */}
+      <div className="sm:hidden">
+        {steps.map((step, i) => {
+          const Icon = step.icon
+          const StepIcon = STEP_ICONS[step.state]
+          const style = STEP_STYLES[step.state]
+          const isLast = i === steps.length - 1
+          return (
+            <div key={step.title} className={`flex gap-3 ${isLast ? '' : 'pb-5'}`}>
+              <div className="flex flex-col items-center">
+                <div className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0 ${style.ring}`}>
+                  <Icon className="w-4.5 h-4.5" />
+                  {step.state !== 'pending' && (
+                    <StepIcon
+                      className={`w-3.5 h-3.5 absolute -bottom-1 -right-1 rounded-full bg-white ${
+                        step.state === 'done' ? 'text-brand-navy' : step.state === 'rejected' ? 'text-brand-red' : 'text-brand-amber'
+                      }`}
+                    />
+                  )}
+                </div>
+                {!isLast && <div className={`w-0.5 flex-1 mt-1 rounded-full ${style.line}`} />}
+              </div>
+              <div className="pt-1.5 min-w-0">
+                <p className={`text-sm font-semibold ${style.text}`}>{step.title}</p>
+                <p className="text-xs text-brand-muted mt-0.5 leading-snug">{step.subtitle}</p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Horizontal strip from sm upward, where 4 steps comfortably fit. */}
+      <div className="hidden sm:block overflow-x-auto">
         <div className="flex items-start min-w-max sm:min-w-0">
           {steps.map((step, i) => {
             const Icon = step.icon

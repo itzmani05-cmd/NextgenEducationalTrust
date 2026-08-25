@@ -89,11 +89,11 @@ export default function AdminVerification() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [app?.id, selectedDoc, token])
 
-  // Once the admin approves the student's photo, showcase it as the profile
-  // avatar in the sidebar instead of the generic placeholder icon.
+  // Show the student's uploaded photo as the sidebar avatar as soon as it's
+  // uploaded — the admin needs to see it to decide whether to approve it, not
+  // only after already approving it.
   useEffect(() => {
-    const photoApproved = app?.documentReviews?.studentPhoto?.status === 'approved' && app.studentPhotoUrl
-    if (!photoApproved) {
+    if (!app?.studentPhotoUrl) {
       setAvatarUrl('')
       return
     }
@@ -109,7 +109,7 @@ export default function AdminVerification() {
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [app?.id, app?.documentReviews?.studentPhoto?.status, token])
+  }, [app?.id, app?.studentPhotoUrl, token])
 
   const updateAppLocally = (updated) => {
     setApplications((prev) => prev.map((a) => (a.id === updated.id ? updated : a)))

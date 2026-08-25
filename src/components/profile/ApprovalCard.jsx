@@ -16,7 +16,7 @@ export default function ApprovalCard({ application }) {
 
   return (
     <div className="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden mb-6">
-      <div className="bg-green-50 border-b border-green-100 px-6 sm:px-8 py-6 flex items-center gap-4">
+      <div className="bg-green-50 border-b border-green-100 px-5 sm:px-8 py-6 flex items-center gap-4">
         <div className="w-11 h-11 rounded-full bg-green-100 text-green-700 flex items-center justify-center shrink-0">
           <CheckCircle2 className="w-6 h-6" />
         </div>
@@ -26,7 +26,7 @@ export default function ApprovalCard({ application }) {
         </div>
       </div>
 
-      <div className="px-6 sm:px-8 py-6">
+      <div className="px-5 sm:px-8 py-6">
         <div className="divide-y divide-brand-border">
           <Row label="Application No" value={`NGC-${application.id.slice(0, 8).toUpperCase()}`} />
           <Row label="Course" value={application.college?.degree || application.examName || '—'} />
