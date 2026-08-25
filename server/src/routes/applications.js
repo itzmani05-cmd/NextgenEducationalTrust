@@ -707,12 +707,13 @@ const LABEL_BAND_HEIGHT = 26
 const IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png'])
 const PDF_EXTS = new Set(['pdf'])
 
-async function appendDocumentAttachments(baseBuffer, attachments) {
-  const entries = DOCUMENT_LABELS.filter(([docKey]) => {
-    const ext = attachments[docKey]?.ext
-    return ext && (IMAGE_EXTS.has(ext) || PDF_EXTS.has(ext))
-  })
-  if (entries.length === 0) return baseBuffer
+// `entries` is a flat list of { label, buffer, ext } — uploaded documents and
+// the fee receipt both flow through here the same way, so the fee receipt
+// (a PDF we generated ourselves) gets merged in exactly like a student-
+// uploaded mark sheet PDF would.
+async function appendDocumentAttachments(baseBuffer, entries) {
+  const usable = entries.filter(({ ext }) => ext && (IMAGE_EXTS.has(ext) || PDF_EXTS.has(ext)))
+  if (usable.length === 0) return baseBuffer
 
   const merged = await PdfLibDocument.load(baseBuffer)
   const font = await merged.embedFont(StandardFonts.HelveticaBold)
@@ -723,8 +724,7 @@ async function appendDocumentAttachments(baseBuffer, attachments) {
     page.drawText(label, { x: PAGE_MARGIN, y: height - LABEL_BAND_HEIGHT + 8, size: 11, font, color: rgb(1, 1, 1) })
   }
 
-  for (const [docKey, label] of entries) {
-    const { buffer, ext } = attachments[docKey]
+  for (const { label, buffer, ext } of usable) {
     try {
       if (IMAGE_EXTS.has(ext)) {
         const image = ext === 'png' ? await merged.embedPng(buffer) : await merged.embedJpg(buffer)
@@ -746,7 +746,7 @@ async function appendDocumentAttachments(baseBuffer, attachments) {
         })
       }
     } catch (err) {
-      console.error(`Failed to attach document "${docKey}":`, err)
+      console.error(`Failed to attach "${label}":`, err)
     }
   }
 
@@ -765,8 +765,23 @@ router.get('/:id/application-pdf', requireAdmin, async (req, res) => {
     }
 
     const attachments = await loadDocumentAttachments(application)
+    const entries = DOCUMENT_LABELS
+      .filter(([docKey]) => attachments[docKey])
+      .map(([docKey, label]) => ({ label, ...attachments[docKey] }))
+
+    if (application.payment?.receiptPath) {
+      try {
+        const supabase = getSupabaseAdmin()
+        const { data, error } = await supabase.storage.from(STORAGE_BUCKET).download(application.payment.receiptPath)
+        if (error) throw error
+        entries.push({ label: 'Fee Receipt', buffer: Buffer.from(await data.arrayBuffer()), ext: 'pdf' })
+      } catch (err) {
+        console.error(`Failed to fetch fee receipt for application ${application.id}:`, err)
+      }
+    }
+
     const basePdfBuffer = await renderApplicationPdf(application)
-    const pdfBuffer = await appendDocumentAttachments(basePdfBuffer, attachments)
+    const pdfBuffer = await appendDocumentAttachments(basePdfBuffer, entries)
     const refNumber = `NGC-${application.id.slice(0, 8).toUpperCase()}`
 
     res.setHeader('Content-Type', 'application/pdf')

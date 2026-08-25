@@ -33,8 +33,19 @@ function section(doc, title) {
 function row(doc, label, value) {
   const labelWidth = 170
   const x = doc.page.margins.left
+
+  // Reserve room for the row before drawing anything. Without this, a row
+  // starting near the bottom margin can have its label text auto-paginate
+  // (pdfkit adds a page and draws the label at the top of it) while the
+  // value text below still uses the stale pre-page-break y — which then
+  // overflows *that* page too and auto-paginates a second time, leaving the
+  // label alone on one page and the value alone on the next (both looking
+  // blank at a glance).
+  doc.fontSize(9.5)
+  if (doc.y + doc.currentLineHeight() > doc.page.height - doc.page.margins.bottom) doc.addPage()
+
   const y = doc.y
-  doc.fontSize(9.5).fillColor('#666666').font('Helvetica').text(label, x, y, { width: labelWidth })
+  doc.fillColor('#666666').font('Helvetica').text(label, x, y, { width: labelWidth })
   doc.fontSize(9.5).fillColor('#1A1A1A').font('Helvetica-Bold').text(val(value), x + labelWidth, y, {
     width: doc.page.width - doc.page.margins.right - (x + labelWidth),
   })
