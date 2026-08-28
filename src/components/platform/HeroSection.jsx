@@ -7,7 +7,7 @@ import c3PlatformPic2 from '../../assests/c3Platform/Pic2.jpeg'
 export default function HeroSection() {
   return (
     <section className="bg-brand-cream">
-      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 py-20 md:pb-28 md:pt-10 grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] 7xl:max-w-[2880px] mx-auto px-6 py-20 md:pb-28 md:pt-10 grid md:grid-cols-2 gap-12 md:gap-16 items-center">
         <div>
           <span className="inline-flex items-center text-xs font-semibold tracking-[0.15em] uppercase border border-brand-border rounded-full px-4 py-1.5 mb-6 text-brand-muted">
             Technical Skill Development Program
@@ -18,7 +18,7 @@ export default function HeroSection() {
           
 
           <p className="text-brand-muted text-lg leading-relaxed mb-6">
-            C³ Educational Platform is a Technical Skill Development Program of NEXTGEN SOLUTIONS EDUCATIONAL TRUST
+            C³ Educational Platform is a Technical Skill Development Program of Nextgen Solutions Educational Trust
             , designed to strengthen the technical knowledge, problem-solving ability and
             examination skills of students aspiring for State and Central Government Services and
             GATE examinations.

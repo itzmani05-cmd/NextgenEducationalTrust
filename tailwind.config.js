@@ -11,6 +11,7 @@ export default {
         '4xl': '2560px',
         '5xl': '3200px',
         '6xl': '3840px',
+        '7xl': '4480px',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],

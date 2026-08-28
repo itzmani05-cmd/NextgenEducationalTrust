@@ -1,4 +1,5 @@
 import { Landmark, Building2, GraduationCap } from 'lucide-react'
+import concessionDetails from '../../assests/ConcessionDetails.jpeg'
 
 const programs = [
   {
@@ -21,7 +22,7 @@ const programs = [
 export default function ProgramsSection() {
   return (
     <section className="bg-brand-cream">
-      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 py-20 md:py-28 text-center">
+      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] 7xl:max-w-[2880px] mx-auto px-6 py-20 md:py-28 text-center">
         <h2 className="font-serif text-3xl md:text-4xl text-brand-ink mb-14">
           Programs Offered
         </h2>
@@ -35,6 +36,14 @@ export default function ProgramsSection() {
               <p className="text-brand-muted text-sm leading-relaxed">{desc}</p>
             </div>
           ))}
+        </div>
+
+        <div className="mt-14 max-w-3xl mx-auto text-left">
+          <img
+            src={concessionDetails}
+            alt="Recommended Concession Model"
+            className="w-full rounded-lg border border-brand-border"
+          />
         </div>
       </div>
     </section>

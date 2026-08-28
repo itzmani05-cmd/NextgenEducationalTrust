@@ -26,7 +26,7 @@ const focusAreas = [
 export default function FocusSection() {
   return (
     <section className="bg-white">
-      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 py-20 md:py-28">
+      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] 7xl:max-w-[2880px] mx-auto px-6 py-20 md:py-28">
         <h2 className="font-serif text-3xl md:text-4xl text-brand-ink text-center mb-14">
           Our Focus
         </h2>

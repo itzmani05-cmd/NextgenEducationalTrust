@@ -38,7 +38,7 @@ export default function AdminAnalytics() {
   const recent = applications.slice(0, 6)
 
   return (
-    <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 py-10">
+    <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] 7xl:max-w-[2880px] mx-auto px-6 py-10">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-brand-navy mb-1">{enOnly('admin.analytics.title')}</h1>
         <p className="text-brand-muted text-sm">{enOnly('admin.analytics.subtitle')}</p>

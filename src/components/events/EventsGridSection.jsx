@@ -79,7 +79,7 @@ const events = [
 export default function EventsGridSection() {
   return (
     <section className="bg-white">
-      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] mx-auto px-6 py-20 md:py-28">
+      <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] 7xl:max-w-[2880px] mx-auto px-6 py-20 md:py-28">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {events.map((ev) => (
             <div
