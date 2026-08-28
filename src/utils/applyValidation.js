@@ -43,8 +43,17 @@ function isStep3Valid(data) {
   const { tenth, twelfth, college } = data
 
   const tenthOk = filled(tenth.schoolName) && filled(tenth.percentage) && filled(tenth.schoolType) && tenth.markSheet
-  const twelfthOk = filled(twelfth.schoolName) && filled(twelfth.percentage) && filled(twelfth.schoolType) && twelfth.markSheet
-  if (!tenthOk || !twelfthOk) return false
+  if (!tenthOk) return false
+
+  if (!filled(data.hasDiploma)) return false
+  if (data.hasDiploma === 'no') {
+    const twelfthOk = filled(twelfth.schoolName) && filled(twelfth.percentage) && filled(twelfth.schoolType) && twelfth.markSheet
+    if (!twelfthOk) return false
+  }
+  if (data.hasDiploma === 'yes') {
+    if (!filled(data.diplomaPercentage) || !data.diplomaMarkSheet) return false
+    if (!filled(data.latestAcademicPercentage)) return false
+  }
 
   if (!filled(college.currentlyStudying)) return false
   if (college.currentlyStudying === 'yes' && !filled(college.year)) return false
@@ -58,13 +67,7 @@ function isStep3Valid(data) {
 
   if (!filled(data.existingScholarship)) return false
   if (data.existingScholarship === 'yes') {
-    if (!filled(data.scholarshipName) || !filled(data.scholarshipProvider) || !data.scholarshipDoc) return false
-  }
-
-  if (!filled(data.hasDiploma)) return false
-  if (data.hasDiploma === 'yes') {
-    if (!filled(data.diplomaPercentage) || !data.diplomaMarkSheet) return false
-    if (!filled(data.latestAcademicPercentage)) return false
+    if (!filled(data.scholarshipName) || !filled(data.scholarshipProvider)) return false
   }
 
   if (!filled(data.tamilMediumTill12)) return false
@@ -74,7 +77,9 @@ function isStep3Valid(data) {
 }
 
 function isStep4Valid(data) {
-  return getAllRequiredDocuments(data).every((doc) => Boolean(getPath(data, doc.key)))
+  return getAllRequiredDocuments(data)
+    .filter((doc) => doc.required !== false)
+    .every((doc) => Boolean(getPath(data, doc.key)))
 }
 
 const VALIDATORS = {

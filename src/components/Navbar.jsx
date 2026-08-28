@@ -72,7 +72,7 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-3">
+          {/* <div className="hidden md:flex items-center gap-3">
 
             {!loading && (
               user ? (
@@ -138,7 +138,7 @@ export default function Navbar() {
                 </Link>
               )
             )}
-          </div>
+          </div> */}
 
           <Link
             to="/contact"

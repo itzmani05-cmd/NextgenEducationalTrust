@@ -64,34 +64,75 @@ export default function Step4Education({ data, setField }) {
       </SectionCard>
 
       <SectionCard title={bi('step3.twelfthTitle')}>
-        <div className="grid sm:grid-cols-2 gap-5">
-          <TextField
-            label={bi('step3.schoolName')}
-            required
-            value={data.twelfth.schoolName}
-            onChange={(v) => setField('twelfth.schoolName', v)}
-          />
-          <TextField
-            label={bi('step3.percentage')}
-            type="number"
-            required
-            value={data.twelfth.percentage}
-            onChange={(v) => setField('twelfth.percentage', v)}
-          />
-        </div>
         <OptionPills
-          label={bi('step3.studyWhere12Q')}
+          label={bi('step3.postTenthQ')}
           required
-          value={data.twelfth.schoolType}
-          onChange={(v) => setField('twelfth.schoolType', v)}
-          options={schoolTypes}
+          value={data.hasDiploma}
+          onChange={(v) => setField('hasDiploma', v)}
+          options={[
+            { value: 'no', label: bi('step3.twelfthOption') },
+            { value: 'yes', label: bi('step3.diplomaOption') },
+          ]}
         />
-        <UploadField
-          label={bi('step3.twelfthMarkSheet')}
-          required
-          file={data.twelfth.markSheet}
-          onChange={(f) => setField('twelfth.markSheet', f)}
-        />
+
+        {data.hasDiploma === 'no' && (
+          <div className="space-y-5 pt-1">
+            <div className="grid sm:grid-cols-2 gap-5">
+              <TextField
+                label={bi('step3.schoolName')}
+                required
+                value={data.twelfth.schoolName}
+                onChange={(v) => setField('twelfth.schoolName', v)}
+              />
+              <TextField
+                label={bi('step3.percentage')}
+                type="number"
+                required
+                value={data.twelfth.percentage}
+                onChange={(v) => setField('twelfth.percentage', v)}
+              />
+            </div>
+            <OptionPills
+              label={bi('step3.studyWhere12Q')}
+              required
+              value={data.twelfth.schoolType}
+              onChange={(v) => setField('twelfth.schoolType', v)}
+              options={schoolTypes}
+            />
+            <UploadField
+              label={bi('step3.twelfthMarkSheet')}
+              required
+              file={data.twelfth.markSheet}
+              onChange={(f) => setField('twelfth.markSheet', f)}
+            />
+          </div>
+        )}
+
+        {data.hasDiploma === 'yes' && (
+          <div className="space-y-5 pt-1">
+            <TextField
+              label={bi('step3.diplomaPercentage')}
+              type="number"
+              required
+              value={data.diplomaPercentage}
+              onChange={(v) => setField('diplomaPercentage', v)}
+            />
+            <UploadField
+              label={bi('step3.diplomaMarkSheet')}
+              required
+              file={data.diplomaMarkSheet}
+              onChange={(f) => setField('diplomaMarkSheet', f)}
+            />
+            <TextField
+              label={bi('step3.latestAcademicPercentage')}
+              type="number"
+              required
+              value={data.latestAcademicPercentage}
+              onChange={(v) => setField('latestAcademicPercentage', v)}
+              helper={bi('step3.latestAcademicHelper')}
+            />
+          </div>
+        )}
       </SectionCard>
 
       <SectionCard title={bi('step3.collegeTitle')}>
@@ -234,43 +275,9 @@ export default function Step4Education({ data, setField }) {
             </div>
             <UploadField
               label={bi('step2.scholarshipDoc')}
-              required
+              helper={bi('step2.scholarshipDocHelper')}
               file={data.scholarshipDoc}
               onChange={(f) => setField('scholarshipDoc', f)}
-            />
-          </div>
-        )}
-      </SectionCard>
-
-      <SectionCard title={bi('step3.academicTitle')} description={bi('step3.academicDesc')}>
-        <YesNoRow
-          question={bi('step3.diplomaQ')}
-          value={data.hasDiploma}
-          onChange={(v) => setField('hasDiploma', v)}
-        />
-
-        {data.hasDiploma === 'yes' && (
-          <div className="space-y-5 pt-1 pb-4">
-            <TextField
-              label={bi('step3.diplomaPercentage')}
-              type="number"
-              required
-              value={data.diplomaPercentage}
-              onChange={(v) => setField('diplomaPercentage', v)}
-            />
-            <UploadField
-              label={bi('step3.diplomaMarkSheet')}
-              required
-              file={data.diplomaMarkSheet}
-              onChange={(f) => setField('diplomaMarkSheet', f)}
-            />
-            <TextField
-              label={bi('step3.latestAcademicPercentage')}
-              type="number"
-              required
-              value={data.latestAcademicPercentage}
-              onChange={(v) => setField('latestAcademicPercentage', v)}
-              helper={bi('step3.latestAcademicHelper')}
             />
           </div>
         )}

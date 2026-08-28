@@ -2,7 +2,6 @@ export const BASIC_DOCUMENTS = [
   { key: 'studentPhoto', labelKey: 'step5.studentPhoto' },
   { key: 'identityDocument', labelKey: 'step5.identityDocument' },
   { key: 'tenth.markSheet', labelKey: 'step5.tenthMarkSheet' },
-  { key: 'twelfth.markSheet', labelKey: 'step5.twelfthMarkSheet' },
   { key: 'college.markSheet', labelKey: 'step5.latestCollegeMarkSheet' },
 ]
 
@@ -14,11 +13,12 @@ export function getConditionalDocuments(data) {
     data.bothParentsDeceased === 'yes' && { key: 'motherDeathCert', labelKey: 'step5.motherDeathCert' },
     data.singleParent === 'yes' && { key: 'supportingDocument', labelKey: 'step5.singleParentProof' },
     { key: 'incomeCertificate', labelKey: 'step5.incomeCertificate' },
+    data.hasDiploma === 'no' && { key: 'twelfth.markSheet', labelKey: 'step5.twelfthMarkSheet' },
     data.hasDiploma === 'yes' && { key: 'diplomaMarkSheet', labelKey: 'step5.diplomaMarkSheet' },
     data.tamilMediumTill12 === 'yes' && { key: 'tamilMediumEvidence', labelKey: 'step5.tamilEvidence' },
     isScSt && { key: 'communityCertificate', labelKey: 'step5.scCert' },
     data.selfEarning === 'yes' && { key: 'selfIncomeDoc', labelKey: 'step5.selfSupportEvidence' },
-    data.existingScholarship === 'yes' && { key: 'scholarshipDoc', labelKey: 'step5.scholarshipProof' },
+    data.existingScholarship === 'yes' && { key: 'scholarshipDoc', labelKey: 'step5.scholarshipProof', required: false },
   ].filter(Boolean)
 }
 

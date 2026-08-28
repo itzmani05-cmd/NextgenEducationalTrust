@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { LogIn, FileText, UploadCloud, BadgeCheck } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import GoogleIcon from '../GoogleIcon.jsx'
+import concessionDetails from '../../assests/ConcessionDetails.jpeg'
 
 const documents = [
   { title: 'Student Photograph' },
@@ -114,6 +115,14 @@ export default function SignInGate() {
 
           {error && <p className="text-sm text-brand-red mt-4">{error}</p>}
         </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto mt-10">
+        <img
+          src={concessionDetails}
+          alt="Recommended Concession Model"
+          className="w-full rounded-lg border border-brand-border"
+        />
       </div>
     </div>
   )

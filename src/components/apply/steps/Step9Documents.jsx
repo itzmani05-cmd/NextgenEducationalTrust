@@ -12,7 +12,7 @@ export default function Step9Documents({ data, setField }) {
       <UploadField
         key={doc.key}
         label={bi(doc.labelKey)}
-        required
+        required={doc.required !== false}
         file={getPath(data, doc.key)}
         onChange={(f) => setField(doc.key, f)}
       />
