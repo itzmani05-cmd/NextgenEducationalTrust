@@ -24,6 +24,7 @@ const STATUS_VALUES = ['submitted', 'under_review', 'approved', 'rejected']
 const DOC_STATUS_VALUES = ['pending', 'approved', 'rejected']
 const PAYMENT_METHODS = ['upi', 'bank_transfer', 'other']
 const PROOF_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+const STUDENT_PHOTO_MIME_TYPES = ['image/jpeg', 'image/png']
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -330,6 +331,9 @@ router.post('/:id/documents/:docKey', upload.single('file'), async (req, res) =>
   }
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded.' })
+  }
+  if (docKey === 'studentPhoto' && !STUDENT_PHOTO_MIME_TYPES.includes(req.file.mimetype)) {
+    return res.status(400).json({ error: 'Student photograph must be a PNG or JPEG image.' })
   }
 
   try {

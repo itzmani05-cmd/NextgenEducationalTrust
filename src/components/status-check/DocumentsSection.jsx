@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { AlertCircle, CheckCircle2, Clock, Upload, XCircle } from 'lucide-react'
 import { uploadDocument } from '../../utils/api.js'
-import { getAllRequiredDocuments } from '../../utils/documentChecklist.js'
+import { getAllRequiredDocuments, STUDENT_PHOTO_MIME_TYPES } from '../../utils/documentChecklist.js'
 import { bi } from '../../i18n/bilingual.js'
 
 function docState(app, key) {
@@ -29,6 +29,11 @@ function DocRow({ app, doc, onReupload }) {
 
   const handleFile = async (file) => {
     if (!file) return
+    if (doc.key === 'studentPhoto' && !STUDENT_PHOTO_MIME_TYPES.includes(file.type)) {
+      setLocalError('Only PNG or JPEG images are allowed.')
+      if (inputRef.current) inputRef.current.value = ''
+      return
+    }
     setUploading(true)
     setLocalError('')
     try {
@@ -75,6 +80,7 @@ function DocRow({ app, doc, onReupload }) {
             <input
               ref={inputRef}
               type="file"
+              accept={doc.key === 'studentPhoto' ? STUDENT_PHOTO_MIME_TYPES.join(',') : undefined}
               className="hidden"
               onChange={(e) => handleFile(e.target.files?.[0] || null)}
             />

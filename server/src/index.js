@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
 import multer from 'multer'
 import applicationsRouter from './routes/applications.js'
 import authRouter from './routes/auth.js'
@@ -12,6 +13,7 @@ const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
   .split(',')
   .map((o) => o.trim())
 
+app.use(helmet())
 app.use(cors({ origin: allowedOrigins }))
 app.use(express.json({ limit: '1mb' }))
 

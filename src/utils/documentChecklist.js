@@ -1,5 +1,7 @@
+export const STUDENT_PHOTO_MIME_TYPES = ['image/jpeg', 'image/png']
+
 export const BASIC_DOCUMENTS = [
-  { key: 'studentPhoto', labelKey: 'step5.studentPhoto' },
+  { key: 'studentPhoto', labelKey: 'step5.studentPhoto', accept: STUDENT_PHOTO_MIME_TYPES },
   { key: 'identityDocument', labelKey: 'step5.identityDocument' },
   { key: 'tenth.markSheet', labelKey: 'step5.tenthMarkSheet' },
   { key: 'college.markSheet', labelKey: 'step5.latestCollegeMarkSheet' },

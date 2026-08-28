@@ -5,18 +5,23 @@ import { bi } from '../../../i18n/bilingual.js'
 
 const MAX_FILE_SIZE = 1024 * 1024 // 1MB — must match the server's multer limit (server/src/routes/applications.js)
 
-export default function UploadField({ label, file, onChange, required, helper, status }) {
+export default function UploadField({ label, file, onChange, required, helper, status, accept }) {
   const inputRef = useRef(null)
-  const [sizeError, setSizeError] = useState('')
+  const [fileError, setFileError] = useState('')
   const computedStatus = status || (file ? 'uploaded' : 'missing')
 
   const handleFileChange = (selected) => {
-    if (selected && selected.size > MAX_FILE_SIZE) {
-      setSizeError('File is too large — the maximum size is 1MB.')
+    if (selected && accept && !accept.includes(selected.type)) {
+      setFileError('Only PNG or JPEG images are allowed.')
       if (inputRef.current) inputRef.current.value = ''
       return
     }
-    setSizeError('')
+    if (selected && selected.size > MAX_FILE_SIZE) {
+      setFileError('File is too large — the maximum size is 1MB.')
+      if (inputRef.current) inputRef.current.value = ''
+      return
+    }
+    setFileError('')
     onChange(selected)
   }
 
@@ -32,7 +37,7 @@ export default function UploadField({ label, file, onChange, required, helper, s
         {file && computedStatus === 'uploaded' && (
           <p className="text-xs text-brand-muted mt-0.5">{bi('common.awaitingVerification')}</p>
         )}
-        {sizeError && <p className="text-xs text-brand-red mt-0.5">{sizeError}</p>}
+        {fileError && <p className="text-xs text-brand-red mt-0.5">{fileError}</p>}
       </div>
       <div className="flex flex-wrap items-center gap-2 sm:gap-3 sm:shrink-0">
         <DocStatusChip status={computedStatus} />
@@ -47,6 +52,7 @@ export default function UploadField({ label, file, onChange, required, helper, s
         <input
           ref={inputRef}
           type="file"
+          accept={accept?.join(',')}
           className="hidden"
           onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
         />

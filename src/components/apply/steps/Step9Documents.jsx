@@ -13,6 +13,7 @@ export default function Step9Documents({ data, setField }) {
         key={doc.key}
         label={bi(doc.labelKey)}
         required={doc.required !== false}
+        accept={doc.accept}
         file={getPath(data, doc.key)}
         onChange={(f) => setField(doc.key, f)}
       />
