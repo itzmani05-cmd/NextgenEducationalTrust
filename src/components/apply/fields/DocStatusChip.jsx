@@ -2,6 +2,7 @@ import { bi } from '../../../i18n/bilingual.js'
 
 const STATUS_KEYS = {
   missing: { key: 'common.notUploaded', className: 'bg-gray-100 text-brand-muted' },
+  uploading: { key: 'common.uploading', className: 'bg-blue-50 text-blue-600' },
   uploaded: { key: 'common.uploaded', className: 'bg-brand-surface text-brand-navy' },
   pending: { key: 'common.pendingVerification', className: 'bg-amber-50 text-brand-amber' },
   verified: { key: 'common.verified', className: 'bg-green-50 text-green-700' },

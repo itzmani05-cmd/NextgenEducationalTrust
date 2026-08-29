@@ -25,18 +25,3 @@ export function stripFiles(value) {
   }
   return value
 }
-
-// Walks an object and collects every File instance found, as [{ key, file }]
-// with dot-notation keys (e.g. "tenth.markSheet") matching getPath/setPath.
-export function collectFiles(obj, prefix = '') {
-  const found = []
-  for (const [k, v] of Object.entries(obj || {})) {
-    const key = prefix ? `${prefix}.${k}` : k
-    if (v instanceof File) {
-      found.push({ key, file: v })
-    } else if (v && typeof v === 'object' && !Array.isArray(v)) {
-      found.push(...collectFiles(v, key))
-    }
-  }
-  return found
-}

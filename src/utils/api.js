@@ -1,4 +1,4 @@
-import { stripFiles, collectFiles } from './objectPath.js'
+import { stripFiles } from './objectPath.js'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
@@ -28,11 +28,12 @@ export async function uploadDocument(applicationId, docKey, file) {
   return body
 }
 
-// Creates the application record, then uploads every attached file. The
-// record is considered submitted once it's created — individual upload
-// failures are reported back rather than failing the whole submission,
-// since the applicant can retry a specific document from the status page.
-export async function submitApplication(data, accessToken) {
+// Creates the application record from the details/summary/declaration
+// phase of the wizard. Documents are uploaded separately, one request per
+// file (see uploadDocument above) — the record is considered submitted the
+// moment it's created (see the `status` column's default), so this is the
+// point where "locking" the wizard actually persists something server-side.
+export async function createApplication(data, accessToken) {
   const payload = { ...stripFiles(data), address: formatAddress(data.address) }
 
   const res = await fetch(`${API_BASE_URL}/api/applications`, {
@@ -48,18 +49,7 @@ export async function submitApplication(data, accessToken) {
   if (!res.ok) {
     throw new Error(body?.error || 'Failed to submit application.')
   }
-
-  const files = collectFiles(data)
-  const results = await Promise.allSettled(
-    files.map(({ key, file }) => uploadDocument(body.id, key, file)),
-  )
-
-  const failedUploads = files
-    .map(({ key }, i) => ({ key, ok: results[i].status === 'fulfilled' }))
-    .filter((r) => !r.ok)
-    .map((r) => r.key)
-
-  return { application: body, failedUploads }
+  return body
 }
 
 // Checks whether the signed-in Google account already has an application on

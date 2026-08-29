@@ -1,6 +1,3 @@
-import { getPath } from './objectPath.js'
-import { getAllRequiredDocuments } from './documentChecklist.js'
-
 function filled(v) {
   return v !== undefined && v !== null && String(v).trim() !== ''
 }
@@ -72,19 +69,14 @@ function isDeclarationValid(data) {
   return Boolean(data.declarationAccepted)
 }
 
-function isDocumentsValid(data) {
-  return getAllRequiredDocuments(data)
-    .filter((doc) => doc.required !== false)
-    .every((doc) => Boolean(getPath(data, doc.key)))
-}
-
 const VALIDATORS = {
   1: isStep1Valid,
   2: isStep2Valid,
   3: isStep3Valid,
   // 4 (Summary) has no gating fields of its own.
   5: isDeclarationValid,
-  6: isDocumentsValid,
+  // 6 (Documents) is gated separately in Apply.jsx, from live upload
+  // presence rather than anything tracked in the wizard's local `data`.
 }
 
 export function isStepValid(step, data) {

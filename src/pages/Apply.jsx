@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Lock, LogOut } from 'lucide-react'
 import Stepper, { STEP_COUNT } from '../components/apply/Stepper.jsx'
 import { setPath, stripFiles } from '../utils/objectPath.js'
-import { submitApplication, getMyApplication } from '../utils/api.js'
+import { createApplication, getMyApplication } from '../utils/api.js'
 import { isStepValid } from '../utils/applyValidation.js'
+import { getAllRequiredDocuments, getDocumentPresenceMap, areAllRequiredDocumentsUploaded } from '../utils/documentChecklist.js'
 import { enOnly } from '../i18n/bilingual.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import SignInGate from '../components/apply/SignInGate.jsx'
@@ -93,7 +94,10 @@ export default function Apply() {
 
 // Each Google account gets a single application. Check up front so someone
 // who's already applied sees that clearly instead of hitting a 409 at the
-// very end of the wizard.
+// very end of the wizard. An application that exists but is still missing
+// required documents isn't "already applied" yet, though — the details are
+// locked in, but the applicant left mid-upload (e.g. closed the tab), so
+// resume them straight into the Documents step instead of blocking them out.
 function ApplyGate() {
   const { accessToken, signOut } = useAuth()
   const [checking, setChecking] = useState(true)
@@ -121,7 +125,10 @@ function ApplyGate() {
     return <div className="bg-brand-surface min-h-screen" />
   }
   if (existing) {
-    return <AlreadyApplied application={existing} signOut={signOut} />
+    if (areAllRequiredDocumentsUploaded(existing)) {
+      return <AlreadyApplied application={existing} signOut={signOut} />
+    }
+    return <ApplyForm existingApplication={existing} />
   }
   return <ApplyForm />
 }
@@ -167,36 +174,42 @@ function AlreadyApplied({ application, signOut }) {
   )
 }
 
-function ApplyForm() {
+function ApplyForm({ existingApplication }) {
   const { user, accessToken } = useAuth()
 
   const [initialState] = useState(() => {
+    if (existingApplication) {
+      // Details/summary/declaration are already saved server-side — jump
+      // straight to the Documents step rather than replaying the draft.
+      return { step: TOTAL_STEPS, data: initialData }
+    }
     const draft = loadDraft()
     return {
       step: draft?.step ?? 1,
       data: draft?.data ? { ...initialData, ...draft.data } : initialData,
-      locked: Boolean(draft?.locked),
     }
   })
 
   const [step, setStep] = useState(initialState.step)
   const [data, setData] = useState(initialState.data)
-  const [locked, setLocked] = useState(initialState.locked)
+  const [applicationRecord, setApplicationRecord] = useState(existingApplication || null)
+  const [documentPresence, setDocumentPresence] = useState(() => (
+    existingApplication ? getDocumentPresenceMap(existingApplication) : {}
+  ))
+  const locked = Boolean(applicationRecord)
   const [confirmLockOpen, setConfirmLockOpen] = useState(false)
+  const [locking, setLocking] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState('')
-  const [refNumber, setRefNumber] = useState('')
-  const [failedUploads, setFailedUploads] = useState([])
+  const [formError, setFormError] = useState('')
 
   useEffect(() => {
-    if (submitted) return
+    if (submitted || locked) return
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({ step, data: stripFiles(data), locked }))
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ step, data: stripFiles(data) }))
     } catch {
       // localStorage unavailable or quota exceeded — caching is a convenience, not critical
     }
-  }, [step, data, locked, submitted])
+  }, [step, data, submitted, locked])
 
   // Email stays locked to the signed-in Google account (see Step1Student's
   // readOnly email field), so keep it synced to `user` rather than the editable
@@ -218,6 +231,9 @@ function ApplyForm() {
 
   const stepValid = isStepValid(step, data)
 
+  const requiredDocs = getAllRequiredDocuments(applicationRecord || data).filter((doc) => doc.required !== false)
+  const docsComplete = locked && requiredDocs.every((doc) => documentPresence[doc.key])
+
   const goNext = () => {
     if (!isStepValid(step, data)) return
     if (step === LOCK_STEP) {
@@ -228,11 +244,22 @@ function ApplyForm() {
     setStep(next)
     scrollTop()
   }
-  const confirmLock = () => {
+  const confirmLock = async () => {
     setConfirmLockOpen(false)
-    setLocked(true)
-    setStep(LOCK_STEP + 1)
-    scrollTop()
+    setLocking(true)
+    setFormError('')
+    try {
+      const created = await createApplication(data, accessToken)
+      setApplicationRecord(created)
+      setDocumentPresence(getDocumentPresenceMap(created))
+      setStep(LOCK_STEP + 1)
+      localStorage.removeItem(DRAFT_KEY)
+      scrollTop()
+    } catch (err) {
+      setFormError(err.message || 'Failed to save your details. Please try again.')
+    } finally {
+      setLocking(false)
+    }
   }
   const goBack = () => {
     if (locked) return
@@ -244,22 +271,13 @@ function ApplyForm() {
     setStep(n)
     scrollTop()
   }
-  const handleSubmit = async () => {
-    if (!data.declarationAccepted || submitting) return
-    setSubmitting(true)
-    setSubmitError('')
-    try {
-      const { application, failedUploads } = await submitApplication(data, accessToken)
-      setRefNumber(`NGC-${application.id.slice(0, 8).toUpperCase()}`)
-      setFailedUploads(failedUploads)
-      setSubmitted(true)
-      localStorage.removeItem(DRAFT_KEY)
-      scrollTop()
-    } catch (err) {
-      setSubmitError(err.message || 'Something went wrong. Please try again.')
-    } finally {
-      setSubmitting(false)
-    }
+  const handleDocUploaded = (docKey) => {
+    setDocumentPresence((prev) => ({ ...prev, [docKey]: true }))
+  }
+  const handleFinish = () => {
+    if (!docsComplete) return
+    setSubmitted(true)
+    scrollTop()
   }
 
   const stepProps = { data, setField, goToStep: jumpTo }
@@ -284,20 +302,10 @@ function ApplyForm() {
             <div className="px-6 py-8">
               <div className="inline-block bg-brand-surface rounded-xl px-6 py-3 mb-6">
                 <p className="text-xs text-brand-muted uppercase tracking-wide">{enOnly('app.referenceNumber')}</p>
-                <p className="text-brand-navy font-bold text-lg">{refNumber}</p>
+                <p className="text-brand-navy font-bold text-lg">
+                  NGC-{applicationRecord.id.slice(0, 8).toUpperCase()}
+                </p>
               </div>
-
-              {failedUploads.length > 0 && (
-                <div className="text-left bg-amber-50 border border-brand-amber/30 rounded-lg p-4 mb-6 text-sm text-brand-text">
-                  <p className="font-semibold mb-1">
-                    {failedUploads.length} document{failedUploads.length === 1 ? '' : 's'} didn&apos;t upload successfully.
-                  </p>
-                  <p className="text-brand-muted">
-                    Your application was still submitted. Visit the status page (using your mobile
-                    number and email) to retry uploading the affected document{failedUploads.length === 1 ? '' : 's'}.
-                  </p>
-                </div>
-              )}
 
               <div className="flex flex-wrap justify-center gap-3">
                 <a
@@ -327,7 +335,14 @@ function ApplyForm() {
       case 3: return <Step4Education {...stepProps} />
       case 4: return <StepSummary {...stepProps} />
       case 5: return <Step11Declaration {...stepProps} />
-      case 6: return <Step9Documents {...stepProps} />
+      case 6: return (
+        <Step9Documents
+          applicationId={applicationRecord?.id}
+          docsSource={applicationRecord || data}
+          documentPresence={documentPresence}
+          onUploaded={handleDocUploaded}
+        />
+      )
       default: return null
     }
   }
@@ -365,9 +380,9 @@ function ApplyForm() {
 
         <div className="question-counter space-y-6">{renderStep()}</div>
 
-        {submitError && (
+        {formError && (
           <div className="mt-6 bg-red-50 border border-brand-red/30 rounded-lg p-4 text-sm text-brand-red">
-            {submitError}
+            {formError}
           </div>
         )}
 
@@ -383,6 +398,11 @@ function ApplyForm() {
 
           <div className="flex items-center gap-3">
             {step < TOTAL_STEPS && !stepValid && (
+              <span className="text-xs text-brand-muted hidden sm:inline">
+                {enOnly('common.completeRequired')}
+              </span>
+            )}
+            {step === TOTAL_STEPS && !docsComplete && (
               <span className="text-xs text-brand-muted hidden sm:inline">
                 {enOnly('common.completeRequired')}
               </span>
@@ -403,22 +423,21 @@ function ApplyForm() {
               <button
                 type="button"
                 onClick={goNext}
-                disabled={!stepValid}
+                disabled={!stepValid || locking}
                 className="inline-flex items-center gap-2 bg-brand-navy text-white px-6 py-3 rounded-lg text-sm font-semibold shadow-sm hover:brightness-110 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100"
               >
-                <Lock className="w-4 h-4" /> {enOnly('common.lockAndContinue')}
+                <Lock className="w-4 h-4" /> {locking ? enOnly('common.locking') : enOnly('common.lockAndContinue')}
               </button>
             )}
 
             {step === TOTAL_STEPS && (
               <button
                 type="button"
-                onClick={handleSubmit}
-                disabled={!data.declarationAccepted || submitting}
+                onClick={handleFinish}
+                disabled={!docsComplete}
                 className="inline-flex items-center gap-2 bg-brand-red text-white px-6 py-3 rounded-lg text-sm font-semibold shadow-sm hover:bg-brand-redDark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {submitting ? enOnly('common.submitting') : enOnly('common.submitApplication')}
-                {!submitting && <Check className="w-4 h-4" />}
+                {enOnly('common.submitApplication')} <Check className="w-4 h-4" />
               </button>
             )}
           </div>

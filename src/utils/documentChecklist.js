@@ -1,3 +1,5 @@
+import { getPath } from './objectPath.js'
+
 export const STUDENT_PHOTO_MIME_TYPES = ['image/jpeg', 'image/png']
 
 export const BASIC_DOCUMENTS = [
@@ -34,4 +36,22 @@ export function getAllRequiredDocuments(data) {
 // document's value off a fetched application record.
 export function getDocumentFieldPath(docKey) {
   return docKey.includes('.') ? docKey : `${docKey}Url`
+}
+
+// { [docKey]: true | false } — whether each applicable document is already
+// present on a fetched application record (server field names, via
+// getDocumentFieldPath) — used to resume the Documents step after a refresh
+// without losing track of what's already been uploaded.
+export function getDocumentPresenceMap(app) {
+  const map = {}
+  for (const doc of getAllRequiredDocuments(app)) {
+    map[doc.key] = Boolean(getPath(app, getDocumentFieldPath(doc.key)))
+  }
+  return map
+}
+
+export function areAllRequiredDocumentsUploaded(app) {
+  return getAllRequiredDocuments(app)
+    .filter((doc) => doc.required !== false)
+    .every((doc) => Boolean(getPath(app, getDocumentFieldPath(doc.key))))
 }
