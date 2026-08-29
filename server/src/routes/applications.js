@@ -56,12 +56,39 @@ router.post('/', requireApplicantAuth, async (req, res) => {
         ...mapApplicationPayload(req.body),
         authUserId: req.authUser.id,
         authEmail: req.authUser.email,
+        // Locking the wizard creates the record, but it isn't visible to the
+        // Trust yet — the applicant still needs to upload documents and hit
+        // Submit Application (see POST /:id/finalize below).
+        status: 'uploading',
       },
     })
     res.status(201).json(application)
   } catch (err) {
     console.error('Failed to create application:', err)
     res.status(500).json({ error: 'Failed to create application.' })
+  }
+})
+
+// The applicant calls this once they've uploaded their documents and click
+// Submit Application — the moment the Trust actually gets to see it. Public,
+// like the document upload route above: the application's unguessable UUID
+// is the only thing gating this, not a login session.
+router.post('/:id/finalize', async (req, res) => {
+  try {
+    const existing = await prisma.application.findUnique({ where: { id: req.params.id } })
+    if (!existing) return res.status(404).json({ error: 'Application not found.' })
+    if (existing.status !== 'uploading') {
+      return res.status(400).json({ error: 'This application has already been submitted.' })
+    }
+
+    const application = await prisma.application.update({
+      where: { id: req.params.id },
+      data: { status: 'submitted' },
+    })
+    res.json(application)
+  } catch (err) {
+    console.error('Failed to finalize application:', err)
+    res.status(500).json({ error: 'Failed to submit application.' })
   }
 })
 
@@ -156,8 +183,11 @@ router.get('/', requireAdmin, async (req, res) => {
   const { status } = req.query
 
   try {
+    // Without an explicit status filter, hide applications still mid-upload
+    // (locked in but not yet finalized by the applicant) — the Trust isn't
+    // meant to see these until Submit Application is actually clicked.
     const applications = await prisma.application.findMany({
-      where: status ? { status } : undefined,
+      where: status ? { status } : { status: { not: 'uploading' } },
       orderBy: { createdAt: 'desc' },
     })
     res.json(applications)

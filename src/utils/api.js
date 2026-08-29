@@ -29,10 +29,10 @@ export async function uploadDocument(applicationId, docKey, file) {
 }
 
 // Creates the application record from the details/summary/declaration
-// phase of the wizard. Documents are uploaded separately, one request per
-// file (see uploadDocument above) — the record is considered submitted the
-// moment it's created (see the `status` column's default), so this is the
-// point where "locking" the wizard actually persists something server-side.
+// phase of the wizard, in the `uploading` status — not yet visible to the
+// Trust. Documents are uploaded separately, one request per file (see
+// uploadDocument above); finalizeApplication below is what actually moves
+// it to `submitted` once the applicant clicks Submit Application.
 export async function createApplication(data, accessToken) {
   const payload = { ...stripFiles(data), address: formatAddress(data.address) }
 
@@ -43,6 +43,21 @@ export async function createApplication(data, accessToken) {
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
     },
     body: JSON.stringify(payload),
+  })
+
+  const body = await res.json().catch(() => null)
+  if (!res.ok) {
+    throw new Error(body?.error || 'Failed to submit application.')
+  }
+  return body
+}
+
+// Moves the application from `uploading` to `submitted` — the moment the
+// Trust actually gets to see it. Called once all required documents are
+// uploaded and the applicant clicks Submit Application.
+export async function finalizeApplication(applicationId) {
+  const res = await fetch(`${API_BASE_URL}/api/applications/${applicationId}/finalize`, {
+    method: 'POST',
   })
 
   const body = await res.json().catch(() => null)

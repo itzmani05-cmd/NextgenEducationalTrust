@@ -9,6 +9,9 @@ datasource db {
 }
 
 enum ApplicationStatus {
+  uploading // details locked in, but the applicant hasn't finished uploading
+  // documents and clicked Submit Application yet — not visible to the Trust
+  // until it moves to `submitted` (see POST /:id/finalize).
   submitted
   under_review
   approved // == "concession approved": set by the existing Accept action once

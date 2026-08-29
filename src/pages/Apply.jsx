@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Lock, LogOut } from 'lucide-react'
 import Stepper, { STEP_COUNT } from '../components/apply/Stepper.jsx'
 import { setPath, stripFiles } from '../utils/objectPath.js'
-import { createApplication, getMyApplication } from '../utils/api.js'
+import { createApplication, finalizeApplication, getMyApplication } from '../utils/api.js'
 import { isStepValid } from '../utils/applyValidation.js'
-import { getAllRequiredDocuments, getDocumentPresenceMap, areAllRequiredDocumentsUploaded } from '../utils/documentChecklist.js'
+import { getAllRequiredDocuments, getDocumentPresenceMap } from '../utils/documentChecklist.js'
 import { enOnly } from '../i18n/bilingual.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import SignInGate from '../components/apply/SignInGate.jsx'
@@ -94,10 +94,11 @@ export default function Apply() {
 
 // Each Google account gets a single application. Check up front so someone
 // who's already applied sees that clearly instead of hitting a 409 at the
-// very end of the wizard. An application that exists but is still missing
-// required documents isn't "already applied" yet, though — the details are
-// locked in, but the applicant left mid-upload (e.g. closed the tab), so
-// resume them straight into the Documents step instead of blocking them out.
+// very end of the wizard. An application still in `uploading` status isn't
+// "already applied" yet, though — the details are locked in, but the
+// applicant hasn't finished uploading documents and clicking Submit
+// Application, so resume them straight into the Documents step instead of
+// blocking them out.
 function ApplyGate() {
   const { accessToken, signOut } = useAuth()
   const [checking, setChecking] = useState(true)
@@ -125,10 +126,10 @@ function ApplyGate() {
     return <div className="bg-brand-surface min-h-screen" />
   }
   if (existing) {
-    if (areAllRequiredDocumentsUploaded(existing)) {
-      return <AlreadyApplied application={existing} signOut={signOut} />
+    if (existing.status === 'uploading') {
+      return <ApplyForm existingApplication={existing} />
     }
-    return <ApplyForm existingApplication={existing} />
+    return <AlreadyApplied application={existing} signOut={signOut} />
   }
   return <ApplyForm />
 }
@@ -199,6 +200,7 @@ function ApplyForm({ existingApplication }) {
   const locked = Boolean(applicationRecord)
   const [confirmLockOpen, setConfirmLockOpen] = useState(false)
   const [locking, setLocking] = useState(false)
+  const [finishing, setFinishing] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [formError, setFormError] = useState('')
 
@@ -274,10 +276,20 @@ function ApplyForm({ existingApplication }) {
   const handleDocUploaded = (docKey) => {
     setDocumentPresence((prev) => ({ ...prev, [docKey]: true }))
   }
-  const handleFinish = () => {
-    if (!docsComplete) return
-    setSubmitted(true)
-    scrollTop()
+  const handleFinish = async () => {
+    if (!docsComplete || finishing) return
+    setFinishing(true)
+    setFormError('')
+    try {
+      const updated = await finalizeApplication(applicationRecord.id)
+      setApplicationRecord(updated)
+      setSubmitted(true)
+      scrollTop()
+    } catch (err) {
+      setFormError(err.message || 'Failed to submit your application. Please try again.')
+    } finally {
+      setFinishing(false)
+    }
   }
 
   const stepProps = { data, setField, goToStep: jumpTo }
@@ -434,10 +446,11 @@ function ApplyForm({ existingApplication }) {
               <button
                 type="button"
                 onClick={handleFinish}
-                disabled={!docsComplete}
+                disabled={!docsComplete || finishing}
                 className="inline-flex items-center gap-2 bg-brand-red text-white px-6 py-3 rounded-lg text-sm font-semibold shadow-sm hover:bg-brand-redDark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {enOnly('common.submitApplication')} <Check className="w-4 h-4" />
+                {finishing ? enOnly('common.submitting') : enOnly('common.submitApplication')}
+                {!finishing && <Check className="w-4 h-4" />}
               </button>
             )}
           </div>
