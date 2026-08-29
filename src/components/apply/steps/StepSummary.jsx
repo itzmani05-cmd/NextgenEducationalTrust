@@ -74,10 +74,6 @@ export default function StepSummary({ data, goToStep }) {
           <Row label={bi('step3.mediumTitle')} value={YES_NO_LABELS[data.tamilMediumTill12]} />
         </div>
       </SectionCard>
-
-      <SectionCard title={bi('step6.documents')} action={<EditButton onClick={() => goToStep(4)} />}>
-        <p className="text-sm text-brand-muted">{bi('step6.documentsReview')}</p>
-      </SectionCard>
     </>
   )
 }

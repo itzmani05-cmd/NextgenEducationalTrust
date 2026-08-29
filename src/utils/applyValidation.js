@@ -68,7 +68,11 @@ function isStep3Valid(data) {
   return true
 }
 
-function isStep4Valid(data) {
+function isDeclarationValid(data) {
+  return Boolean(data.declarationAccepted)
+}
+
+function isDocumentsValid(data) {
   return getAllRequiredDocuments(data)
     .filter((doc) => doc.required !== false)
     .every((doc) => Boolean(getPath(data, doc.key)))
@@ -78,8 +82,9 @@ const VALIDATORS = {
   1: isStep1Valid,
   2: isStep2Valid,
   3: isStep3Valid,
-  4: isStep4Valid,
-  // 5 (Summary) and 6 (Declaration) have no gating fields of their own.
+  // 4 (Summary) has no gating fields of its own.
+  5: isDeclarationValid,
+  6: isDocumentsValid,
 }
 
 export function isStepValid(step, data) {

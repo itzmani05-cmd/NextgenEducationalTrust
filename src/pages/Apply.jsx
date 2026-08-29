@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, LogOut } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, Lock, LogOut } from 'lucide-react'
 import Stepper, { STEP_COUNT } from '../components/apply/Stepper.jsx'
 import { setPath, stripFiles } from '../utils/objectPath.js'
 import { submitApplication, getMyApplication } from '../utils/api.js'
@@ -7,16 +7,21 @@ import { isStepValid } from '../utils/applyValidation.js'
 import { enOnly } from '../i18n/bilingual.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import SignInGate from '../components/apply/SignInGate.jsx'
+import ConfirmDialog from '../components/admin/ConfirmDialog.jsx'
 
 import Step1Student from '../components/apply/steps/Step1Student.jsx'
 import Step2Family from '../components/apply/steps/Step2Family.jsx'
 import Step4Education from '../components/apply/steps/Step4Education.jsx'
-import Step9Documents from '../components/apply/steps/Step9Documents.jsx'
 import StepSummary from '../components/apply/steps/StepSummary.jsx'
 import Step11Declaration from '../components/apply/steps/Step11Declaration.jsx'
+import Step9Documents from '../components/apply/steps/Step9Documents.jsx'
 
 const TOTAL_STEPS = STEP_COUNT
 const DRAFT_KEY = 'ngc_scholarship_application_draft'
+// Declaration is the last step of "phase 1" (details). Locking here closes
+// steps 1-5 (details, summary, declaration) for editing and hands the
+// applicant off to the Documents step, which is the only thing left open.
+const LOCK_STEP = 5
 
 const initialData = {
   // Step 1
@@ -170,11 +175,14 @@ function ApplyForm() {
     return {
       step: draft?.step ?? 1,
       data: draft?.data ? { ...initialData, ...draft.data } : initialData,
+      locked: Boolean(draft?.locked),
     }
   })
 
   const [step, setStep] = useState(initialState.step)
   const [data, setData] = useState(initialState.data)
+  const [locked, setLocked] = useState(initialState.locked)
+  const [confirmLockOpen, setConfirmLockOpen] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
@@ -184,11 +192,11 @@ function ApplyForm() {
   useEffect(() => {
     if (submitted) return
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({ step, data: stripFiles(data) }))
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ step, data: stripFiles(data), locked }))
     } catch {
       // localStorage unavailable or quota exceeded — caching is a convenience, not critical
     }
-  }, [step, data, submitted])
+  }, [step, data, locked, submitted])
 
   // Email stays locked to the signed-in Google account (see Step1Student's
   // readOnly email field), so keep it synced to `user` rather than the editable
@@ -212,15 +220,27 @@ function ApplyForm() {
 
   const goNext = () => {
     if (!isStepValid(step, data)) return
+    if (step === LOCK_STEP) {
+      setConfirmLockOpen(true)
+      return
+    }
     const next = Math.min(step + 1, TOTAL_STEPS)
     setStep(next)
     scrollTop()
   }
+  const confirmLock = () => {
+    setConfirmLockOpen(false)
+    setLocked(true)
+    setStep(LOCK_STEP + 1)
+    scrollTop()
+  }
   const goBack = () => {
+    if (locked) return
     setStep((s) => Math.max(1, s - 1))
     scrollTop()
   }
   const jumpTo = (n) => {
+    if (locked && n <= LOCK_STEP) return
     setStep(n)
     scrollTop()
   }
@@ -305,9 +325,9 @@ function ApplyForm() {
       case 1: return <Step1Student {...stepProps} />
       case 2: return <Step2Family {...stepProps} />
       case 3: return <Step4Education {...stepProps} />
-      case 4: return <Step9Documents {...stepProps} />
-      case 5: return <StepSummary {...stepProps} />
-      case 6: return <Step11Declaration {...stepProps} />
+      case 4: return <StepSummary {...stepProps} />
+      case 5: return <Step11Declaration {...stepProps} />
+      case 6: return <Step9Documents {...stepProps} />
       default: return null
     }
   }
@@ -355,7 +375,7 @@ function ApplyForm() {
           <button
             type="button"
             onClick={goBack}
-            disabled={step === 1}
+            disabled={step === 1 || locked}
             className="inline-flex items-center gap-2 text-brand-navy font-semibold text-sm disabled:opacity-0 disabled:pointer-events-none"
           >
             <ArrowLeft className="w-4 h-4" /> {enOnly('common.back')}
@@ -368,7 +388,7 @@ function ApplyForm() {
               </span>
             )}
 
-            {step < TOTAL_STEPS ? (
+            {step < TOTAL_STEPS && step !== LOCK_STEP && (
               <button
                 type="button"
                 onClick={goNext}
@@ -377,7 +397,20 @@ function ApplyForm() {
               >
                 {enOnly('common.nextStep')} <ArrowRight className="w-4 h-4" />
               </button>
-            ) : (
+            )}
+
+            {step === LOCK_STEP && (
+              <button
+                type="button"
+                onClick={goNext}
+                disabled={!stepValid}
+                className="inline-flex items-center gap-2 bg-brand-navy text-white px-6 py-3 rounded-lg text-sm font-semibold shadow-sm hover:brightness-110 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100"
+              >
+                <Lock className="w-4 h-4" /> {enOnly('common.lockAndContinue')}
+              </button>
+            )}
+
+            {step === TOTAL_STEPS && (
               <button
                 type="button"
                 onClick={handleSubmit}
@@ -391,6 +424,15 @@ function ApplyForm() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmLockOpen}
+        title={enOnly('common.confirmLockTitle')}
+        message={enOnly('common.confirmLockMessage')}
+        confirmLabel={enOnly('common.lockAndContinue')}
+        onConfirm={confirmLock}
+        onCancel={() => setConfirmLockOpen(false)}
+      />
     </div>
   )
 }
