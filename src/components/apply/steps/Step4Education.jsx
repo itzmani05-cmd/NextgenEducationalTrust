@@ -4,7 +4,6 @@ import TextAreaField from '../fields/TextAreaField.jsx'
 import SelectField from '../fields/SelectField.jsx'
 import OptionPills from '../fields/OptionPills.jsx'
 import YesNoRow from '../fields/YesNoRow.jsx'
-import UploadField from '../fields/UploadField.jsx'
 import { bi } from '../../../i18n/bilingual.js'
 
 const YEAR_OPTIONS = [1, 2, 3, 4, 5].map((n) => ({ value: String(n), label: `Year ${n}` }))
@@ -55,12 +54,6 @@ export default function Step4Education({ data, setField }) {
           onChange={(v) => setField('tenth.schoolType', v)}
           options={schoolTypes}
         />
-        <UploadField
-          label={bi('step3.tenthMarkSheet')}
-          required
-          file={data.tenth.markSheet}
-          onChange={(f) => setField('tenth.markSheet', f)}
-        />
       </SectionCard>
 
       <SectionCard title={bi('step3.twelfthTitle')}>
@@ -99,12 +92,6 @@ export default function Step4Education({ data, setField }) {
               onChange={(v) => setField('twelfth.schoolType', v)}
               options={schoolTypes}
             />
-            <UploadField
-              label={bi('step3.twelfthMarkSheet')}
-              required
-              file={data.twelfth.markSheet}
-              onChange={(f) => setField('twelfth.markSheet', f)}
-            />
           </div>
         )}
 
@@ -116,12 +103,6 @@ export default function Step4Education({ data, setField }) {
               required
               value={data.diplomaPercentage}
               onChange={(v) => setField('diplomaPercentage', v)}
-            />
-            <UploadField
-              label={bi('step3.diplomaMarkSheet')}
-              required
-              file={data.diplomaMarkSheet}
-              onChange={(f) => setField('diplomaMarkSheet', f)}
             />
             <TextField
               label={bi('step3.latestAcademicPercentage')}
@@ -227,13 +208,6 @@ export default function Step4Education({ data, setField }) {
           value={data.college.cgpa}
           onChange={(v) => setField('college.cgpa', v)}
         />
-
-        <UploadField
-          label={bi('step3.collegeMarkSheet')}
-          required
-          file={data.college.markSheet}
-          onChange={(f) => setField('college.markSheet', f)}
-        />
       </SectionCard>
 
       <SectionCard title={bi('step2.scholarshipTitle')} description={bi('step2.scholarshipMovedDesc')}>
@@ -273,12 +247,6 @@ export default function Step4Education({ data, setField }) {
                 onChange={(v) => setField('scholarshipYear', v)}
               />
             </div>
-            <UploadField
-              label={bi('step2.scholarshipDoc')}
-              helper={bi('step2.scholarshipDocHelper')}
-              file={data.scholarshipDoc}
-              onChange={(f) => setField('scholarshipDoc', f)}
-            />
           </div>
         )}
       </SectionCard>
@@ -289,16 +257,6 @@ export default function Step4Education({ data, setField }) {
           value={data.tamilMediumTill12}
           onChange={(v) => setField('tamilMediumTill12', v)}
         />
-
-        {data.tamilMediumTill12 === 'yes' && (
-          <UploadField
-            label={bi('step3.tamilEvidence')}
-            required
-            helper={bi('step3.tamilEvidenceHelper')}
-            file={data.tamilMediumEvidence}
-            onChange={(f) => setField('tamilMediumEvidence', f)}
-          />
-        )}
       </SectionCard>
     </>
   )

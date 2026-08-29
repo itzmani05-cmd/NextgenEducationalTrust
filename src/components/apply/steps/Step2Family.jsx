@@ -3,13 +3,10 @@ import TextField from '../fields/TextField.jsx'
 import SelectField from '../fields/SelectField.jsx'
 import YesNoRow from '../fields/YesNoRow.jsx'
 import OptionPills from '../fields/OptionPills.jsx'
-import UploadField from '../fields/UploadField.jsx'
 import IncomeTierGrid from '../fields/IncomeTierGrid.jsx'
 import { bi } from '../../../i18n/bilingual.js'
 
 export default function Step2Family({ data, setField }) {
-  const isScSt = data.socialCategory === 'SC/ST'
-
   const parentStatusOptions = [
     { value: 'both_alive', label: bi('step2.parentStatusBothAlive') },
     { value: 'single_parent', label: bi('step2.parentStatusSingle') },
@@ -58,18 +55,6 @@ export default function Step2Family({ data, setField }) {
         {data.parentStatus === 'orphan' && (
           <div className="space-y-4">
             <p className="text-sm text-brand-muted">{bi('step2.orphanNotice')}</p>
-            <UploadField
-              label={bi('step2.fatherDeathCert')}
-              required
-              file={data.fatherDeathCert}
-              onChange={(f) => setField('fatherDeathCert', f)}
-            />
-            <UploadField
-              label={bi('step2.motherDeathCert')}
-              required
-              file={data.motherDeathCert}
-              onChange={(f) => setField('motherDeathCert', f)}
-            />
           </div>
         )}
 
@@ -87,13 +72,6 @@ export default function Step2Family({ data, setField }) {
                 { value: 'guardian', label: bi('step2.supportingParentGuardian') },
               ]}
             />
-            <UploadField
-              label={bi('step2.supportingDocument')}
-              required
-              helper={bi('step2.supportingDocumentHelper')}
-              file={data.supportingDocument}
-              onChange={(f) => setField('supportingDocument', f)}
-            />
           </div>
         )}
 
@@ -108,12 +86,6 @@ export default function Step2Family({ data, setField }) {
 
       <SectionCard title={bi('step2.incomeTitle')} description={bi('step2.incomeDesc')}>
         <IncomeTierGrid value={data.annualIncome} onChange={(v) => setField('annualIncome', v)} />
-        <UploadField
-          label={bi('step2.incomeCertificate')}
-          required
-          file={data.incomeCertificate}
-          onChange={(f) => setField('incomeCertificate', f)}
-        />
       </SectionCard>
 
       <SectionCard title={bi('step2.expensesTitle')}>
@@ -176,17 +148,6 @@ export default function Step2Family({ data, setField }) {
             { value: 'Not SC/ST', label: bi('step2.notScSt') },
           ]}
         />
-
-        {isScSt && (
-          <div className="pt-1 pb-4">
-            <UploadField
-              label={bi('step2.communityCertificate')}
-              required
-              file={data.communityCertificate}
-              onChange={(f) => setField('communityCertificate', f)}
-            />
-          </div>
-        )}
       </SectionCard>
     </>
   )
