@@ -20,10 +20,10 @@ export default function ProgramHighlightSection() {
               to economic constraints.
             </p>
             <a
-              href="/apply"
+              href="/platform"
               className="inline-flex items-center gap-2 bg-brand-rust text-white px-6 py-3.5 rounded-lg text-sm font-semibold hover:bg-brand-rustDark transition-colors self-start"
             >
-              Apply for Scholarship
+              View More Details
             </a>
           </div>
 

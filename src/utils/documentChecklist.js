@@ -16,7 +16,7 @@ export function getConditionalDocuments(data) {
     data.bothParentsDeceased === 'yes' && { key: 'fatherDeathCert', labelKey: 'step5.fatherDeathCert' },
     data.bothParentsDeceased === 'yes' && { key: 'motherDeathCert', labelKey: 'step5.motherDeathCert' },
     data.singleParent === 'yes' && { key: 'supportingDocument', labelKey: 'step5.singleParentProof' },
-    { key: 'incomeCertificate', labelKey: 'step5.incomeCertificate' },
+    { key: 'incomeCertificate', labelKey: 'step5.incomeCertificate', required: data.annualIncome !== 'above_5' },
     data.hasDiploma === 'no' && { key: 'twelfth.markSheet', labelKey: 'step5.twelfthMarkSheet' },
     data.hasDiploma === 'yes' && { key: 'diplomaMarkSheet', labelKey: 'step5.diplomaMarkSheet' },
     data.tamilMediumTill12 === 'yes' && { key: 'tamilMediumEvidence', labelKey: 'step5.tamilEvidence' },
