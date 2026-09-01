@@ -25,7 +25,7 @@ export default function Footer() {
         <div>
           <Link to="/" className="flex items-center gap-2.5 text-white font-bold text-lg mb-4">
             <img src={logo} alt="" className="w-9 h-9 object-contain" />
-            NextGen Educational Trust
+            NextGen Solutions Educational Trust
           </Link>
           <p className="text-sm leading-relaxed max-w-xs">
             Supporting deserving students through fee concessions and the C³ Educational Platform&apos;s
@@ -84,7 +84,7 @@ export default function Footer() {
 
       <div className="border-t border-white/10">
         <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] 7xl:max-w-[2880px] mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-          <p>&copy; 2026 NextGen Solutions Educational Trust. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} NextGen Solutions Educational Trust. All rights reserved.</p>
           <p className="flex items-center gap-1">
             Developed by{' '}
             <a

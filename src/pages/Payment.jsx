@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { CheckCircle2, Clock } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import { getMyApplication, submitPayment, getFeeReceiptSignedUrl } from '../utils/api.js'
+import SEO from '../components/SEO.jsx'
 import SignInGate from '../components/apply/SignInGate.jsx'
 import PaymentWrap from '../components/payment/PaymentWrap.jsx'
 import PaymentHeader from '../components/payment/PaymentHeader.jsx'
@@ -16,13 +17,18 @@ const MAX_FILE_SIZE = 1024 * 1024 // 1MB — must match the server's multer limi
 export default function Payment() {
   const { user, loading: authLoading, accessToken } = useAuth()
 
-  if (authLoading) {
-    return <div className="bg-brand-surface min-h-screen" />
-  }
-  if (!user) {
-    return <SignInGate />
-  }
-  return <PaymentContent accessToken={accessToken} />
+  return (
+    <>
+      <SEO title="Payment | NextGen Solutions Educational Trust" description="Submit and track your scholarship fee payment with NextGen Solutions Educational Trust." path="/payment" noindex />
+      {authLoading ? (
+        <div className="bg-brand-surface min-h-screen" />
+      ) : !user ? (
+        <SignInGate />
+      ) : (
+        <PaymentContent accessToken={accessToken} />
+      )}
+    </>
+  )
 }
 
 function PaymentContent({ accessToken }) {

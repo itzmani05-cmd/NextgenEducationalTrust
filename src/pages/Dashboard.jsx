@@ -1,3 +1,4 @@
+import SEO from '../components/SEO.jsx'
 import HeroSection from '../components/home/HeroSection.jsx'
 import AboutSection from '../components/home/AboutSection.jsx'
 import InitiativesSection from '../components/home/InitiativesSection.jsx'
@@ -14,6 +15,12 @@ import CtaSection from '../components/home/CtaSection.jsx'
 export default function Dashboard() {
   return (
     <div>
+      <SEO
+        title="NextGen Solutions Educational Trust | Educational Trust in Tamil Nadu"
+        description="NextGen Solutions Educational Trust supports deserving students in Tamil Nadu through scholarships, fee concessions, and student development programs, including the C3 Educational Platform's technical skill development program."
+        path="/"
+        keywords="NextGen Educational Trust, NextGen Solutions Educational Trust, educational trust Tamil Nadu, student scholarships, fee concessions"
+      />
       <HeroSection />
       <div data-reveal><AboutSection /></div>
       <div data-reveal><InitiativesSection /></div>

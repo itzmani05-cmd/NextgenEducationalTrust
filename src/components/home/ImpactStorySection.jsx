@@ -29,6 +29,7 @@ export default function ImpactStorySection() {
             src="https://images.unsplash.com/photo-1571260899304-425eee4c7efc?auto=format&fit=crop&w=900&q=80"
             alt="Young woman smiling, graduate of the scholarship program"
             className="w-full h-[420px] object-cover"
+            loading="lazy"
           />
         </div>
       </div>

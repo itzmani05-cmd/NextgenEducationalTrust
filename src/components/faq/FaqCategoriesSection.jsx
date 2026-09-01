@@ -1,6 +1,8 @@
 import FaqItem from '../FaqItem.jsx'
 
-const categories = [
+// Exported so the FAQPage JSON-LD on the Faq page can be generated straight
+// from this data instead of a hand-maintained copy that could drift.
+export const categories = [
   {
     title: 'General',
     faqs: [

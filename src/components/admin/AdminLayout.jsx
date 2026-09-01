@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Outlet, NavLink, Navigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import {
   LayoutGrid, FileText, ShieldCheck, Calculator, Wallet, Settings, HelpCircle, LogOut, HeartHandshake,
   Menu, X,
@@ -30,6 +31,10 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen flex bg-brand-surface">
+      <Helmet>
+        <title>Admin | NextGen Solutions Educational Trust</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="md:hidden fixed top-0 inset-x-0 z-30 h-16 bg-brand-text text-white flex items-center justify-between px-4 shadow-sm">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0">

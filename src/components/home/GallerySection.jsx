@@ -22,11 +22,12 @@ export default function GallerySection() {
             src={images[0]}
             alt="Youth sports tournament team photo"
             className="col-span-2 sm:col-span-1 row-span-1 sm:row-span-2 w-full h-full object-cover rounded-xl"
+            loading="lazy"
           />
-          <img src={images[1]} alt="Exam kit distribution to government school students" className="w-full h-full object-cover rounded-xl" />
-          <img src={images[2]} alt="Community blood donation camp" className="w-full h-full object-cover rounded-xl" />
-          <img src={images[3]} alt="Natural disaster relief support" className="w-full h-full object-cover rounded-xl" />
-          <img src={images[4]} alt="Care and support at an old age home" className="w-full h-full object-cover rounded-xl" />
+          <img src={images[1]} alt="Exam kit distribution to government school students" className="w-full h-full object-cover rounded-xl" loading="lazy" />
+          <img src={images[2]} alt="Community blood donation camp" className="w-full h-full object-cover rounded-xl" loading="lazy" />
+          <img src={images[3]} alt="Natural disaster relief support" className="w-full h-full object-cover rounded-xl" loading="lazy" />
+          <img src={images[4]} alt="Care and support at an old age home" className="w-full h-full object-cover rounded-xl" loading="lazy" />
         </div>
       </div>
     </section>

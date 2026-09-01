@@ -30,6 +30,7 @@ export default function AboutSection() {
             src="https://images.unsplash.com/photo-1497486751825-1233686d5d80?auto=format&fit=crop&w=900&q=80"
             alt="Volunteers teaching children in a community classroom"
             className="w-full h-[420px] object-cover"
+            loading="lazy"
           />
         </div>
       </div>

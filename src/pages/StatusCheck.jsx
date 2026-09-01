@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import SEO from '../components/SEO.jsx'
 import { lookupApplication } from '../utils/api.js'
 import StatusLookupForm from '../components/status-check/StatusLookupForm.jsx'
 import ApplicationSummaryCard from '../components/status-check/ApplicationSummaryCard.jsx'
@@ -32,6 +33,12 @@ export default function StatusCheck() {
 
   return (
     <div className="bg-brand-surface min-h-screen">
+      <SEO
+        title="Check Application Status | NextGen Solutions Educational Trust"
+        description="Look up the status of your NextGen Solutions Educational Trust scholarship application."
+        path="/status"
+        noindex
+      />
       <div className="max-w-2xl mx-auto px-6 py-12 sm:py-16">
         <StatusLookupForm
           mobile={mobile}

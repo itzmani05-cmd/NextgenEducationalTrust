@@ -43,6 +43,7 @@ export default function ProgramsSection() {
             src={concessionDetails}
             alt="Recommended Concession Model"
             className="w-full rounded-lg border border-brand-border"
+            loading="lazy"
           />
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useAdminAuth } from '../../context/AdminAuthContext.jsx'
 import { enOnly } from '../../i18n/bilingual.js'
 import AdminLoginForm from '../../components/admin/login/AdminLoginForm.jsx'
@@ -27,6 +28,10 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-brand-surface flex items-center justify-center px-6">
+      <Helmet>
+        <title>Admin Sign In | NextGen Solutions Educational Trust</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <AdminLoginForm
         password={password}
         setPassword={setPassword}

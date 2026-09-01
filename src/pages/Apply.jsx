@@ -9,6 +9,8 @@ import { enOnly } from '../i18n/bilingual.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import SignInGate from '../components/apply/SignInGate.jsx'
 import ConfirmDialog from '../components/admin/ConfirmDialog.jsx'
+import SEO from '../components/SEO.jsx'
+import { breadcrumbSchema } from '../seo/schema.js'
 
 import Step1Student from '../components/apply/steps/Step1Student.jsx'
 import Step2Family from '../components/apply/steps/Step2Family.jsx'
@@ -83,13 +85,27 @@ function loadDraft() {
 export default function Apply() {
   const { user, loading: authLoading } = useAuth()
 
-  if (authLoading) {
-    return <div className="bg-brand-surface min-h-screen" />
-  }
-  if (!user) {
-    return <SignInGate />
-  }
-  return <ApplyGate />
+  return (
+    <>
+      <SEO
+        title="Apply for a Scholarship | NextGen Solutions Educational Trust"
+        description="Apply for a fee concession scholarship from NextGen Solutions Educational Trust. Sign in to start your application, submit required documents, and track approval."
+        path="/apply"
+        keywords="apply for scholarship, scholarship application Tamil Nadu, fee concession application"
+        jsonLd={breadcrumbSchema([
+          { name: 'Home', path: '/' },
+          { name: 'Apply for Scholarship', path: '/apply' },
+        ])}
+      />
+      {authLoading ? (
+        <div className="bg-brand-surface min-h-screen" />
+      ) : !user ? (
+        <SignInGate />
+      ) : (
+        <ApplyGate />
+      )}
+    </>
+  )
 }
 
 // Each Google account gets a single application. Check up front so someone

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import SEO from '../components/SEO.jsx'
 import SignUpBrandHeader from '../components/signup/SignUpBrandHeader.jsx'
 import AuthNotConfiguredNotice from '../components/signup/AuthNotConfiguredNotice.jsx'
 import GoogleAuthButton from '../components/signup/GoogleAuthButton.jsx'
@@ -65,6 +66,7 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen bg-brand-surface flex items-center justify-center px-6 py-12">
+      <SEO title="Create Account | NextGen Solutions Educational Trust" description="Create an account to apply for a NextGen Solutions Educational Trust scholarship." path="/signup" noindex />
       <div className="w-full max-w-sm bg-white border border-brand-border rounded-xl p-8 shadow-sm">
         <SignUpBrandHeader />
 

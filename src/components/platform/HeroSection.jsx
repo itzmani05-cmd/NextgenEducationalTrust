@@ -18,7 +18,7 @@ export default function HeroSection() {
           
 
           <p className="text-brand-muted text-lg leading-relaxed mb-6">
-            C³ Educational Platform is a Technical Skill Development Program of Nextgen Solutions Educational Trust
+            C³ Educational Platform is a Technical Skill Development Program of NextGen Solutions Educational Trust
             , designed to strengthen the technical knowledge, problem-solving ability and
             examination skills of students aspiring for State and Central Government Services and
             GATE examinations.
@@ -36,6 +36,7 @@ export default function HeroSection() {
           interval={7000}
           alt="Students at a C³ Educational Platform coaching session"
           className="rounded-2xl shadow-sm h-80 md:h-[26rem]"
+          loading="eager"
         />
       </div>
     </section>

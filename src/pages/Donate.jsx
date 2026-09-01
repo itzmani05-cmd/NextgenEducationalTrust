@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import SEO from '../components/SEO.jsx'
+import { breadcrumbSchema } from '../seo/schema.js'
 import DonationHero from '../components/donation/DonationHero.jsx'
 import DonationQrSection from '../components/donation/DonationQrSection.jsx'
 import DonationForm from '../components/donation/DonationForm.jsx'
@@ -59,12 +61,31 @@ export default function Donate() {
     }
   }
 
+  const seo = (
+    <SEO
+      title="Donate | NextGen Solutions Educational Trust"
+      description="Support NextGen Solutions Educational Trust's scholarships, fee concessions, and student development programs with a donation. See eligible payment methods and submit your donation details."
+      path="/donate"
+      keywords="donate educational trust, support scholarships Tamil Nadu, educational trust donation"
+      jsonLd={breadcrumbSchema([
+        { name: 'Home', path: '/' },
+        { name: 'Donate', path: '/donate' },
+      ])}
+    />
+  )
+
   if (submitted) {
-    return <DonationThankYou data={submitted} />
+    return (
+      <>
+        {seo}
+        <DonationThankYou data={submitted} />
+      </>
+    )
   }
 
   return (
     <div className="bg-white">
+      {seo}
       <DonationHero />
       <div data-reveal><DonationQrSection /></div>
       <div data-reveal>

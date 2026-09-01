@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export default function ImageSlider({ images, interval = 7000, alt = '', className = '' }) {
+export default function ImageSlider({ images, interval = 7000, alt = '', className = '', loading = 'lazy' }) {
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
@@ -19,6 +19,7 @@ export default function ImageSlider({ images, interval = 7000, alt = '', classNa
           src={src}
           alt={i === index ? alt : ''}
           aria-hidden={i === index ? undefined : true}
+          loading={loading}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
             i === index ? 'opacity-100' : 'opacity-0'
           }`}

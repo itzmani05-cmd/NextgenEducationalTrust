@@ -39,6 +39,7 @@ export default function EventsPreviewSection() {
           <Link
             to="/events"
             className="inline-flex items-center gap-2 text-sm font-semibold tracking-wide uppercase text-brand-rust hover:text-brand-rustDark transition-colors"
+            aria-label="View upcoming educational events"
           >
             View All <ArrowRight className="w-4 h-4" />
           </Link>
@@ -47,7 +48,7 @@ export default function EventsPreviewSection() {
         <div className="grid sm:grid-cols-3 gap-6">
           {events.map((ev) => (
             <div key={ev.title} className="border border-brand-border rounded-xl overflow-hidden">
-              <img src={ev.image} alt={ev.title} className="w-full h-56 object-cover" />
+              <img src={ev.image} alt={ev.title} className="w-full h-56 object-cover" loading="lazy" />
               <div className="p-6">
                 <p className="text-xs font-semibold tracking-wide uppercase text-brand-rust mb-2">
                   {ev.category}

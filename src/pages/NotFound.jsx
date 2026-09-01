@@ -1,9 +1,16 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, Compass } from 'lucide-react'
+import SEO from '../components/SEO.jsx'
 
 export default function NotFound() {
   return (
     <section className="relative">
+      <SEO
+        title="Page Not Found | NextGen Solutions Educational Trust"
+        description="The page you're looking for doesn't exist or may have been moved."
+        path="/404"
+        noindex
+      />
       <div className="absolute inset-0">
         <img
           src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1600&q=80"

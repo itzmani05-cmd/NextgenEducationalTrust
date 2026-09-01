@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
+import SEO from '../components/SEO.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { getMyApplication } from '../utils/api.js'
 import { CONCESSION_LABELS } from '../utils/scholarshipCalc.js'
@@ -46,6 +47,7 @@ function ProfileContent({ user, accessToken, signOut }) {
 
   return (
     <div className="bg-brand-surface min-h-screen">
+      <SEO title="My Profile | NextGen Solutions Educational Trust" description="Your NextGen Solutions Educational Trust account and scholarship application overview." path="/profile" noindex />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
         <ProfileHeaderCard user={user} onSignOut={signOut} />
 
