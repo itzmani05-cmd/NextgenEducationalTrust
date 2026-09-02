@@ -4,7 +4,8 @@ import { fileURLToPath } from 'url'
 import PDFDocument from 'pdfkit'
 import { prisma } from './prismaClient.js'
 import { getSupabaseAdmin, STORAGE_BUCKET } from './supabaseAdmin.js'
-import { amountInWords, drawWatermark, drawSignature, drawSeal } from './receipt.js'
+import { drawWatermark, drawSignature, drawSeal } from './receipt.js'
+import { getProvisional } from './scholarshipCalc.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'Logo.png')
@@ -80,27 +81,36 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
       y += 20
     }
 
-    const sumY = y + 6
-    doc.fontSize(10).fillColor('#555').font('Helvetica-Bold').text('A sum of Rupees:', 50, sumY)
-    doc.fontSize(10).fillColor('#222').font('Helvetica').text(`${amountInWords(payment.amountPaid)} Only`, 220, sumY, { width: 320 })
-    doc.y = sumY + 20
+    doc.y = y + 6
 
     doc.moveDown(1)
     doc.fontSize(11).fillColor('#1B2A4A').font('Helvetica-Bold').text('Fee Breakdown', 50, doc.y)
     doc.moveDown(0.4)
-    const discountAmount = application.courseFee != null && payment.amountDue != null
-      ? application.courseFee - payment.amountDue
-      : null
+    // The base/factors breakdown only applies to the income-tier categories
+    // (category3/4) — category1/2 are flat 100%/50% grants and "exceptional"
+    // is a manual Trust Committee override, so neither has a formula to show.
+    const showConcessionBreakdown = application.concessionCategory === 'category3' || application.concessionCategory === 'category4'
+    const suggestion = showConcessionBreakdown ? getProvisional(application) : null
     const feeRows = [
       ['Course Fee', inr(application.courseFee)],
-      ['Concession', application.finalApprovedConcession != null ? `${application.finalApprovedConcession}%` : '—'],
-      ['Discount Amount', inr(discountAmount)],
-      ['Amount Payable', inr(payment.amountDue)],
+      ...(suggestion
+        ? [
+          [`Base (${suggestion.category.label})`, `${suggestion.base}%`],
+          ...suggestion.additions.map((a) => [a.label, `+${a.value}%`]),
+          ['Calculated', `${suggestion.calculated}% (capped at ${suggestion.cap}% -> ${suggestion.provisional}%)`],
+        ]
+        : [['Concession', application.finalApprovedConcession != null ? `${application.finalApprovedConcession}%` : '—']]),
     ]
+    // Wider label column + right-aligned value column than the other row
+    // groups on this receipt — the concession breakdown labels ("Academic
+    // Performance (10th & 12th)") and the "Calculated ... (capped at ...)"
+    // value are both too long for the narrow 220/320 layout used elsewhere.
+    const feeValueX = 340
+    const feeValueWidth = doc.page.width - doc.page.margins.right - feeValueX
     y = doc.y
     for (const [label, value] of feeRows) {
-      doc.fontSize(10).fillColor('#555').font('Helvetica-Bold').text(`${label}:`, 50, y)
-      doc.fontSize(10).fillColor('#222').font('Helvetica').text(value, 220, y, { width: 320 })
+      doc.fontSize(10).fillColor('#555').font('Helvetica-Bold').text(`${label}:`, 50, y, { width: feeValueX - 60 })
+      doc.fontSize(10).fillColor('#222').font('Helvetica').text(value, feeValueX, y, { width: feeValueWidth, align: 'right' })
       y += 18
     }
 

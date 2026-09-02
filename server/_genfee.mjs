@@ -8,12 +8,16 @@ const application = {
   mobile: '9876543210',
   examName: 'Full Stack Web Development',
   courseFee: 25000,
-  finalApprovedConcession: 20,
+  annualIncome: '1_5_to_3',
+  tenth: { percentage: 65 },
+  twelfth: { percentage: 65 },
+  concessionCategory: 'category3',
+  finalApprovedConcession: 43,
 }
 
 const payment = {
-  amountDue: 20000,
-  amountPaid: 20000,
+  amountDue: 14250,
+  amountPaid: 14250,
   paymentMethod: 'bank_transfer',
   paymentDate: new Date('2026-08-20'),
   transactionId: 'HDFC2026082098765',

@@ -1,6 +1,6 @@
 import { MapPin, Navigation } from 'lucide-react'
 
-const ADDRESS = '2nd Floor, Lawley Road Signal, R.S. Puram, Coimbatore, Tamil Nadu – 641002, India'
+const ADDRESS = '2nd Floor, C³ Educational Platform, Lawley Road Signal, R.S. Puram, Coimbatore, Tamil Nadu – 641002, India'
 const DIRECTIONS_URL =
   'https://www.google.com/maps/dir/?api=1&destination=C3+Educational+Platform,+Lawley+Road+Signal,+R.S.+Puram,+Coimbatore,+Tamil+Nadu+641002'
 const MAP_EMBED_URL =
