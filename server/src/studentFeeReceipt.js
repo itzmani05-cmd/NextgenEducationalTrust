@@ -186,11 +186,22 @@ export { renderFeeReceiptPdf }
 
 export async function issueFeeReceiptForPayment(application, payment) {
   const supabase = getSupabaseAdmin()
+  // Keep the receipt's issue date stable across re-renders (it should read the
+  // date the payment was verified, not "today"), while still falling back
+  // sanely if an older record is missing verifiedAt.
+  const issuedAt = payment.verifiedAt || new Date()
 
+  // The receipt number/storage path, once allocated, never change — but the
+  // PDF content is always re-rendered from current data on every fetch, so
+  // template/format updates (and any data corrections) reach students on
+  // their next download instead of being frozen at first-issue time.
   if (payment.receiptNumber && payment.receiptPath) {
-    const { data, error } = await supabase.storage.from(STORAGE_BUCKET).download(payment.receiptPath)
-    if (error) throw error
-    return { payment, pdfBuffer: Buffer.from(await data.arrayBuffer()) }
+    const pdfBuffer = await renderFeeReceiptPdf({ receiptNumber: payment.receiptNumber, application, payment, issuedAt })
+    const { error: uploadError } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload(payment.receiptPath, pdfBuffer, { contentType: 'application/pdf', upsert: true })
+    if (uploadError) throw uploadError
+    return { payment, pdfBuffer }
   }
 
   const year = new Date().getFullYear()
@@ -201,7 +212,6 @@ export async function issueFeeReceiptForPayment(application, payment) {
     const receiptNumber = `NGF/${year}/${String(count + 1 + attempt).padStart(5, '0')}`
 
     try {
-      const issuedAt = new Date()
       const pdfBuffer = await renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt })
 
       const storagePath = `payments/${application.id}/fee-receipt-${Date.now()}.pdf`

@@ -536,8 +536,16 @@ router.get(
   }),
   async (req, res) => {
     try {
-      const payment = await prisma.payment.findUnique({ where: { applicationId: req.params.id } })
-      if (!payment?.receiptPath) return res.status(404).json({ error: 'Fee receipt not available yet.' })
+      const application = await prisma.application.findUnique({
+        where: { id: req.params.id },
+        include: { payment: true },
+      })
+      if (!application?.payment?.receiptPath) return res.status(404).json({ error: 'Fee receipt not available yet.' })
+
+      // Re-render before serving so the signed URL always points at a receipt
+      // reflecting the current template/data, not whatever was cached at
+      // first-issue time — see issueFeeReceiptForPayment.
+      const { payment } = await issueFeeReceiptForPayment(application, application.payment)
 
       const supabase = getSupabaseAdmin()
       const { data, error } = await supabase.storage.from(STORAGE_BUCKET).createSignedUrl(payment.receiptPath, 30 * 60)
