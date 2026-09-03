@@ -4,6 +4,17 @@ import { enOnly } from '../../../i18n/bilingual.js'
 
 const SOCIAL_CATEGORY_LABELS = { 'SC/ST': 'Scheduled Caste', 'Not SC/ST': 'Not Scheduled Caste' }
 
+const INCOME_TIER_KEYS = {
+  upto_1_5: 'step2.incomeTier1',
+  '1_5_to_3': 'step2.incomeTier2',
+  '3_to_5': 'step2.incomeTier3',
+  above_5: 'step2.incomeTier4',
+}
+
+function incomeLabel(code) {
+  return INCOME_TIER_KEYS[code] ? enOnly(INCOME_TIER_KEYS[code]) : code
+}
+
 export default function StudentInfoSections({ app }) {
   return (
     <>
@@ -35,7 +46,7 @@ export default function StudentInfoSections({ app }) {
       </Section>
 
       <Section title={enOnly('admin.detail.financial')}>
-        <Row label={enOnly('admin.detail.fields.annualIncome')} value={app.annualIncome} />
+        <Row label={enOnly('admin.detail.fields.annualIncome')} value={incomeLabel(app.annualIncome)} />
         <Row label={enOnly('admin.detail.fields.expenseBearer')} value={app.expenseBearer} />
         <Row label={enOnly('admin.detail.fields.selfEarning')} value={app.selfEarning} />
         <Row label={enOnly('admin.detail.fields.employmentType')} value={app.employmentType} />

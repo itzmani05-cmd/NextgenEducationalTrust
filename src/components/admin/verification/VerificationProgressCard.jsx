@@ -1,19 +1,26 @@
-import { ShieldCheck } from 'lucide-react'
+import { ShieldCheck, ShieldAlert } from 'lucide-react'
 import { enOnly } from '../../../i18n/bilingual.js'
 
 export default function VerificationProgressCard({ reviewedCount, total, pct, allReviewed, saving, appStatus, onComplete }) {
   return (
     <div className="bg-white border border-brand-border rounded-xl p-6">
       <div className="flex items-center gap-2 mb-3">
-        <ShieldCheck className="w-4 h-4 text-brand-navy" />
+        {allReviewed ? (
+          <ShieldCheck className="w-4 h-4 text-green-600" />
+        ) : (
+          <ShieldAlert className="w-4 h-4 text-brand-navy" />
+        )}
         <h3 className="font-semibold text-brand-text text-sm">{enOnly('admin.verification.verificationProgress')}</h3>
       </div>
       <div className="h-2 bg-brand-surface rounded-full overflow-hidden mb-2">
-        <div className="h-full bg-brand-navy rounded-full transition-all" style={{ width: `${pct}%` }} />
+        <div
+          className={`h-full rounded-full transition-all ${allReviewed ? 'bg-green-600' : 'bg-brand-navy'}`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
       <div className="flex items-center justify-between text-xs text-brand-muted mb-4">
         <span>{reviewedCount} {enOnly('admin.verification.ofDocuments').replace('{total}', total)}</span>
-        <span>{pct}%</span>
+        <span className="font-medium">{pct}%</span>
       </div>
       <button
         type="button"

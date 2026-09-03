@@ -4,7 +4,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext.jsx'
 import {
   listApplications, updateApplicationStatus, updateDocumentReview, getSignedDocumentUrl, AuthError,
 } from '../../utils/adminApi.js'
-import { getAllRequiredDocuments, getDocumentFieldPath } from '../../utils/documentChecklist.js'
+import { getAllRequiredDocuments, getDocumentsNeedingReview, getDocumentFieldPath } from '../../utils/documentChecklist.js'
 import { getPath } from '../../utils/objectPath.js'
 import { enOnly } from '../../i18n/bilingual.js'
 import ErrorBanner from '../../components/admin/ErrorBanner.jsx'
@@ -146,14 +146,15 @@ export default function AdminVerification() {
     doReview(status)
   }
 
-  const reviewedCount = docs.filter((d) => {
+  const docsForCompletion = app ? getDocumentsNeedingReview(app) : []
+  const reviewedCount = docsForCompletion.filter((d) => {
     const s = app?.documentReviews?.[d.key]?.status
     return s === 'approved' || s === 'rejected'
   }).length
-  const total = docs.length
+  const total = docsForCompletion.length
   const pct = total ? Math.round((reviewedCount / total) * 100) : 0
   const allReviewed = total > 0 && reviewedCount === total
-  const anyRejected = docs.some((d) => app?.documentReviews?.[d.key]?.status === 'rejected')
+  const anyRejected = docsForCompletion.some((d) => app?.documentReviews?.[d.key]?.status === 'rejected')
 
   const doComplete = async () => {
     setConfirmState(null)

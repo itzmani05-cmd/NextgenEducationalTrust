@@ -499,6 +499,10 @@ export const translations = {
           communityCertificate: 'SC/ST/SC(A) Community Certificate',
           selfSupportEvidence: 'Financial Self-Support Evidence',
           scholarshipProof: 'Existing Scholarship Proof',
+          approved: 'Approved',
+          rejected: 'Rejected',
+          pendingReview: 'Pending Review',
+          uploaded: 'uploaded',
         },
         concession: {
           category1: 'Category 1 – Orphan',

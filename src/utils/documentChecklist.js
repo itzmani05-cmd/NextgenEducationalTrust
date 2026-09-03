@@ -50,6 +50,17 @@ export function getDocumentPresenceMap(app) {
   return map
 }
 
+// Documents the admin must approve/reject before verification can be marked
+// complete: every required document, plus any optional one the student
+// actually uploaded. An optional document the student skipped (e.g. income
+// certificate when annualIncome is 'above_5') is excluded so it can't leave
+// verification stuck at "pending" with no file to review.
+export function getDocumentsNeedingReview(app) {
+  return getAllRequiredDocuments(app).filter(
+    (doc) => doc.required !== false || Boolean(getPath(app, getDocumentFieldPath(doc.key))),
+  )
+}
+
 export function areAllRequiredDocumentsUploaded(app) {
   return getAllRequiredDocuments(app)
     .filter((doc) => doc.required !== false)

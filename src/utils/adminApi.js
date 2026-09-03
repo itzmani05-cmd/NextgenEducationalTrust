@@ -82,14 +82,6 @@ export function getPaymentProofSignedUrl(token, id) {
   return request(`/api/applications/${id}/payment/proof-signed-url`, { token })
 }
 
-export function getFeeReceiptSignedUrlAdmin(token, id) {
-  return request(`/api/applications/${id}/payment/receipt-signed-url`, { token })
-}
-
-export function generateFeeReceipt(token, id) {
-  return request(`/api/applications/${id}/payment/receipt/generate`, { token, method: 'POST' })
-}
-
 export function updateDocumentReview(token, id, docKey, status, comment) {
   return request(`/api/applications/${id}/documents/${encodeURIComponent(docKey)}`, {
     token,

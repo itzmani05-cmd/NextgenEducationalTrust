@@ -19,10 +19,19 @@ export default function DocumentsSection({ app, token, logout }) {
     { label: enOnly('admin.detail.docs.communityCertificate'), docKey: 'communityCertificate', hasFile: Boolean(app.communityCertificateUrl) },
     { label: enOnly('admin.detail.docs.selfSupportEvidence'), docKey: 'selfIncomeDoc', hasFile: Boolean(app.selfIncomeDocUrl) },
     { label: enOnly('admin.detail.docs.scholarshipProof'), docKey: 'scholarshipDoc', hasFile: Boolean(app.scholarshipDocUrl) },
-  ]
+  ].map((doc) => ({ ...doc, reviewStatus: app.documentReviews?.[doc.docKey]?.status }))
+
+  const uploadedCount = docs.filter((doc) => doc.hasFile).length
 
   return (
-    <Section title={enOnly('admin.detail.documents')}>
+    <Section
+      title={enOnly('admin.detail.documents')}
+      right={
+        <span className="text-xs font-medium text-brand-muted bg-brand-surface px-2.5 py-1 rounded-full">
+          {uploadedCount} / {docs.length} {enOnly('admin.detail.docs.uploaded')}
+        </span>
+      }
+    >
       {docs.map((doc) => (
         <DocRow key={doc.docKey} {...doc} appId={app.id} token={token} logout={logout} />
       ))}
