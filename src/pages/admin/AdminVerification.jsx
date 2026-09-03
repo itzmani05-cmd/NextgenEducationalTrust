@@ -4,7 +4,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext.jsx'
 import {
   listApplications, updateApplicationStatus, updateDocumentReview, getSignedDocumentUrl, AuthError,
 } from '../../utils/adminApi.js'
-import { getAllRequiredDocuments, getDocumentsNeedingReview, getDocumentFieldPath } from '../../utils/documentChecklist.js'
+import { getDocumentsNeedingReview, getDocumentFieldPath } from '../../utils/documentChecklist.js'
 import { getPath } from '../../utils/objectPath.js'
 import { enOnly } from '../../i18n/bilingual.js'
 import ErrorBanner from '../../components/admin/ErrorBanner.jsx'
@@ -57,7 +57,10 @@ export default function AdminVerification() {
 
   const index = applications.findIndex((a) => a.id === id)
   const app = index >= 0 ? applications[index] : null
-  const docs = app ? getAllRequiredDocuments(app) : []
+  // Documents the applicant wasn't asked for, or was allowed to skip and
+  // didn't upload, aren't shown as tabs — nothing there for the admin to
+  // review.
+  const docs = app ? getDocumentsNeedingReview(app) : []
 
   useEffect(() => {
     if (!selectedDoc && docs.length > 0) setSelectedDoc(docs[0].key)
@@ -146,15 +149,14 @@ export default function AdminVerification() {
     doReview(status)
   }
 
-  const docsForCompletion = app ? getDocumentsNeedingReview(app) : []
-  const reviewedCount = docsForCompletion.filter((d) => {
+  const reviewedCount = docs.filter((d) => {
     const s = app?.documentReviews?.[d.key]?.status
     return s === 'approved' || s === 'rejected'
   }).length
-  const total = docsForCompletion.length
+  const total = docs.length
   const pct = total ? Math.round((reviewedCount / total) * 100) : 0
   const allReviewed = total > 0 && reviewedCount === total
-  const anyRejected = docsForCompletion.some((d) => app?.documentReviews?.[d.key]?.status === 'rejected')
+  const anyRejected = docs.some((d) => app?.documentReviews?.[d.key]?.status === 'rejected')
 
   const doComplete = async () => {
     setConfirmState(null)

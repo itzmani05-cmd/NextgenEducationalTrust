@@ -1,8 +1,15 @@
 import Section from './Section.jsx'
 import DocRow from './DocRow.jsx'
+import { getDocumentsNeedingReview } from '../../../utils/documentChecklist.js'
 import { enOnly } from '../../../i18n/bilingual.js'
 
 export default function DocumentsSection({ app, token, logout }) {
+  // Documents the applicant wasn't asked for at all (e.g. a death certificate
+  // when both parents are alive) or was allowed to skip (income certificate
+  // above ₹5L income) shouldn't clutter this list when there's nothing there
+  // — they're kept only if a file happens to exist anyway.
+  const neededKeys = new Set(getDocumentsNeedingReview(app).map((d) => d.key))
+
   const docs = [
     { label: enOnly('admin.detail.docs.studentPhoto'), docKey: 'studentPhoto', hasFile: Boolean(app.studentPhotoUrl) },
     { label: enOnly('admin.detail.docs.identityDocument'), docKey: 'identityDocument', hasFile: Boolean(app.identityDocumentUrl) },
@@ -19,7 +26,9 @@ export default function DocumentsSection({ app, token, logout }) {
     { label: enOnly('admin.detail.docs.communityCertificate'), docKey: 'communityCertificate', hasFile: Boolean(app.communityCertificateUrl) },
     { label: enOnly('admin.detail.docs.selfSupportEvidence'), docKey: 'selfIncomeDoc', hasFile: Boolean(app.selfIncomeDocUrl) },
     { label: enOnly('admin.detail.docs.scholarshipProof'), docKey: 'scholarshipDoc', hasFile: Boolean(app.scholarshipDocUrl) },
-  ].map((doc) => ({ ...doc, reviewStatus: app.documentReviews?.[doc.docKey]?.status }))
+  ]
+    .filter((doc) => doc.hasFile || neededKeys.has(doc.docKey))
+    .map((doc) => ({ ...doc, reviewStatus: app.documentReviews?.[doc.docKey]?.status }))
 
   const uploadedCount = docs.filter((doc) => doc.hasFile).length
 
