@@ -1,8 +1,8 @@
-import se2 from '../../assests/events/sports&events/se2.jpeg'
-import edu1 from '../../assests/events/education/edu1.jpeg'
-import hm3 from '../../assests/events/health&medical/hm3.jpeg'
-import nd2 from '../../assests/events/naturaldisaster/nd2.jpeg'
-import ooh2 from '../../assests/events/orphonage&oldhome/ooh2.jpeg'
+import se2 from '../../assests/events/sports&events/se2.webp'
+import edu1 from '../../assests/events/education/edu1.webp'
+import hm3 from '../../assests/events/health&medical/hm3.webp'
+import nd2 from '../../assests/events/naturaldisaster/nd2.webp'
+import ooh2 from '../../assests/events/orphonage&oldhome/ooh2.webp'
 
 const images = [se2, edu1, hm3, nd2, ooh2]
 

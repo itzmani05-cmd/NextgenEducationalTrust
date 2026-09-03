@@ -5,8 +5,12 @@ export default function DonationHero() {
     <section className="relative">
       <div className="absolute inset-0">
         <img
-          src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1600&q=80"
+          src="/hero/donation-hero.webp"
           alt=""
+          width="1600"
+          height="1067"
+          loading="eager"
+          fetchPriority="high"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-brand-ink/75" />

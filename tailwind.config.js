@@ -15,7 +15,6 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         serif: ['"DM Serif Display"', 'ui-serif', 'Georgia', 'serif'],
       },
       colors: {

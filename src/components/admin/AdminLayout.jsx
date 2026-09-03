@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { useAdminAuth } from '../../context/AdminAuthContext.jsx'
 import { enOnly } from '../../i18n/bilingual.js'
-import logo from '../../assests/Logo.png'
+import logo from '../../assests/Logo.webp'
 
 const NAV_ITEMS = [
   { to: '/admin', label: enOnly('admin.nav.analytics'), icon: LayoutGrid, end: true },

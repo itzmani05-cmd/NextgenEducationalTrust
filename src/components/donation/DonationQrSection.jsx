@@ -1,4 +1,4 @@
-import qrCode from '../../assests/QrPic.jpeg'
+import qrCode from '../../assests/QrPic.webp'
 
 const BANK_NAME = 'City Union Bank'
 const BANK_ACCOUNT_NAME = 'NEXTGEN SOLUTIONS EDUCATIONAL TRUST'

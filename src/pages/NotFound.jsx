@@ -13,8 +13,12 @@ export default function NotFound() {
       />
       <div className="absolute inset-0">
         <img
-          src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1600&q=80"
+          src="/hero/notfound.webp"
           alt=""
+          width="1280"
+          height="853"
+          loading="eager"
+          fetchPriority="high"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-brand-ink/80" />

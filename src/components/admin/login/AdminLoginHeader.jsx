@@ -1,4 +1,4 @@
-import logo from '../../../assests/Logo.png'
+import logo from '../../../assests/Logo.webp'
 import { enOnly } from '../../../i18n/bilingual.js'
 
 export default function AdminLoginHeader() {

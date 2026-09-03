@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { MapPin, Mail, Phone, UserRound, ArrowUpRight } from 'lucide-react'
-import logo from '../assests/Logo.png'
+import logo from '../assests/Logo.webp'
 
 const quickLinks = [
   { to: '/', label: 'Home' },

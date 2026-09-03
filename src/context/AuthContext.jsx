@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { supabase, supabaseConfigured } from '../utils/supabaseClient.js'
+import { getSupabase, supabaseConfigured } from '../utils/supabaseClient.js'
 
 const AuthContext = createContext(null)
 
@@ -10,20 +10,32 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!supabaseConfigured) return
 
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      setLoading(false)
+    let unsubscribe = () => {}
+    let cancelled = false
+
+    getSupabase().then((supabase) => {
+      if (cancelled) return
+      supabase.auth.getSession().then(({ data }) => {
+        if (cancelled) return
+        setSession(data.session)
+        setLoading(false)
+      })
+
+      const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+        setSession(newSession)
+      })
+      unsubscribe = () => listener.subscription.unsubscribe()
     })
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession)
-    })
-
-    return () => listener.subscription.unsubscribe()
+    return () => {
+      cancelled = true
+      unsubscribe()
+    }
   }, [])
 
   const signInWithGoogle = async () => {
     if (!supabaseConfigured) throw new Error('Sign-in is not configured yet.')
+    const supabase = await getSupabase()
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.href },
@@ -33,12 +45,14 @@ export function AuthProvider({ children }) {
 
   const signInWithPassword = async (email, password) => {
     if (!supabaseConfigured) throw new Error('Sign-in is not configured yet.')
+    const supabase = await getSupabase()
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
   }
 
   const signUpWithPassword = async ({ name, email, password }) => {
     if (!supabaseConfigured) throw new Error('Sign-in is not configured yet.')
+    const supabase = await getSupabase()
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -48,7 +62,11 @@ export function AuthProvider({ children }) {
     return data
   }
 
-  const signOut = () => supabaseConfigured && supabase.auth.signOut()
+  const signOut = async () => {
+    if (!supabaseConfigured) return
+    const supabase = await getSupabase()
+    return supabase.auth.signOut()
+  }
 
   const value = {
     user: session?.user || null,

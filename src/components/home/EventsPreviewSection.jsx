@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
-import edu2 from '../../assests/events/education/edu2.jpeg'
-import hm2 from '../../assests/events/health&medical/hm2.jpeg'
-import env2 from '../../assests/events/environment/env2.jpeg'
+import edu2 from '../../assests/events/education/edu2.webp'
+import hm2 from '../../assests/events/health&medical/hm2.webp'
+import env2 from '../../assests/events/environment/env2.webp'
 
 const events = [
   {

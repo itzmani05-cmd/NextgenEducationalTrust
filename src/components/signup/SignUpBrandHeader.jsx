@@ -1,4 +1,4 @@
-import logo from '../../assests/Logo.png'
+import logo from '../../assests/Logo.webp'
 
 export default function SignUpBrandHeader() {
   return (

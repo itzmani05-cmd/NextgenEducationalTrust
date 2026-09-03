@@ -1,4 +1,4 @@
-import qrCode from '../../assests/QrPic.jpeg'
+import qrCode from '../../assests/QrPic.webp'
 
 // Trust payment details.
 const BANK_NAME = 'City Union Bank'

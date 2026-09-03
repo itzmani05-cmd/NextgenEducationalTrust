@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react'
+import aboutImage from '../../assests/misc/about.webp'
 
 export default function AboutSection() {
   return (
@@ -27,8 +28,10 @@ export default function AboutSection() {
 
         <div className="rounded-2xl overflow-hidden shadow-sm">
           <img
-            src="https://images.unsplash.com/photo-1497486751825-1233686d5d80?auto=format&fit=crop&w=900&q=80"
+            src={aboutImage}
             alt="Volunteers teaching children in a community classroom"
+            width="950"
+            height="678"
             className="w-full h-[420px] object-cover"
             loading="lazy"
           />

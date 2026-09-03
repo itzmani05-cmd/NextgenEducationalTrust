@@ -1,8 +1,8 @@
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ImageSlider from '../ImageSlider.jsx'
-import c3PlatformPic1 from '../../assests/c3Platform/Pic1.jpeg'
-import c3PlatformPic2 from '../../assests/c3Platform/Pic2.jpeg'
+import c3PlatformPic1 from '../../assests/c3Platform/Pic1.webp'
+import c3PlatformPic2 from '../../assests/c3Platform/Pic2.webp'
 
 export default function HeroSection() {
   return (

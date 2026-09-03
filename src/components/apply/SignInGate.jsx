@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { LogIn, FileText, UploadCloud, BadgeCheck } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import GoogleIcon from '../GoogleIcon.jsx'
-import concessionDetails from '../../assests/ConcessionDetails.jpeg'
+import concessionDetails from '../../assests/ConcessionDetails.webp'
 
 const documents = [
   { title: 'Student Photograph' },

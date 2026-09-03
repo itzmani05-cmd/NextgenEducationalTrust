@@ -5,8 +5,15 @@ export default function HeroSection() {
     <section className="relative">
       <div className="absolute inset-0">
         <img
-          src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1600&q=80"
+          src="/hero/hero-1440.webp"
+          srcSet="/hero/hero-640.webp 640w, /hero/hero-960.webp 960w, /hero/hero-1440.webp 1440w, /hero/hero-1920.webp 1920w"
+          sizes="100vw"
+          width="1920"
+          height="1195"
           alt=""
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-brand-ink/75" />

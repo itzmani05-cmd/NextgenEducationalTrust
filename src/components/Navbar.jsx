@@ -1,15 +1,15 @@
 import { useState, useRef, useEffect } from 'react'
 import { NavLink, Link, useLocation } from 'react-router-dom'
-import { HelpCircle, User, LogIn, LogOut, Menu, X, HeartHandshake } from 'lucide-react'
-import logo from '../assests/TrustLogo.png'
-import c3Logo from '../assests/c3LogoBg.png'
+import { User, LogIn, LogOut, Menu, X, Home, GraduationCap, Newspaper, HandCoins, Mail } from 'lucide-react'
+import logo from '../assests/TrustLogo.webp'
+import c3Logo from '../assests/c3LogoBg.webp'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const links = [
-  { to: '/', label: 'Home' },
-  { to: '/platform', label: 'C³ Platform' },
-  { to: '/events', label: 'News & Events' },
-  {to:'/donate', label:'Donate'},
+  { to: '/', label: 'Home', icon: Home },
+  { to: '/platform', label: 'C³ Platform', icon: GraduationCap },
+  { to: '/events', label: 'News & Events', icon: Newspaper },
+  { to: '/donate', label: 'Donate', icon: HandCoins },
 ]
 
 export default function Navbar() {
@@ -38,14 +38,16 @@ export default function Navbar() {
   }, [])
 
   const navLinkClasses = ({ isActive }) =>
-    `relative py-2 transition-colors ${isActive ? 'text-brand-navy' : 'text-brand-text/80 hover:text-brand-navy'} ` +
-    `after:absolute after:left-0 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-brand-red after:transition-all ` +
-    (isActive ? 'after:w-full' : 'after:w-0 hover:after:w-full')
+    `relative flex items-center gap-1.5 whitespace-nowrap px-3 lg:px-4 py-2 rounded-full text-[0.8rem] lg:text-[0.875rem] font-semibold tracking-wide transition-all ${
+      isActive
+        ? 'bg-white text-brand-navy shadow-[0_1px_6px_rgba(23,35,60,0.1)]'
+        : 'text-brand-muted hover:text-brand-navy'
+    }`
 
   return (
     <header
       className={`bg-white/95 backdrop-blur-sm border-b transition-shadow ${
-        scrolled ? 'border-brand-border shadow-[0_1px_12px_rgba(23,35,60,0.06)]' : 'border-brand-border/70'
+        scrolled ? 'border-brand-border shadow-[0_2px_16px_rgba(23,35,60,0.08)]' : 'border-brand-border/60'
       }`}
     >
       <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] 7xl:max-w-[2880px] mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-3 sm:gap-6">
@@ -63,9 +65,10 @@ export default function Navbar() {
           )}
         </div>
 
-        <nav className="hidden md:flex items-center gap-9 text-[0.9rem] font-medium tracking-wide">
+        <nav className="hidden md:flex items-center gap-1 bg-brand-surface/70 border border-brand-border/70 rounded-full p-1">
           {links.map((link) => (
-            <NavLink key={link.to} to={link.to} className={navLinkClasses}>
+            <NavLink key={link.to} to={link.to} className={navLinkClasses} end={link.to === '/'}>
+              <link.icon className="hidden lg:block w-3.5 h-3.5" strokeWidth={2.25} />
               {link.label}
             </NavLink>
           ))}
@@ -142,15 +145,15 @@ export default function Navbar() {
 
           <Link
             to="/contact"
-            className="hidden md:inline-flex bg-brand-red text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-sm hover:bg-brand-redDark hover:shadow-md transition-all"
+            className="hidden md:inline-flex items-center gap-2 bg-brand-red text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-sm hover:bg-brand-redDark hover:shadow-md hover:-translate-y-px active:translate-y-0 transition-all"
           >
-            Contact Us
+            <Mail className="w-4 h-4" strokeWidth={2.25} /> Contact Us
           </Link>
 
           <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}
-            className="md:hidden p-2 rounded-lg text-brand-text hover:bg-brand-surface transition-colors"
+            className="md:hidden p-2 rounded-lg border border-transparent text-brand-text hover:bg-brand-surface hover:border-brand-border transition-colors"
             aria-label="Toggle menu"
             aria-expanded={mobileOpen}
           >
@@ -161,18 +164,20 @@ export default function Navbar() {
 
       {mobileOpen && (
         <div className="md:hidden border-t border-brand-border bg-white px-6 py-4 space-y-4">
-          <nav className="flex flex-col gap-1 text-sm font-medium">
+          <nav className="flex flex-col gap-1 text-sm font-semibold">
             {links.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
+                end={link.to === '/'}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `rounded-lg px-3 py-2.5 transition-colors ${
+                  `flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
                     isActive ? 'bg-brand-surface text-brand-navy' : 'text-brand-text/80 hover:bg-brand-surface'
                   }`
                 }
               >
+                <link.icon className="w-4 h-4 shrink-0" strokeWidth={2.25} />
                 {link.label}
               </NavLink>
             ))}
@@ -222,7 +227,7 @@ export default function Navbar() {
               <Link
                 to="/login"
                 onClick={() => setMobileOpen(false)}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-semibold text-brand-navy border border-brand-navy/30 px-3.5 py-2 rounded-full"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-semibold text-brand-navy border border-brand-navy/30 px-3.5 py-2 rounded-full hover:bg-brand-surface transition-colors"
               >
                 <LogIn className="w-4 h-4" /> Sign In
               </Link>
@@ -230,9 +235,9 @@ export default function Navbar() {
             <Link
               to="/contact"
               onClick={() => setMobileOpen(false)}
-              className="flex-1 inline-flex items-center justify-center bg-brand-red text-white text-sm font-semibold px-5 py-2 rounded-full"
+              className="flex-1 inline-flex items-center justify-center gap-1.5 bg-brand-red text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-brand-redDark transition-colors"
             >
-              Contact Us
+              <Mail className="w-4 h-4" /> Contact Us
             </Link>
           </div>
         </div>

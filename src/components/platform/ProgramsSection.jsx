@@ -1,5 +1,5 @@
 import { Landmark, Building2, GraduationCap } from 'lucide-react'
-import concessionDetails from '../../assests/ConcessionDetails.jpeg'
+import concessionDetails from '../../assests/ConcessionDetails.webp'
 
 const programs = [
   {
