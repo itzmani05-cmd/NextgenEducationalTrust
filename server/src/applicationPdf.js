@@ -115,9 +115,6 @@ export function renderApplicationPdf(app) {
       .text('Scholarship Application Record', doc.page.margins.left, doc.y, { width: contentWidth, align: 'center' })
     doc.fontSize(9.5).fillColor('#666666').font('Helvetica')
       .text(`Reference ${refNumber}  ·  Generated ${date(new Date())}`, doc.page.margins.left, doc.y, { width: contentWidth, align: 'center' })
-    doc.moveDown(0.3)
-    doc.fontSize(9.5).fillColor('#666666')
-      .text(`Status: ${val(app.status)}`, doc.page.margins.left, doc.y, { width: contentWidth, align: 'center' })
 
     section(doc, 'Student Details')
     row(doc, 'Full Name', app.fullName)
