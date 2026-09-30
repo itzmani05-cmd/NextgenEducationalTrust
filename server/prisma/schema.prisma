@@ -265,3 +265,54 @@ model AuditLog {
 
   @@map("audit_logs")
 }
+
+enum ExpensePaymentMode {
+  cash
+  upi
+  bank_transfer
+  cheque
+  card
+}
+
+// Admin-managed list shown as tiles in the Add Expense form. `icon` is a key
+// into the fixed icon/colour set on the client (see expenseConstants.js), so
+// a newly added category still renders with a proper badge.
+model ExpenseCategory {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  name      String   @unique
+  icon      String   @default("other")
+  sortOrder Int      @default(0)
+
+  expenses Expense[]
+
+  @@map("expense_categories")
+}
+
+model Expense {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  categoryId  String
+  category    ExpenseCategory    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  title       String
+  amount      Int
+  date        DateTime           @db.Date
+  paymentMode ExpensePaymentMode
+  paidTo      String?
+  referenceNo String?
+  notes       String?
+
+  // Optional bill/receipt scan, stored in the same Supabase bucket as
+  // application documents under expenses/<id>/.
+  billPath     String?
+  billFileName String?
+
+  createdByEmail String?
+  updatedByEmail String?
+
+  @@index([date])
+  @@index([categoryId])
+  @@map("expenses")
+}

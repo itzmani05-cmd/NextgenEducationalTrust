@@ -1,7 +1,7 @@
 import { IndianRupee, CalendarRange, Receipt, PieChart } from 'lucide-react'
-import { formatINR, getCategory } from './expenseConstants.js'
+import { formatINR, resolveCategory } from './expenseConstants.js'
 
-export default function ExpenseSummaryCards({ expenses }) {
+export default function ExpenseSummaryCards({ expenses, categoriesById, loading }) {
   const now = new Date()
   const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
@@ -11,7 +11,7 @@ export default function ExpenseSummaryCards({ expenses }) {
     .reduce((sum, e) => sum + e.amount, 0)
 
   const byCategory = expenses.reduce((acc, e) => {
-    acc[e.category] = (acc[e.category] || 0) + e.amount
+    acc[e.categoryId] = (acc[e.categoryId] || 0) + e.amount
     return acc
   }, {})
   const topEntry = Object.entries(byCategory).sort((a, b) => b[1] - a[1])[0]
@@ -22,7 +22,7 @@ export default function ExpenseSummaryCards({ expenses }) {
     { label: 'Entries', value: expenses.length, icon: Receipt, accent: 'text-teal-700 bg-teal-50' },
     {
       label: 'Top Category',
-      value: topEntry ? getCategory(topEntry[0]).label : '—',
+      value: topEntry ? resolveCategory(categoriesById, topEntry[0]).name : '—',
       sub: topEntry ? formatINR(topEntry[1]) : '',
       icon: PieChart,
       accent: 'text-brand-amber bg-amber-50',
@@ -36,10 +36,10 @@ export default function ExpenseSummaryCards({ expenses }) {
           <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${accent}`}>
             <Icon className="w-4.5 h-4.5" />
           </div>
-          <p className="text-xl font-bold text-brand-text truncate" title={String(value)}>{value}</p>
+          <p className="text-xl font-bold text-brand-text truncate" title={String(value)}>{loading ? '—' : value}</p>
           <p className="text-xs text-brand-muted mt-0.5">
             {label}
-            {sub && <span className="text-brand-text font-medium"> · {sub}</span>}
+            {sub && !loading && <span className="text-brand-text font-medium"> · {sub}</span>}
           </p>
         </div>
       ))}

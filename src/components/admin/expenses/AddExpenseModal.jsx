@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react'
-import { X, Upload, FileText } from 'lucide-react'
-import { EXPENSE_CATEGORIES, PAYMENT_MODES } from './expenseConstants.js'
+import { X, Upload, FileText, Plus } from 'lucide-react'
+import { PAYMENT_MODES, getIconStyle } from './expenseConstants.js'
+import CategoryForm from './CategoryForm.jsx'
 
-const today = () => new Date().toISOString().slice(0, 10)
+const MAX_BILL_BYTES = 1 * 1024 * 1024
+
+const today = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 
 const EMPTY_FORM = {
-  category: '',
+  categoryId: '',
   title: '',
   amount: '',
   date: '',
@@ -36,43 +42,83 @@ function Field({ label, required, error, children, hint }) {
 }
 
 // `expense` is null for "add", or an existing row for "edit".
-export default function AddExpenseModal({ open, expense, onClose, onSave }) {
+export default function AddExpenseModal({ open, expense, categories, onClose, onSave, onCreateCategory, onViewBill }) {
   const [form, setForm] = useState(EMPTY_FORM)
-  const [receipt, setReceipt] = useState(null)
+  const [bill, setBill] = useState(null)
+  const [removeExistingBill, setRemoveExistingBill] = useState(false)
+  const [addingCategory, setAddingCategory] = useState(false)
   const [errors, setErrors] = useState({})
+  const [saving, setSaving] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   useEffect(() => {
     if (!open) return
-    setForm(expense ? { ...EMPTY_FORM, ...expense, amount: String(expense.amount) } : { ...EMPTY_FORM, date: today() })
-    setReceipt(null)
+    if (expense) {
+      const { categoryId, title, amount, date, paymentMode, paidTo, referenceNo, notes } = expense
+      setForm({
+        categoryId, title, amount: String(amount), date, paymentMode,
+        paidTo: paidTo || '', referenceNo: referenceNo || '', notes: notes || '',
+      })
+    } else {
+      setForm({ ...EMPTY_FORM, date: today() })
+    }
+    setBill(null)
+    setRemoveExistingBill(false)
+    setAddingCategory(false)
     setErrors({})
+    setSaving(false)
+    setSubmitError('')
   }, [open, expense])
 
   useEffect(() => {
     if (!open) return
-    const onKeyDown = (e) => e.key === 'Escape' && onClose()
+    const onKeyDown = (e) => e.key === 'Escape' && !saving && onClose()
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [open, onClose])
+  }, [open, onClose, saving])
 
   if (!open) return null
 
-  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target ? e.target.value : e }))
+  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
+  const hasExistingBill = !!expense?.billPath && !removeExistingBill
 
-  const handleSubmit = (e) => {
+  const pickBill = (file) => {
+    if (!file) return
+    if (file.size > MAX_BILL_BYTES) {
+      setErrors((prev) => ({ ...prev, bill: 'File is too large. The maximum size is 1MB.' }))
+      return
+    }
+    setErrors((prev) => ({ ...prev, bill: undefined }))
+    setBill(file)
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const next = {}
-    if (!form.category) next.category = 'Choose a category.'
+    if (!form.categoryId) next.categoryId = 'Choose a category.'
     if (!form.title.trim()) next.title = 'Enter what the money was spent on.'
     if (!(Number(form.amount) > 0)) next.amount = 'Enter an amount greater than 0.'
     if (!form.date) next.date = 'Pick the date of the expense.'
     setErrors(next)
     if (Object.keys(next).length) return
-    onSave({ ...form, title: form.title.trim(), amount: Number(form.amount) })
+
+    setSaving(true)
+    setSubmitError('')
+    try {
+      await onSave({
+        ...form,
+        title: form.title.trim(),
+        bill,
+        removeBill: !!expense?.billPath && removeExistingBill && !bill,
+      })
+    } catch (err) {
+      setSubmitError(err.message || 'Failed to save expense.')
+      setSaving(false)
+    }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:p-4" onClick={onClose} role="presentation">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 sm:p-4" onClick={() => !saving && onClose()} role="presentation">
       <form
         role="dialog"
         aria-modal="true"
@@ -87,7 +133,7 @@ export default function AddExpenseModal({ open, expense, onClose, onSave }) {
             <h2 className="text-lg font-bold text-brand-navy">{expense ? 'Edit Expense' : 'Add Expense'}</h2>
             <p className="text-xs text-brand-muted mt-0.5">Record money spent by the Trust. Fields marked * are required.</p>
           </div>
-          <button type="button" onClick={onClose} className="p-1.5 rounded-lg text-brand-muted hover:bg-brand-surface hover:text-brand-text" aria-label="Close">
+          <button type="button" onClick={onClose} disabled={saving} className="p-1.5 rounded-lg text-brand-muted hover:bg-brand-surface hover:text-brand-text" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -98,13 +144,14 @@ export default function AddExpenseModal({ open, expense, onClose, onSave }) {
               Category <span className="text-brand-red">*</span>
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {EXPENSE_CATEGORIES.map(({ value, label, icon: Icon, accent }) => {
-                const selected = form.category === value
+              {categories.map(({ id, name, icon }) => {
+                const { icon: Icon, accent } = getIconStyle(icon)
+                const selected = form.categoryId === id
                 return (
                   <button
-                    key={value}
+                    key={id}
                     type="button"
-                    onClick={() => setForm((f) => ({ ...f, category: value }))}
+                    onClick={() => setForm((f) => ({ ...f, categoryId: id }))}
                     aria-pressed={selected}
                     className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left text-xs font-medium transition-colors ${
                       selected
@@ -115,24 +162,49 @@ export default function AddExpenseModal({ open, expense, onClose, onSave }) {
                     <span className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 ${accent}`}>
                       <Icon className="w-4 h-4" />
                     </span>
-                    <span className="leading-tight">{label}</span>
+                    <span className="leading-tight">{name}</span>
                   </button>
                 )
               })}
+              {!addingCategory && (
+                <button
+                  type="button"
+                  onClick={() => setAddingCategory(true)}
+                  className="flex items-center gap-2.5 rounded-lg border border-dashed border-brand-border px-3 py-2.5 text-left text-xs font-semibold text-brand-navy hover:border-brand-navy/50 hover:bg-brand-surface transition-colors"
+                >
+                  <span className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 bg-brand-surface">
+                    <Plus className="w-4 h-4" />
+                  </span>
+                  New category
+                </button>
+              )}
             </div>
-            {errors.category && <p className="text-xs text-brand-red mt-1.5">{errors.category}</p>}
+            {addingCategory && (
+              <div className="mt-3">
+                <CategoryForm
+                  submitLabel="Add Category"
+                  onSubmit={async (data) => {
+                    const created = await onCreateCategory(data)
+                    setForm((f) => ({ ...f, categoryId: created.id }))
+                    setAddingCategory(false)
+                  }}
+                  onCancel={() => setAddingCategory(false)}
+                />
+              </div>
+            )}
+            {errors.categoryId && <p className="text-xs text-brand-red mt-1.5">{errors.categoryId}</p>}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
               <Field label="Expense Name" required error={errors.title}>
-                <input type="text" value={form.title} onChange={set('title')} placeholder="e.g. Textbooks for Class 10 students" className={inputClasses} />
+                <input type="text" value={form.title} onChange={set('title')} maxLength={200} placeholder="e.g. Textbooks for Class 10 students" className={inputClasses} />
               </Field>
             </div>
             <Field label="Amount Spent" required error={errors.amount}>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted text-sm">₹</span>
-                <input type="number" inputMode="decimal" min="0" step="0.01" value={form.amount} onChange={set('amount')} placeholder="0.00" className={`${inputClasses} pl-7`} />
+                <input type="number" inputMode="numeric" min="1" step="1" value={form.amount} onChange={set('amount')} placeholder="0" className={`${inputClasses} pl-7`} />
               </div>
             </Field>
             <Field label="Date" required error={errors.date}>
@@ -163,27 +235,36 @@ export default function AddExpenseModal({ open, expense, onClose, onSave }) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Paid To" hint="Vendor, person or institution">
-              <input type="text" value={form.paidTo} onChange={set('paidTo')} placeholder="e.g. Higginbothams" className={inputClasses} />
+              <input type="text" value={form.paidTo} onChange={set('paidTo')} maxLength={200} placeholder="e.g. Higginbothams" className={inputClasses} />
             </Field>
             <Field label="Reference / Transaction No." hint={form.paymentMode === 'cash' ? 'Optional for cash' : 'UTR, cheque or bill number'}>
-              <input type="text" value={form.referenceNo} onChange={set('referenceNo')} placeholder="e.g. UPI4521907733" className={inputClasses} />
+              <input type="text" value={form.referenceNo} onChange={set('referenceNo')} maxLength={100} placeholder="e.g. UPI4521907733" className={inputClasses} />
             </Field>
             <div className="sm:col-span-2">
               <Field label="Notes">
-                <textarea value={form.notes} onChange={set('notes')} rows={2} placeholder="Any extra details (optional)" className={`${inputClasses} resize-none`} />
+                <textarea value={form.notes} onChange={set('notes')} rows={2} maxLength={1000} placeholder="Any extra details (optional)" className={`${inputClasses} resize-none`} />
               </Field>
             </div>
           </div>
 
           <div>
             <p className="text-xs font-semibold text-brand-text mb-2">Bill / Receipt</p>
-            {receipt ? (
+            {bill || hasExistingBill ? (
               <div className="flex items-center justify-between gap-3 rounded-lg border border-brand-border px-3 py-2.5">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <FileText className="w-4.5 h-4.5 text-brand-navy shrink-0" />
-                  <span className="text-sm text-brand-text truncate">{receipt.name}</span>
+                  <span className="text-sm text-brand-text truncate">{bill ? bill.name : expense.billFileName || 'Uploaded bill'}</span>
+                  {!bill && (
+                    <button type="button" onClick={() => onViewBill(expense.id)} className="text-xs font-semibold text-brand-navy hover:underline shrink-0">
+                      View
+                    </button>
+                  )}
                 </div>
-                <button type="button" onClick={() => setReceipt(null)} className="text-xs font-semibold text-brand-red hover:underline shrink-0">
+                <button
+                  type="button"
+                  onClick={() => (bill ? setBill(null) : setRemoveExistingBill(true))}
+                  className="text-xs font-semibold text-brand-red hover:underline shrink-0"
+                >
                   Remove
                 </button>
               </div>
@@ -192,19 +273,31 @@ export default function AddExpenseModal({ open, expense, onClose, onSave }) {
                 <Upload className="w-5 h-5 text-brand-muted" />
                 <span className="text-sm font-medium text-brand-text">Click to upload bill</span>
                 <span className="text-xs text-brand-muted">PDF, JPG or PNG up to 1MB (optional)</span>
-                <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="sr-only" onChange={(e) => setReceipt(e.target.files?.[0] || null)} />
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  className="sr-only"
+                  onChange={(e) => {
+                    pickBill(e.target.files?.[0])
+                    e.target.value = ''
+                  }}
+                />
               </label>
             )}
+            {errors.bill && <p className="text-xs text-brand-red mt-1.5">{errors.bill}</p>}
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-brand-border bg-brand-surface/60 rounded-b-xl">
-          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-semibold text-brand-muted hover:bg-white transition-colors">
-            Cancel
-          </button>
-          <button type="submit" className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-brand-navy hover:brightness-110 transition-all">
-            {expense ? 'Save Changes' : 'Add Expense'}
-          </button>
+        <div className="px-6 py-4 border-t border-brand-border bg-brand-surface/60 rounded-b-xl">
+          {submitError && <p className="text-xs text-brand-red mb-3 text-right">{submitError}</p>}
+          <div className="flex items-center justify-end gap-3">
+            <button type="button" onClick={onClose} disabled={saving} className="px-4 py-2 rounded-lg text-sm font-semibold text-brand-muted hover:bg-white transition-colors disabled:opacity-50">
+              Cancel
+            </button>
+            <button type="submit" disabled={saving || addingCategory} className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-brand-navy hover:brightness-110 transition-all disabled:opacity-50">
+              {saving ? 'Saving…' : expense ? 'Save Changes' : 'Add Expense'}
+            </button>
+          </div>
         </div>
       </form>
     </div>

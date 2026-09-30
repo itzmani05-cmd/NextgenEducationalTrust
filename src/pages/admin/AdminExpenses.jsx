@@ -1,44 +1,131 @@
-import { useCallback, useState } from 'react'
-import { Plus } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Plus, Tags } from 'lucide-react'
+import { useAdminAuth } from '../../context/AdminAuthContext.jsx'
+import {
+  listExpenses, createExpense, updateExpense, deleteExpense, getExpenseBillSignedUrl,
+  listExpenseCategories, createExpenseCategory, updateExpenseCategory, deleteExpenseCategory, AuthError,
+} from '../../utils/adminApi.js'
 import ConfirmDialog from '../../components/admin/ConfirmDialog.jsx'
+import ErrorBanner from '../../components/admin/ErrorBanner.jsx'
 import ExpenseSummaryCards from '../../components/admin/expenses/ExpenseSummaryCards.jsx'
 import ExpensesFiltersBar from '../../components/admin/expenses/ExpensesFiltersBar.jsx'
 import ExpensesTable from '../../components/admin/expenses/ExpensesTable.jsx'
 import AddExpenseModal from '../../components/admin/expenses/AddExpenseModal.jsx'
-import { SAMPLE_EXPENSES } from '../../components/admin/expenses/expenseConstants.js'
+import ManageCategoriesModal from '../../components/admin/expenses/ManageCategoriesModal.jsx'
 
-// UI-only for now: expenses live in local state seeded with sample rows.
-// The backend (Supabase table + server routes) will replace this.
+const byDateDesc = (a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)
+
 export default function AdminExpenses() {
-  const [expenses, setExpenses] = useState(SAMPLE_EXPENSES)
+  const { token, logout } = useAdminAuth()
+  const [expenses, setExpenses] = useState([])
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [category, setCategory] = useState('')
   const [month, setMonth] = useState('')
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState({ open: false, expense: null })
+  const [categoriesOpen, setCategoriesOpen] = useState(false)
   const [pendingDelete, setPendingDelete] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setError('')
+
+    Promise.all([listExpenses(token), listExpenseCategories(token)])
+      .then(([expenseRows, categoryRows]) => {
+        if (cancelled) return
+        setExpenses(expenseRows)
+        setCategories(categoryRows)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        if (err instanceof AuthError) return logout()
+        setError(err.message || 'Failed to load expenses.')
+      })
+      .finally(() => !cancelled && setLoading(false))
+
+    return () => {
+      cancelled = true
+    }
+  }, [token, logout])
+
+  const categoriesById = useMemo(() => Object.fromEntries(categories.map((c) => [c.id, c])), [categories])
+
+  // Rethrows (after handling an expired session) so the calling form can
+  // show the message inline.
+  const guard = useCallback(async (fn) => {
+    try {
+      return await fn()
+    } catch (err) {
+      if (err instanceof AuthError) logout()
+      throw err
+    }
+  }, [logout])
+
+  const adjustCount = (categoryId, delta) => {
+    setCategories((prev) => prev.map((c) => (c.id === categoryId ? { ...c, expenseCount: c.expenseCount + delta } : c)))
+  }
 
   const openAdd = () => setModal({ open: true, expense: null })
   const openEdit = (expense) => setModal({ open: true, expense })
   const closeModal = useCallback(() => setModal({ open: false, expense: null }), [])
+  const closeCategories = useCallback(() => setCategoriesOpen(false), [])
   const cancelDelete = useCallback(() => setPendingDelete(null), [])
 
-  const handleSave = (data) => {
-    setExpenses((prev) => {
-      const next = modal.expense
-        ? prev.map((e) => (e.id === modal.expense.id ? { ...e, ...data } : e))
-        : [{ ...data, id: `local-${Date.now()}` }, ...prev]
-      return next.sort((a, b) => b.date.localeCompare(a.date))
-    })
+  const handleSave = async (data) => {
+    const existing = modal.expense
+    const saved = await guard(() => (existing ? updateExpense(token, existing.id, data) : createExpense(token, data)))
+    setExpenses((prev) => (existing ? prev.map((e) => (e.id === saved.id ? saved : e)) : [saved, ...prev]).sort(byDateDesc))
+    if (!existing) adjustCount(saved.categoryId, 1)
+    else if (existing.categoryId !== saved.categoryId) {
+      adjustCount(existing.categoryId, -1)
+      adjustCount(saved.categoryId, 1)
+    }
     closeModal()
   }
 
-  const confirmDelete = () => {
-    setExpenses((prev) => prev.filter((e) => e.id !== pendingDelete.id))
+  const confirmDelete = async () => {
+    const target = pendingDelete
     setPendingDelete(null)
+    try {
+      await guard(() => deleteExpense(token, target.id))
+      setExpenses((prev) => prev.filter((e) => e.id !== target.id))
+      adjustCount(target.categoryId, -1)
+    } catch (err) {
+      setError(err.message || 'Failed to delete expense.')
+    }
+  }
+
+  const handleViewBill = async (id) => {
+    try {
+      const { url } = await guard(() => getExpenseBillSignedUrl(token, id))
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      setError(err.message || 'Failed to open bill.')
+    }
+  }
+
+  const handleCreateCategory = async (data) => {
+    const created = await guard(() => createExpenseCategory(token, data))
+    setCategories((prev) => [...prev, created].sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name)))
+    return created
+  }
+
+  const handleUpdateCategory = async (id, data) => {
+    const updated = await guard(() => updateExpenseCategory(token, id, data))
+    setCategories((prev) => prev.map((c) => (c.id === id ? updated : c)))
+  }
+
+  const handleDeleteCategory = async (id) => {
+    await guard(() => deleteExpenseCategory(token, id))
+    setCategories((prev) => prev.filter((c) => c.id !== id))
+    if (category === id) setCategory('')
   }
 
   const filtered = expenses.filter((e) => {
-    if (category && e.category !== category) return false
+    if (category && e.categoryId !== category) return false
     if (month && !e.date.startsWith(month)) return false
     if (!search.trim()) return true
     const q = search.trim().toLowerCase()
@@ -57,18 +144,32 @@ export default function AdminExpenses() {
           <h1 className="text-2xl font-bold text-brand-navy mb-1">Expenses</h1>
           <p className="text-brand-muted text-sm">Track where the Trust&rsquo;s funds are spent.</p>
         </div>
-        <button
-          type="button"
-          onClick={openAdd}
-          className="inline-flex items-center gap-2 bg-brand-navy text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:brightness-110 transition-all shadow-sm"
-        >
-          <Plus className="w-4 h-4" /> Add Expense
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setCategoriesOpen(true)}
+            disabled={loading}
+            className="inline-flex items-center gap-2 bg-white border border-brand-border text-brand-text px-4 py-2.5 rounded-lg text-sm font-semibold hover:border-brand-navy transition-colors disabled:opacity-50"
+          >
+            <Tags className="w-4 h-4" /> Categories
+          </button>
+          <button
+            type="button"
+            onClick={openAdd}
+            disabled={loading}
+            className="inline-flex items-center gap-2 bg-brand-navy text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:brightness-110 transition-all shadow-sm disabled:opacity-50"
+          >
+            <Plus className="w-4 h-4" /> Add Expense
+          </button>
+        </div>
       </div>
 
-      <ExpenseSummaryCards expenses={expenses} />
+      <ErrorBanner message={error} />
+
+      <ExpenseSummaryCards expenses={expenses} categoriesById={categoriesById} loading={loading} />
 
       <ExpensesFiltersBar
+        categories={categories}
         category={category}
         onCategoryChange={setCategory}
         month={month}
@@ -77,9 +178,34 @@ export default function AdminExpenses() {
         onSearchChange={setSearch}
       />
 
-      <ExpensesTable expenses={filtered} onEdit={openEdit} onDelete={setPendingDelete} onAdd={openAdd} />
+      <ExpensesTable
+        expenses={filtered}
+        categoriesById={categoriesById}
+        loading={loading}
+        onEdit={openEdit}
+        onDelete={setPendingDelete}
+        onAdd={openAdd}
+        onViewBill={handleViewBill}
+      />
 
-      <AddExpenseModal open={modal.open} expense={modal.expense} onClose={closeModal} onSave={handleSave} />
+      <AddExpenseModal
+        open={modal.open}
+        expense={modal.expense}
+        categories={categories}
+        onClose={closeModal}
+        onSave={handleSave}
+        onCreateCategory={handleCreateCategory}
+        onViewBill={handleViewBill}
+      />
+
+      <ManageCategoriesModal
+        open={categoriesOpen}
+        categories={categories}
+        onClose={closeCategories}
+        onCreate={handleCreateCategory}
+        onUpdate={handleUpdateCategory}
+        onDelete={handleDeleteCategory}
+      />
 
       <ConfirmDialog
         open={!!pendingDelete}

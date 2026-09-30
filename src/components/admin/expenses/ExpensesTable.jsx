@@ -1,17 +1,41 @@
-import { Pencil, Trash2, Receipt } from 'lucide-react'
-import { formatINR, getCategory, getPaymentModeLabel } from './expenseConstants.js'
+import { useState } from 'react'
+import { Pencil, Trash2, Receipt, Paperclip } from 'lucide-react'
+import { formatINR, formatExpenseDate, getPaymentModeLabel, resolveCategory } from './expenseConstants.js'
 
-function CategoryBadge({ value }) {
-  const { label, icon: Icon, accent } = getCategory(value)
+function CategoryBadge({ category }) {
+  const { name, icon: Icon, accent } = category
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${accent}`}>
       <Icon className="w-3.5 h-3.5" />
-      {label}
+      {name}
     </span>
   )
 }
 
-export default function ExpensesTable({ expenses, onEdit, onDelete, onAdd }) {
+function BillLink({ expense, onViewBill }) {
+  const [opening, setOpening] = useState(false)
+  const open = async () => {
+    setOpening(true)
+    try {
+      await onViewBill(expense.id)
+    } finally {
+      setOpening(false)
+    }
+  }
+  return (
+    <button
+      type="button"
+      onClick={open}
+      disabled={opening}
+      title={expense.billFileName || 'View bill'}
+      className="inline-flex items-center gap-1 text-xs font-semibold text-brand-navy hover:underline disabled:opacity-50 mt-1"
+    >
+      <Paperclip className="w-3.5 h-3.5" /> {opening ? 'Opening…' : 'View bill'}
+    </button>
+  )
+}
+
+export default function ExpensesTable({ expenses, categoriesById, loading, onEdit, onDelete, onAdd, onViewBill }) {
   const total = expenses.reduce((sum, e) => sum + e.amount, 0)
 
   return (
@@ -30,7 +54,12 @@ export default function ExpensesTable({ expenses, onEdit, onDelete, onAdd }) {
             </tr>
           </thead>
           <tbody>
-            {expenses.length === 0 && (
+            {loading && (
+              <tr>
+                <td colSpan={7} className="px-5 py-14 text-center text-brand-muted">Loading expenses…</td>
+              </tr>
+            )}
+            {!loading && expenses.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-5 py-14 text-center">
                   <div className="mx-auto w-11 h-11 rounded-full bg-brand-surface flex items-center justify-center mb-3">
@@ -51,13 +80,14 @@ export default function ExpensesTable({ expenses, onEdit, onDelete, onAdd }) {
             {expenses.map((e) => (
               <tr key={e.id} className="border-b border-brand-border last:border-0 hover:bg-brand-surface transition-colors align-top">
                 <td className="px-5 py-3 text-brand-muted whitespace-nowrap">
-                  {new Date(e.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  {formatExpenseDate(e.date)}
                 </td>
                 <td className="px-5 py-3 min-w-[14rem]">
                   <div className="font-medium text-brand-text">{e.title}</div>
                   {e.notes && <div className="text-xs text-brand-muted mt-0.5">{e.notes}</div>}
+                  {e.billPath && <BillLink expense={e} onViewBill={onViewBill} />}
                 </td>
-                <td className="px-5 py-3"><CategoryBadge value={e.category} /></td>
+                <td className="px-5 py-3"><CategoryBadge category={resolveCategory(categoriesById, e.categoryId)} /></td>
                 <td className="px-5 py-3 text-brand-text">{e.paidTo || '—'}</td>
                 <td className="px-5 py-3 whitespace-nowrap">
                   <div className="text-brand-text">{getPaymentModeLabel(e.paymentMode)}</div>
@@ -87,7 +117,7 @@ export default function ExpensesTable({ expenses, onEdit, onDelete, onAdd }) {
               </tr>
             ))}
           </tbody>
-          {expenses.length > 0 && (
+          {!loading && expenses.length > 0 && (
             <tfoot>
               <tr className="border-t border-brand-border bg-brand-surface">
                 <td colSpan={5} className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-brand-muted">

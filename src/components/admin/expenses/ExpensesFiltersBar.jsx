@@ -1,10 +1,9 @@
 import { Search } from 'lucide-react'
-import { EXPENSE_CATEGORIES } from './expenseConstants.js'
 
 const inputClasses =
   'rounded-lg border border-brand-border bg-white px-3 py-2 text-base sm:text-sm text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-navy/30 focus:border-brand-navy'
 
-export default function ExpensesFiltersBar({ category, onCategoryChange, month, onMonthChange, search, onSearchChange }) {
+export default function ExpensesFiltersBar({ categories, category, onCategoryChange, month, onMonthChange, search, onSearchChange }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
       <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
@@ -15,8 +14,8 @@ export default function ExpensesFiltersBar({ category, onCategoryChange, month, 
           aria-label="Filter by category"
         >
           <option value="">All categories</option>
-          {EXPENSE_CATEGORIES.map((c) => (
-            <option key={c.value} value={c.value}>{c.label}</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
         <input

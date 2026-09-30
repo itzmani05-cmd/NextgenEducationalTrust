@@ -6,6 +6,7 @@ import multer from 'multer'
 import applicationsRouter from './routes/applications.js'
 import authRouter from './routes/auth.js'
 import donationsRouter from './routes/donations.js'
+import expensesRouter from './routes/expenses.js'
 
 const app = express()
 const port = process.env.PORT || 4000
@@ -22,6 +23,7 @@ app.get('/health', (req, res) => res.json({ ok: true }))
 app.use('/api/auth', authRouter)
 app.use('/api/applications', applicationsRouter)
 app.use('/api/donations', donationsRouter)
+app.use('/api/expenses', expensesRouter)
 
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {

@@ -3,14 +3,17 @@ export const ADMIN_TOKEN_KEY = 'ngc_admin_token'
 
 export class AuthError extends Error {}
 
+// A FormData body (file uploads) is sent as-is so the browser sets the
+// multipart boundary; anything else is sent as JSON.
 async function request(path, { token, method = 'GET', body } = {}) {
+  const isForm = body instanceof FormData
   const res = await fetch(`${API_BASE_URL}${path}`, {
     method,
     headers: {
-      'Content-Type': 'application/json',
+      ...(isForm ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body: isForm ? body : body ? JSON.stringify(body) : undefined,
   })
 
   if (res.status === 401) {
@@ -48,6 +51,50 @@ export function getDonationReceiptSignedUrl(token, id) {
 
 export function retryDonationReceiptEmail(token, id) {
   return request(`/api/donations/${id}/receipt/retry-email`, { token, method: 'POST' })
+}
+
+export function listExpenses(token) {
+  return request('/api/expenses', { token })
+}
+
+function expenseFormData({ bill, removeBill, ...fields }) {
+  const formData = new FormData()
+  Object.entries(fields).forEach(([key, value]) => formData.append(key, value ?? ''))
+  if (bill) formData.append('bill', bill)
+  if (removeBill) formData.append('removeBill', 'true')
+  return formData
+}
+
+export function createExpense(token, data) {
+  return request('/api/expenses', { token, method: 'POST', body: expenseFormData(data) })
+}
+
+export function updateExpense(token, id, data) {
+  return request(`/api/expenses/${id}`, { token, method: 'PATCH', body: expenseFormData(data) })
+}
+
+export function deleteExpense(token, id) {
+  return request(`/api/expenses/${id}`, { token, method: 'DELETE' })
+}
+
+export function getExpenseBillSignedUrl(token, id) {
+  return request(`/api/expenses/${id}/bill/signed-url`, { token })
+}
+
+export function listExpenseCategories(token) {
+  return request('/api/expenses/categories', { token })
+}
+
+export function createExpenseCategory(token, { name, icon }) {
+  return request('/api/expenses/categories', { token, method: 'POST', body: { name, icon } })
+}
+
+export function updateExpenseCategory(token, id, { name, icon }) {
+  return request(`/api/expenses/categories/${id}`, { token, method: 'PATCH', body: { name, icon } })
+}
+
+export function deleteExpenseCategory(token, id) {
+  return request(`/api/expenses/categories/${id}`, { token, method: 'DELETE' })
 }
 
 export function getApplication(token, id) {
