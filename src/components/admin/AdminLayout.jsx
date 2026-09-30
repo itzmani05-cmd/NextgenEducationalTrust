@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet, NavLink, Navigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
@@ -22,6 +22,11 @@ const NAV_ITEMS = [
 export default function AdminLayout() {
   const { token, logout } = useAdminAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  useEffect(() => {
+    document.documentElement.classList.add('admin-compact')
+    return () => document.documentElement.classList.remove('admin-compact')
+  }, [])
 
   if (!token) return <Navigate to="/admin/login" replace />
 

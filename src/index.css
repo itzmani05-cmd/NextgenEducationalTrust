@@ -62,6 +62,13 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Admin portal is denser than the public site. Tailwind sizes are rem-based,
+   so shrinking the root font scales admin text and spacing together.
+   Toggled by AdminLayout while it is mounted. */
+html.admin-compact {
+  font-size: 14px;
+}
+
 /* Scroll-reveal: elements marked [data-reveal] fade/slide in once observed
    by useScrollReveal (see src/hooks/useScrollReveal.js). Respects reduced-
    motion preference and never hides content if JS fails to run. */
