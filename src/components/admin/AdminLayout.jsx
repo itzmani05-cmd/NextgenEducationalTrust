@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet, NavLink, Navigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import {
-  LayoutGrid, FileText, ShieldCheck, Calculator, Wallet, Settings, HelpCircle, LogOut, HeartHandshake,
+  LayoutGrid, FileText, ShieldCheck, Calculator, Wallet, Settings, HelpCircle, LogOut, HeartHandshake, ReceiptIndianRupee,
   Menu, X,
 } from 'lucide-react'
 import { useAdminAuth } from '../../context/AdminAuthContext.jsx'
@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { to: '/admin/applications?status=payment_submitted', label: enOnly('admin.nav.payments'), icon: Wallet },
   { to: '/admin/verification', label: enOnly('admin.nav.verification'), icon: ShieldCheck },
   { to: '/admin/donations', label: enOnly('admin.nav.donations'), icon: HeartHandshake },
+  { to: '/admin/expenses', label: enOnly('admin.nav.expenses'), icon: ReceiptIndianRupee },
   { to: '/admin/settings', label: enOnly('admin.nav.settings'), icon: Settings },
 ]
 

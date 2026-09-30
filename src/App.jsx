@@ -26,6 +26,7 @@ const AdminApplications = lazy(() => import('./pages/admin/AdminApplications.jsx
 const AdminApplicationDetail = lazy(() => import('./pages/admin/AdminApplicationDetail.jsx'))
 const AdminVerification = lazy(() => import('./pages/admin/AdminVerification.jsx'))
 const AdminDonations = lazy(() => import('./pages/admin/AdminDonations.jsx'))
+const AdminExpenses = lazy(() => import('./pages/admin/AdminExpenses.jsx'))
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings.jsx'))
 const AdminSupport = lazy(() => import('./pages/admin/AdminSupport.jsx'))
 
@@ -79,6 +80,7 @@ function App() {
                   <Route path="verification" element={<AdminVerification />} />
                   <Route path="verification/:id" element={<AdminVerification />} />
                   <Route path="donations" element={<AdminDonations />} />
+                  <Route path="expenses" element={<AdminExpenses />} />
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="support" element={<AdminSupport />} />
                 </Route>
