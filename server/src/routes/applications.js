@@ -197,6 +197,58 @@ router.get('/', requireAdmin, async (req, res) => {
   }
 })
 
+// Every status from concession approval onward — i.e. the Trust has agreed
+// to support the student, whether or not they've paid yet.
+const CONCESSION_APPROVED_STATUSES = ['approved', 'payment_submitted', 'payment_approved', 'payment_rejected', 'certificate_issued']
+
+// Per-exam totals for the admin dashboard: how many students applied, how
+// many were approved and have paid, how much was collected, and how much
+// the Trust waived as concession on those paid fees.
+router.get('/exam-summary', requireAdmin, async (req, res) => {
+  try {
+    const applications = await prisma.application.findMany({
+      where: { status: { not: 'uploading' } },
+      select: {
+        examCategory: true,
+        examName: true,
+        status: true,
+        courseFee: true,
+        payment: { select: { status: true, amountPaid: true } },
+      },
+    })
+
+    const groups = new Map()
+    for (const app of applications) {
+      const key = app.examCategory || 'unspecified'
+      if (!groups.has(key)) {
+        groups.set(key, {
+          examCategory: key,
+          examName: app.examName || 'Not specified',
+          students: 0,
+          approved: 0,
+          paid: 0,
+          amountCollected: 0,
+          concessionGiven: 0,
+        })
+      }
+      const g = groups.get(key)
+      g.students += 1
+      if (CONCESSION_APPROVED_STATUSES.includes(app.status)) g.approved += 1
+      if (app.payment?.status === 'approved') {
+        const paid = app.payment.amountPaid || 0
+        g.paid += 1
+        g.amountCollected += paid
+        if (app.courseFee != null) g.concessionGiven += Math.max(app.courseFee - paid, 0)
+      }
+    }
+
+    res.json([...groups.values()].sort((a, b) => b.students - a.students))
+  } catch (err) {
+    console.error('Failed to build exam summary:', err)
+    res.status(500).json({ error: 'Failed to load exam summary.' })
+  }
+})
+
 router.get('/:id', requireAdmin, async (req, res) => {
   try {
     const application = await prisma.application.findUnique({
