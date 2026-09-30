@@ -27,6 +27,7 @@ const AdminApplicationDetail = lazy(() => import('./pages/admin/AdminApplication
 const AdminVerification = lazy(() => import('./pages/admin/AdminVerification.jsx'))
 const AdminDonations = lazy(() => import('./pages/admin/AdminDonations.jsx'))
 const AdminExpenses = lazy(() => import('./pages/admin/AdminExpenses.jsx'))
+const AdminExamStudents = lazy(() => import('./pages/admin/AdminExamStudents.jsx'))
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings.jsx'))
 const AdminSupport = lazy(() => import('./pages/admin/AdminSupport.jsx'))
 
@@ -75,6 +76,7 @@ function App() {
                 <Route path="login" element={<AdminLogin />} />
                 <Route element={<AdminLayout />}>
                   <Route index element={<AdminAnalytics />} />
+                  <Route path="exams/:examCategory" element={<AdminExamStudents />} />
                   <Route path="applications" element={<AdminApplications />} />
                   <Route path="applications/:id" element={<AdminApplicationDetail />} />
                   <Route path="verification" element={<AdminVerification />} />

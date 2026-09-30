@@ -36,10 +36,6 @@ export function listApplications(token, status) {
   return request(`/api/applications${query}`, { token })
 }
 
-export function getExamSummary(token) {
-  return request('/api/applications/exam-summary', { token })
-}
-
 export function listDonations(token, status) {
   const query = status ? `?status=${encodeURIComponent(status)}` : ''
   return request(`/api/donations${query}`, { token })

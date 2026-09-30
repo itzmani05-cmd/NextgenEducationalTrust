@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAdminAuth } from '../../context/AdminAuthContext.jsx'
-import { listApplications, getExamSummary, AuthError } from '../../utils/adminApi.js'
+import { listApplications, AuthError } from '../../utils/adminApi.js'
 import { enOnly } from '../../i18n/bilingual.js'
 import ErrorBanner from '../../components/admin/ErrorBanner.jsx'
 import StatCardsGrid from '../../components/admin/analytics/StatCardsGrid.jsx'
@@ -12,9 +12,6 @@ export default function AdminAnalytics() {
   const [applications, setApplications] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [examSummary, setExamSummary] = useState([])
-  const [examLoading, setExamLoading] = useState(true)
-  const [examError, setExamError] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -26,22 +23,6 @@ export default function AdminAnalytics() {
         setError(err.message || enOnly('admin.analytics.loadFailed'))
       })
       .finally(() => !cancelled && setLoading(false))
-    return () => {
-      cancelled = true
-    }
-  }, [token, logout])
-
-  // Loaded separately so a failure here doesn't hide the rest of the dashboard.
-  useEffect(() => {
-    let cancelled = false
-    getExamSummary(token)
-      .then((data) => !cancelled && setExamSummary(data))
-      .catch((err) => {
-        if (cancelled) return
-        if (err instanceof AuthError) return logout()
-        setExamError(err.message || enOnly('admin.analytics.examSummaryFailed'))
-      })
-      .finally(() => !cancelled && setExamLoading(false))
     return () => {
       cancelled = true
     }
@@ -68,7 +49,7 @@ export default function AdminAnalytics() {
 
       <StatCardsGrid counts={counts} loading={loading} />
 
-      <ExamSummarySection summary={examSummary} loading={examLoading} error={examError} />
+      <ExamSummarySection applications={applications} loading={loading} />
 
       <RecentApplicationsTable applications={recent} loading={loading} />
     </div>
