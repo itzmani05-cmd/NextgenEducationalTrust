@@ -41,7 +41,6 @@ function Field({ label, required, error, children, hint }) {
   )
 }
 
-// `expense` is null for "add", or an existing row for "edit".
 export default function AddExpenseModal({ open, expense, categories, onClose, onSave, onCreateCategory, onViewBill }) {
   const [form, setForm] = useState(EMPTY_FORM)
   const [bill, setBill] = useState(null)

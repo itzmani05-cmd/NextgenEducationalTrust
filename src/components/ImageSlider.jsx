@@ -25,7 +25,6 @@ export default function ImageSlider({ images, interval = 7000, alt = '', classNa
           }`}
         />
       ))}
-      {/* Reserves layout height since the slides themselves are absolutely positioned */}
       <img src={images[0]} alt="" aria-hidden="true" className="w-full h-full object-cover invisible" />
 
       {images.length > 1 && (

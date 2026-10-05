@@ -3,14 +3,8 @@ import { Loader2, Upload } from 'lucide-react'
 import DocStatusChip from './DocStatusChip.jsx'
 import { bi } from '../../../i18n/bilingual.js'
 
-const MAX_FILE_SIZE = 1024 * 1024 // 1MB — must match the server's multer limit (server/src/routes/applications.js)
+const MAX_FILE_SIZE = 1024 * 1024
 
-// Uploads immediately on selection (one request per document) rather than
-// staging the file locally for a later bulk submit — so a document already
-// picked survives a page refresh instead of silently disappearing, since a
-// raw File object can't be cached in localStorage. `fileName` is this
-// session's just-picked file (for display only); `alreadyUploaded` reflects
-// what the server already has on file, from before this page load.
 export default function UploadField({
   label, fileName, alreadyUploaded, uploading, error, onChange, required, helper, accept,
 }) {

@@ -1,8 +1,6 @@
 import { Landmark, Building, Cpu, BookMarked } from 'lucide-react'
 import { enOnly } from '../../../i18n/bilingual.js'
 
-// Same exam options as the apply form (Step1Student). Listed here so every
-// exam gets a card even before anyone has applied for it.
 export const KNOWN_EXAMS = [
   { examCategory: 'state_govt', labelKey: 'step1.courseStateGovt', icon: Landmark, accent: 'text-brand-navy bg-blue-50' },
   { examCategory: 'central_govt', labelKey: 'step1.courseCentralGovt', icon: Building, accent: 'text-teal-700 bg-teal-50' },
@@ -22,10 +20,6 @@ export function getExamMeta(examCategory, fallbackName) {
 
 export const examKey = (app) => app.examCategory || 'unspecified'
 
-// Rupee value of the concession the Trust approved for one student:
-// course fee minus what they're asked to pay. Uses the same rounding as the
-// server's amountDue, so this always matches the student's fee receipt.
-// null until the Trust has set both the course fee and the concession %.
 export function concessionAmount(app) {
   if (app.courseFee == null || app.finalApprovedConcession == null) return null
   if (app.status === 'rejected') return null

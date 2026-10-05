@@ -12,7 +12,6 @@ function getSecret() {
   return secret
 }
 
-// Constant-time comparison so login isn't vulnerable to a timing attack.
 export function passwordMatches(candidate) {
   const expected = process.env.ADMIN_PASSWORD || ''
   const a = Buffer.from(String(candidate || ''))
@@ -21,11 +20,6 @@ export function passwordMatches(candidate) {
   return crypto.timingSafeEqual(a, b)
 }
 
-// The shared ADMIN_PASSWORD (checked above) remains the actual login
-// credential — this just gives whoever logs in a stable DB-backed identity
-// (id/email) so approvals and the audit trail can record *who* acted,
-// instead of only "an admin." Auto-provisioned on first successful login;
-// the stored passwordHash is a snapshot, never itself checked at login time.
 export async function getOrCreateAdminIdentity() {
   const email = (process.env.ADMIN_EMAIL || 'admin@ngcollege.trust').trim().toLowerCase()
   const existing = await prisma.adminUser.findUnique({ where: { email } })
@@ -57,10 +51,6 @@ export function requireAdmin(req, res, next) {
   }
 }
 
-// Allows either an admin token or the Supabase-authenticated owner of the
-// resource through — used for endpoints (fee receipt download) both sides
-// legitimately need to read. `getOwnerAuthUserId(req)` resolves the resource's
-// owning authUserId; access is denied if it doesn't match the caller.
 export function requireAdminOrOwner(getOwnerAuthUserId) {
   return async (req, res, next) => {
     const header = req.headers.authorization || ''
@@ -76,7 +66,6 @@ export function requireAdminOrOwner(getOwnerAuthUserId) {
         return next()
       }
     } catch {
-      // Not a valid admin token — fall through and try it as an applicant token.
     }
 
     try {
@@ -95,8 +84,6 @@ export function requireAdminOrOwner(getOwnerAuthUserId) {
   }
 }
 
-// Verifies a Supabase Auth session (Google sign-in) and attaches the user to
-// req.authUser. Used to gate starting a new scholarship application.
 export async function requireApplicantAuth(req, res, next) {
   const header = req.headers.authorization || ''
   const token = header.startsWith('Bearer ') ? header.slice(7) : null
@@ -112,5 +99,41 @@ export async function requireApplicantAuth(req, res, next) {
     next()
   } catch {
     res.status(401).json({ error: 'Your session has expired. Please sign in again.' })
+  }
+}
+
+
+export function signStaffToken(staff) {
+  return jwt.sign({ role: 'staff', sub: staff.id, code: staff.staffCode, v: staff.sessionVersion }, getSecret(), { expiresIn: TOKEN_TTL })
+}
+
+export function requireStaff({ allowPasswordChange = false } = {}) {
+  return async (req, res, next) => {
+    const header = req.headers.authorization || ''
+    const token = header.startsWith('Bearer ') ? header.slice(7) : null
+    if (!token) return res.status(401).json({ error: 'Missing authorization token.' })
+
+    let payload
+    try {
+      payload = jwt.verify(token, getSecret())
+      if (payload.role !== 'staff') throw new Error('Not a staff token.')
+    } catch {
+      return res.status(401).json({ error: 'Invalid or expired session.' })
+    }
+
+    try {
+      const staff = await prisma.staff.findUnique({ where: { id: payload.sub } })
+      if (!staff || !staff.active) return res.status(401).json({ error: 'This staff account is not active.' })
+      if (payload.v !== staff.sessionVersion) {
+        return res.status(401).json({ error: 'Your password was changed. Please sign in again.' })
+      }
+      if (staff.mustChangePassword && !allowPasswordChange) {
+        return res.status(403).json({ error: 'Please change your temporary password first.', code: 'PASSWORD_CHANGE_REQUIRED' })
+      }
+      req.staff = staff
+      next()
+    } catch (err) {
+      next(err)
+    }
   }
 }

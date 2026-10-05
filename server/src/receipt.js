@@ -26,11 +26,6 @@ function drawWatermark(doc, imagePath = WATERMARK_LOGO_PATH) {
 function drawSignature(doc, x, y) {
   if (fs.existsSync(SIGNATURE_PATH)) {
     try {
-      // Constrained by height, not width — the signature image's aspect
-      // ratio isn't guaranteed (it gets swapped from time to time), and a
-      // fixed width let a taller replacement droop down into the "For, ..."
-      // line below. A fixed height keeps the gap above that line consistent
-      // no matter the image's proportions.
       doc.image(SIGNATURE_PATH, x, y - 48, { height: 50 })
       return
     } catch {}
@@ -38,9 +33,6 @@ function drawSignature(doc, x, y) {
   doc.fontSize(10).fillColor('#222').font('Helvetica').text('_______________________', x, y)
 }
 
-// The Trust's address stamp — placed to the left of the signature block,
-// vertically aligned with it. Best-effort: a missing/unreadable seal image
-// never blocks receipt generation.
 function drawSeal(doc, x, y) {
   if (!fs.existsSync(SEAL_PATH)) return
   try {
@@ -170,15 +162,8 @@ function renderReceiptPdf({ receiptNumber, donation, issuedAt }) {
     doc.y = Math.max(doc.y + 60, doc.page.height - 205)
     const sigX = 290
     const sigWidth = doc.page.width - doc.page.margins.right - sigX
-    // Captured once: doc.text() below moves doc.y as a side effect, so reading
-    // doc.y again for the second line would stack its +32 on top of that
-    // shift instead of the intended fixed offset from the signature block.
     const sigY = doc.y - 15
     drawSeal(doc, 50, sigY)
-    // Conventional order top-to-bottom: "For, <Trust>" line, then the
-    // signature sitting in the gap above the designation, then "Managing
-    // Trustee / Authorized Signatory" — not the signature floating above
-    // the "For, ..." line.
 
     doc.fontSize(9.5).fillColor('#222').font('Helvetica')
 

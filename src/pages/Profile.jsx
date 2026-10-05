@@ -40,8 +40,6 @@ function ProfileContent({ user, accessToken, signOut }) {
     }
   }, [accessToken])
 
-  // A payment awaiting review or already approved means the concession
-  // approval screen has already been acted on — the tracker takes over from there.
   const showApprovalScreen =
     application?.finalApprovedConcession != null && application?.courseFee != null && !application?.payment
 

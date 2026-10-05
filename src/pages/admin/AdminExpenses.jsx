@@ -12,6 +12,8 @@ import ExpensesFiltersBar from '../../components/admin/expenses/ExpensesFiltersB
 import ExpensesTable from '../../components/admin/expenses/ExpensesTable.jsx'
 import AddExpenseModal from '../../components/admin/expenses/AddExpenseModal.jsx'
 import ManageCategoriesModal from '../../components/admin/expenses/ManageCategoriesModal.jsx'
+import ExportMenu from '../../components/admin/expenses/ExportMenu.jsx'
+import { exportExpensesCsv, exportExpensesPdf, exportExpenseVoucherPdf } from '../../components/admin/expenses/exportExpenses.js'
 
 const byDateDesc = (a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)
 
@@ -53,8 +55,6 @@ export default function AdminExpenses() {
 
   const categoriesById = useMemo(() => Object.fromEntries(categories.map((c) => [c.id, c])), [categories])
 
-  // Rethrows (after handling an expired session) so the calling form can
-  // show the message inline.
   const guard = useCallback(async (fn) => {
     try {
       return await fn()
@@ -137,6 +137,24 @@ export default function AdminExpenses() {
     )
   })
 
+  const handleDownloadVoucher = async (expense) => {
+    try {
+      const billUrl = expense.billPath ? (await guard(() => getExpenseBillSignedUrl(token, expense.id))).url : null
+      await exportExpenseVoucherPdf(expense, categoriesById, { billUrl })
+    } catch (err) {
+      setError(err.message || 'Failed to download the voucher.')
+    }
+  }
+
+  const handleExport = async (format) => {
+    try {
+      if (format === 'csv') return exportExpensesCsv(filtered, categoriesById)
+      await exportExpensesPdf(filtered, categoriesById, { month })
+    } catch (err) {
+      setError(err.message || 'Failed to export expenses.')
+    }
+  }
+
   return (
     <div className="max-w-7xl 3xl:max-w-[1600px] 4xl:max-w-[1920px] 5xl:max-w-[2240px] 6xl:max-w-[2560px] 7xl:max-w-[2880px] mx-auto px-6 py-10">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
@@ -145,6 +163,7 @@ export default function AdminExpenses() {
           <p className="text-brand-muted text-sm">Track where the Trust&rsquo;s funds are spent.</p>
         </div>
         <div className="flex items-center gap-2">
+          <ExportMenu disabled={loading || filtered.length === 0} onExport={handleExport} />
           <button
             type="button"
             onClick={() => setCategoriesOpen(true)}
@@ -182,10 +201,12 @@ export default function AdminExpenses() {
         expenses={filtered}
         categoriesById={categoriesById}
         loading={loading}
+        resetKey={`${category}|${month}|${search}`}
         onEdit={openEdit}
         onDelete={setPendingDelete}
         onAdd={openAdd}
         onViewBill={handleViewBill}
+        onDownloadVoucher={handleDownloadVoucher}
       />
 
       <AddExpenseModal

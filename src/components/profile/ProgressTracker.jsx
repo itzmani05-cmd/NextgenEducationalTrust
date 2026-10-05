@@ -61,8 +61,6 @@ export default function ProgressTracker({ application }) {
         Application Progress
       </p>
 
-      {/* Stacked vertical timeline on narrow screens — a 4-up horizontal strip
-          doesn't fit without forcing an easy-to-miss horizontal scroll. */}
       <div className="sm:hidden">
         {steps.map((step, i) => {
           const Icon = step.icon
@@ -93,7 +91,6 @@ export default function ProgressTracker({ application }) {
         })}
       </div>
 
-      {/* Horizontal strip from sm upward, where 4 steps comfortably fit. */}
       <div className="hidden sm:block overflow-x-auto">
         <div className="flex items-start min-w-max sm:min-w-0">
           {steps.map((step, i) => {

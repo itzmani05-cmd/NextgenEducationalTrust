@@ -6,9 +6,6 @@ const NESTED_DOC_KEYS = [
 
 export const ALL_DOCUMENT_KEYS = [...FILE_FIELDS, ...NESTED_DOC_KEYS]
 
-// Display order + human labels for every document key — the single source of
-// truth shared by the application PDF (doc list + embedded attachments) and
-// anywhere else that needs to show a document by name instead of its raw key.
 export const DOCUMENT_LABELS = [
   ['studentPhoto', 'Student Photograph'],
   ['identityDocument', 'Identity Document'],
@@ -32,9 +29,6 @@ export function isKnownDocumentKey(docKey) {
   return ALL_DOCUMENT_KEYS.includes(docKey)
 }
 
-// Builds the Prisma `data` patch that writes a storage path into the right
-// place for a given document key — a flat `${key}Url` column for top-level
-// documents, or a merge into the relevant nested Json blob (tenth/twelfth/college).
 export function buildDocumentUrlPatch(existing, docKey, storagePath) {
   if (docKey.includes('.')) {
     const [parent, child] = docKey.split('.')
@@ -51,8 +45,6 @@ export function getDocumentPath(application, docKey) {
   return application[`${docKey}Url`] || null
 }
 
-// { [docKey]: true | false } — whether each possible document has been uploaded.
-// Used for the public status page, which should never see raw storage paths.
 export function getDocumentPresenceMap(application) {
   const map = {}
   for (const key of ALL_DOCUMENT_KEYS) {

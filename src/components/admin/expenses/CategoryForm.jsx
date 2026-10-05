@@ -1,9 +1,6 @@
 import { useState } from 'react'
 import { CATEGORY_ICONS } from './expenseConstants.js'
 
-// Name + icon picker, shared by the Manage Categories dialog and the inline
-// "New category" option inside the Add Expense form. Plain div (not <form>)
-// because it can be nested inside the expense form.
 export default function CategoryForm({ initial, submitLabel, onSubmit, onCancel }) {
   const [name, setName] = useState(initial?.name || '')
   const [icon, setIcon] = useState(initial?.icon || 'other')

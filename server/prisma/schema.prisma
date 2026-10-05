@@ -9,15 +9,12 @@ datasource db {
 }
 
 enum ApplicationStatus {
-  uploading // details locked in, but the applicant hasn't finished uploading
-  // documents and clicked Submit Application yet — not visible to the Trust
-  // until it moves to `submitted` (see POST /:id/finalize).
+  uploading
   submitted
   under_review
-  approved // == "concession approved": set by the existing Accept action once
-  // document verification is complete (see requireApplicantAuth/Accept flow).
+  approved
   rejected
-  payment_submitted // student submitted transaction details, awaiting admin review
+  payment_submitted
   payment_approved
   payment_rejected
   certificate_issued
@@ -42,13 +39,9 @@ model Application {
   updatedAt DateTime          @updatedAt
   status    ApplicationStatus @default(submitted)
 
-  // Supabase Auth user (Google sign-in) who submitted this application.
-  // Unique so one Google account can't back more than one application
-  // (Postgres allows multiple NULLs through a unique index, so pre-auth rows are unaffected).
   authUserId String? @unique
   authEmail  String?
 
-  // Step 1 — Student Details
   fullName      String
   dob           String?
   gender        String?
@@ -59,7 +52,6 @@ model Application {
   institution   String?
   qualification String?
 
-  // Step 2 — Family
   fatherName        String?
   fatherOccupation  String?
   fatherContact     String?
@@ -78,7 +70,6 @@ model Application {
   supportingParent     String?
   supportingDocumentUrl String?
 
-  // Step 2 — Financial
   annualIncome         String?
   incomeCertificateUrl String?
   expenseBearer        String?
@@ -89,7 +80,6 @@ model Application {
   supportsDependents   String?
   numDependents        String?
 
-  // Step 2 — Social category & existing scholarship
   socialCategory          String?
   communityCertificateUrl String?
   existingScholarship     String?
@@ -99,7 +89,6 @@ model Application {
   scholarshipYear         String?
   scholarshipDocUrl       String?
 
-  // Step 3 — Education (nested payloads stored as-is)
   tenth                 Json?
   twelfth               Json?
   college               Json?
@@ -114,7 +103,6 @@ model Application {
   tamilMediumTill12     String?
   tamilMediumEvidenceUrl String?
 
-  // Step 4 — Competitive Examination
   examCategory          String?
   examName              String?
   examYear              String?
@@ -122,23 +110,14 @@ model Application {
   relevantQualification String?
   coachingMode          String?
 
-  // Step 5 — Documents
   studentPhotoUrl            String?
   identityDocumentUrl        String?
   educationalCertificatesUrl String?
 
-  // Step 7 — Declaration
   declarationAccepted Boolean @default(false)
 
-  // Admin document verification: { [documentKey]: { status: 'pending'|'approved'|'rejected', comment: string } }
   documentReviews Json?
 
-  // Discount / concession decision. `calculatedConcession` is the system's
-  // provisional figure from scholarshipCalc, auto-computed the moment an
-  // application is accepted — it is never edited by hand. `concessionCategory`
-  // and `finalApprovedConcession` are the Trust's final decision, which can
-  // match or override the calculated figure (e.g. after document verification
-  // or an Exceptional Hardship committee review, where nothing is auto-calculated).
   calculatedConcession       Int?
   concessionCategory         String?
   finalApprovedConcession    Int?
@@ -146,9 +125,6 @@ model Application {
   concessionDecidedAt        DateTime?
   concessionApprovedByEmail  String?
 
-  // Original course fee the concession is applied against — the Trust confirms
-  // this alongside the concession decision (never self-reported by the student),
-  // since the payable amount is always computed server-side from courseFee x concession.
   courseFee Int?
 
   payment     Payment?
@@ -163,8 +139,6 @@ model Payment {
   application   Application   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   status        PaymentStatus @default(pending)
 
-  // amountDue is always computed server-side from Application.courseFee and
-  // finalApprovedConcession at submission time — never trusted from the client.
   amountDue        Int?
   amountPaid       Int?
   paymentMethod    String?
@@ -178,9 +152,6 @@ model Payment {
   rejectionReason String?
   adminRemarks    String?
 
-  // Fee receipt (course amount / discount / amount paid), issued the moment
-  // payment is approved — separate from the Certificate model, which is the
-  // formal concession document rather than an itemized payment receipt.
   receiptNumber String? @unique
   receiptPath   String?
 
@@ -227,10 +198,6 @@ model Donation {
   verifiedAt      DateTime?
   rejectionReason String?
 
-  // Issued the moment a donation is verified (see PATCH /:id/status) — a PDF
-  // receipt generated and emailed to the donor. receiptEmailSentAt is only
-  // set once the email actually goes out, kept separate from issuance so a
-  // delivery failure can be retried without regenerating the receipt/number.
   receiptNumber      String?   @unique
   receiptPath        String?
   receiptEmailSentAt DateTime?
@@ -238,9 +205,6 @@ model Donation {
   @@map("donations")
 }
 
-// A single admin identity, layered on top of the existing shared ADMIN_PASSWORD
-// login (see server/src/auth.js) so approvals/audit entries can record *who*
-// acted rather than just "an admin." Auto-provisioned on first successful login.
 model AdminUser {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -274,9 +238,6 @@ enum ExpensePaymentMode {
   card
 }
 
-// Admin-managed list shown as tiles in the Add Expense form. `icon` is a key
-// into the fixed icon/colour set on the client (see expenseConstants.js), so
-// a newly added category still renders with a proper badge.
 model ExpenseCategory {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
@@ -304,8 +265,6 @@ model Expense {
   referenceNo String?
   notes       String?
 
-  // Optional bill/receipt scan, stored in the same Supabase bucket as
-  // application documents under expenses/<id>/.
   billPath     String?
   billFileName String?
 
@@ -315,4 +274,110 @@ model Expense {
   @@index([date])
   @@index([categoryId])
   @@map("expenses")
+}
+
+
+enum StaffWorkLogStatus {
+  pending
+  approved
+  rejected
+}
+
+model Staff {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  staffCode          String    @unique
+  name               String
+  phone              String?
+  email              String?
+  hourlyRate         Int
+  active             Boolean   @default(true)
+  passwordHash       String
+  mustChangePassword Boolean   @default(true)
+  sessionVersion     Int       @default(0)
+  lastLoginAt        DateTime?
+  createdByEmail     String?
+
+  dob               String?
+  gender            String?
+  address           String?
+  qualification     String?
+  degree            String?
+  institution       String?
+  passingYear       Int?
+  experienceYears   Int?
+  subjects          String?
+  bankAccountName   String?
+  bankAccountNumber String?
+  bankIfsc          String?
+  bankName          String?
+  pan               String?
+
+  documents StaffDocument[]
+  workLogs  StaffWorkLog[]
+  payouts   StaffPayout[]
+
+  @@map("staff")
+}
+
+model StaffDocument {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  staffId   String
+  staff     Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  kind      String
+  path      String
+  fileName  String
+  mimeType  String
+
+  @@index([staffId])
+  @@map("staff_documents")
+}
+
+model StaffWorkLog {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  staffId     String
+  staff       Staff              @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  date        DateTime           @db.Date
+  minutes     Int
+  description String
+  status      StaffWorkLogStatus @default(pending)
+
+  hourlyRate      Int?
+  amount          Int?
+  reviewedByEmail String?
+  reviewedAt      DateTime?
+  rejectionReason String?
+
+  payoutId String?
+  payout   StaffPayout? @relation(fields: [payoutId], references: [id], onDelete: SetNull)
+
+  @@index([staffId, date])
+  @@index([status])
+  @@map("staff_work_logs")
+}
+
+model StaffPayout {
+  id             String             @id @default(uuid())
+  createdAt      DateTime           @default(now())
+  staffId        String
+  staff          Staff              @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  month          String
+  minutes        Int
+  amount         Int
+  paidOn         DateTime           @db.Date
+  paymentMode    ExpensePaymentMode
+  referenceNo    String?
+  expenseId      String?
+  createdByEmail String?
+
+  workLogs StaffWorkLog[]
+
+  @@index([staffId])
+  @@map("staff_payouts")
 }

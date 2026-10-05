@@ -4,7 +4,6 @@ import { getIconStyle } from './expenseConstants.js'
 import CategoryForm from './CategoryForm.jsx'
 
 export default function ManageCategoriesModal({ open, categories, onClose, onCreate, onUpdate, onDelete }) {
-  // null | 'new' | <category id> — which row is currently in edit mode.
   const [editing, setEditing] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
   const [error, setError] = useState('')

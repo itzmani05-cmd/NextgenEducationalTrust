@@ -32,7 +32,6 @@ export default function AdminExamStudents() {
     }
   }, [token, logout])
 
-  // Students with the biggest concession first; undecided ones at the end.
   const students = useMemo(
     () =>
       applications

@@ -3,9 +3,7 @@ export const ADMIN_TOKEN_KEY = 'ngc_admin_token'
 
 export class AuthError extends Error {}
 
-// A FormData body (file uploads) is sent as-is so the browser sets the
-// multipart boundary; anything else is sent as JSON.
-async function request(path, { token, method = 'GET', body } = {}) {
+export async function request(path, { token, method = 'GET', body } = {}) {
   const isForm = body instanceof FormData
   const res = await fetch(`${API_BASE_URL}${path}`, {
     method,
@@ -141,9 +139,6 @@ export function getSignedDocumentUrl(token, id, docKey) {
   return request(`/api/applications/${id}/documents/${encodeURIComponent(docKey)}/signed-url`, { token })
 }
 
-// Generated fresh on every call (not a stored file), so this bypasses the
-// generic JSON `request()` helper and reads a PDF blob straight off the
-// response instead.
 export async function downloadApplicationPdf(token, id) {
   const res = await fetch(`${API_BASE_URL}/api/applications/${id}/application-pdf`, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -162,4 +157,48 @@ export async function downloadApplicationPdf(token, id) {
   const filename = match ? match[1] : `application-${id.slice(0, 8)}.pdf`
 
   return { blob: await res.blob(), filename }
+}
+
+export function listStaff(token) {
+  return request('/api/admin/staff', { token })
+}
+
+export function createStaff(token, data) {
+  return request('/api/admin/staff', { token, method: 'POST', body: data })
+}
+
+export function getStaff(token, id) {
+  return request(`/api/admin/staff/${id}`, { token })
+}
+
+export function updateStaff(token, id, data) {
+  return request(`/api/admin/staff/${id}`, { token, method: 'PATCH', body: data })
+}
+
+export function resetStaffPassword(token, id) {
+  return request(`/api/admin/staff/${id}/reset-password`, { token, method: 'POST' })
+}
+
+export function getStaffDocumentSignedUrl(token, id, docId) {
+  return request(`/api/admin/staff/${id}/documents/${docId}/signed-url`, { token })
+}
+
+export function listStaffWorkLogs(token, id, month) {
+  return request(`/api/admin/staff/${id}/work-logs?month=${encodeURIComponent(month)}`, { token })
+}
+
+export function listPendingWorkLogs(token) {
+  return request('/api/admin/staff/work-logs/pending', { token })
+}
+
+export function reviewWorkLog(token, logId, { status, rejectionReason }) {
+  return request(`/api/admin/staff/work-logs/${logId}`, { token, method: 'PATCH', body: { status, rejectionReason } })
+}
+
+export function listStaffPayouts(token, id) {
+  return request(`/api/admin/staff/${id}/payouts`, { token })
+}
+
+export function createStaffPayout(token, id, data) {
+  return request(`/api/admin/staff/${id}/payouts`, { token, method: 'POST', body: data })
 }

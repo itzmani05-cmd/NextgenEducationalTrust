@@ -5,7 +5,6 @@ import InitiativesSection from '../components/home/InitiativesSection.jsx'
 import ObjectivesSection from '../components/home/ObjectivesSection.jsx'
 import ProgramHighlightSection from '../components/home/ProgramHighlightSection.jsx'
 import EventsPreviewSection from '../components/home/EventsPreviewSection.jsx'
-// import ImpactStorySection from '../components/home/ImpactStorySection.jsx'
 import VoicesOfImpactSection from '../components/home/VoicesOfImpactSection.jsx'
 import GuidingPrinciplesSection from '../components/home/GuidingPrinciplesSection.jsx'
 import GallerySection from '../components/home/GallerySection.jsx'
@@ -27,7 +26,6 @@ export default function Dashboard() {
       <div data-reveal><ObjectivesSection /></div>
       <div data-reveal><ProgramHighlightSection /></div>
       <div data-reveal><EventsPreviewSection /></div>
-      {/* <ImpactStorySection /> */}
       <div data-reveal><VoicesOfImpactSection /></div>
       <div data-reveal><GuidingPrinciplesSection /></div>
       <div data-reveal><GallerySection /></div>

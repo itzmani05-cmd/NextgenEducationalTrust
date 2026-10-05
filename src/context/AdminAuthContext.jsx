@@ -18,7 +18,6 @@ export function AdminAuthProvider({ children }) {
     try {
       localStorage.setItem(ADMIN_TOKEN_KEY, newToken)
     } catch {
-      // ignore
     }
   }
 
@@ -27,7 +26,6 @@ export function AdminAuthProvider({ children }) {
     try {
       localStorage.removeItem(ADMIN_TOKEN_KEY)
     } catch {
-      // ignore
     }
   }
 

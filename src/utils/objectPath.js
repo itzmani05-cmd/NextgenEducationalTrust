@@ -15,8 +15,6 @@ export function setPath(obj, path, value) {
   return clone
 }
 
-// Replaces any File instances with null so the result is safely JSON-serializable
-// (for API submission or localStorage caching) without corrupting the shape.
 export function stripFiles(value) {
   if (value instanceof File) return null
   if (Array.isArray(value)) return value.map(stripFiles)

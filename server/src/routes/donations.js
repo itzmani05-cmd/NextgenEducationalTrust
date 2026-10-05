@@ -11,9 +11,6 @@ const router = Router()
 const PAN_PATTERN = /^[A-Z]{5}[0-9]{4}[A-Z]$/
 const STATUS_VALUES = ['verified', 'rejected']
 
-// Public — a donor submits their details after paying via QR/UPI on the
-// Donate page. No auth required; this is a self-reported confirmation the
-// Trust cross-checks against the actual bank/UPI statement before verifying.
 router.post('/', async (req, res) => {
   const { fullName, email, mobile, amount, purpose, pan, transactionRef } = req.body
 
@@ -114,9 +111,6 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
       newValue: { donationId: donation.id },
     })
 
-    // Receipt + email are best-effort here: verification itself is already
-    // committed and correct even if PDF/email delivery hiccups — an admin
-    // can retry by re-verifying, since issueReceiptForDonation is idempotent.
     if (status === 'verified') {
       try {
         const { donation: withReceipt, pdfBuffer } = await issueReceiptForDonation(donation)
@@ -138,11 +132,6 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
   }
 })
 
-// Verification itself never fails just because the receipt email didn't send
-// (e.g. RESEND_FROM_EMAIL not yet on a verified domain) — that failure is
-// only logged server-side, leaving the donation stuck showing "pending" in
-// the admin UI with no way to retry. This lets an admin retry it directly,
-// once the underlying delivery problem is fixed, without re-verifying.
 router.post('/:id/receipt/retry-email', requireAdmin, async (req, res) => {
   try {
     const donation = await prisma.donation.findUnique({ where: { id: req.params.id } })

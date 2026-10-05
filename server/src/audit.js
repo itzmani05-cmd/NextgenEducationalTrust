@@ -1,9 +1,5 @@
 import { prisma } from './prismaClient.js'
 
-// Institutional audit trail for consequential admin actions (document review,
-// concession approval, application rejection, payment approve/reject).
-// A logging failure never blocks the action itself — it's swallowed and
-// reported to the console instead.
 export async function logAudit({
   adminEmail, applicationId, paymentId, action, oldStatus, newStatus, oldValue, newValue, remarks,
 }) {

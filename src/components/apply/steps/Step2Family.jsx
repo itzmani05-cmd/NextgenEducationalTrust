@@ -14,9 +14,6 @@ export default function Step2Family({ data, setField }) {
     { value: 'guardian_care', label: bi('step2.parentStatusGuardian') },
   ]
 
-  // The circumstances section below is driven entirely by this choice, so
-  // derive the underlying yes/no fields (used by scholarship-category
-  // calculation) instead of asking the applicant the same thing twice.
   const handleParentStatusChange = (v) => {
     setField('parentStatus', v)
     setField('bothParentsDeceased', v === 'orphan' ? 'yes' : 'no')

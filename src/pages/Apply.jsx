@@ -21,18 +21,13 @@ import Step9Documents from '../components/apply/steps/Step9Documents.jsx'
 
 const TOTAL_STEPS = STEP_COUNT
 const DRAFT_KEY = 'ngc_scholarship_application_draft'
-// Declaration is the last step of "phase 1" (details). Locking here closes
-// steps 1-5 (details, summary, declaration) for editing and hands the
-// applicant off to the Documents step, which is the only thing left open.
 const LOCK_STEP = 5
 
 const initialData = {
-  // Step 1
   examCategory: '', examName: '',
   fullName: '', dob: '', gender: '', mobile: '', email: '', district: '',
   address: { doorNo: '', street: '', place: '', pincode: '' },
 
-  // Step 2
   fatherName: '', fatherOccupation: '', fatherContact: '',
   motherName: '', motherOccupation: '', motherContact: '',
   guardianName: '', guardianRelation: '', guardianContact: '',
@@ -40,12 +35,10 @@ const initialData = {
   bothParentsDeceased: '', fatherDeathCert: null, motherDeathCert: null,
   singleParent: '', supportingParent: '', supportingDocument: null,
 
-  // Step 3
   annualIncome: '', incomeCertificate: null,
   expenseBearer: '',
   selfEarning: '', employmentType: '', monthlyIncome: '', selfIncomeDoc: null,
 
-  // Step 4
   tenth: { schoolName: '', schoolType: '', percentage: '', markSheet: null },
   twelfth: { schoolName: '', schoolType: '', percentage: '', markSheet: null },
   college: {
@@ -56,20 +49,15 @@ const initialData = {
   existingScholarship: '', scholarshipName: '', scholarshipProvider: '',
   scholarshipAmount: '', scholarshipYear: '', scholarshipDoc: null,
 
-  // Step 5
   hasDiploma: '', diplomaPercentage: '', diplomaMarkSheet: null,
   latestAcademicPercentage: '',
 
-  // Step 6
   tamilMediumTill12: '', tamilMediumEvidence: null,
 
-  // Step 7
   socialCategory: '', communityCertificate: null,
 
-  // Step 9
   studentPhoto: null, identityDocument: null,
 
-  // Step 11
   declarationAccepted: false,
 }
 
@@ -108,13 +96,6 @@ export default function Apply() {
   )
 }
 
-// Each Google account gets a single application. Check up front so someone
-// who's already applied sees that clearly instead of hitting a 409 at the
-// very end of the wizard. An application still in `uploading` status isn't
-// "already applied" yet, though — the details are locked in, but the
-// applicant hasn't finished uploading documents and clicking Submit
-// Application, so resume them straight into the Documents step instead of
-// blocking them out.
 function ApplyGate() {
   const { accessToken, signOut } = useAuth()
   const [checking, setChecking] = useState(true)
@@ -127,8 +108,6 @@ function ApplyGate() {
         if (!cancelled) setExisting(application)
       })
       .catch(() => {
-        // Can't confirm either way — fail open and let the submit-time check
-        // (which is the authoritative guard) catch a genuine duplicate.
       })
       .finally(() => {
         if (!cancelled) setChecking(false)
@@ -196,8 +175,6 @@ function ApplyForm({ existingApplication }) {
 
   const [initialState] = useState(() => {
     if (existingApplication) {
-      // Details/summary/declaration are already saved server-side — jump
-      // straight to the Documents step rather than replaying the draft.
       return { step: TOTAL_STEPS, data: initialData }
     }
     const draft = loadDraft()
@@ -225,15 +202,9 @@ function ApplyForm({ existingApplication }) {
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify({ step, data: stripFiles(data) }))
     } catch {
-      // localStorage unavailable or quota exceeded — caching is a convenience, not critical
     }
   }, [step, data, submitted, locked])
 
-  // Email stays locked to the signed-in Google account (see Step1Student's
-  // readOnly email field), so keep it synced to `user` rather than the editable
-  // draft. Full name is only seeded from Google once, as a starting point —
-  // it's editable, so a later `user` change must never overwrite what the
-  // applicant has since typed.
   useEffect(() => {
     if (!user) return
     setData((prev) => ({

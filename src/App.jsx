@@ -27,15 +27,21 @@ const AdminApplicationDetail = lazy(() => import('./pages/admin/AdminApplication
 const AdminVerification = lazy(() => import('./pages/admin/AdminVerification.jsx'))
 const AdminDonations = lazy(() => import('./pages/admin/AdminDonations.jsx'))
 const AdminExpenses = lazy(() => import('./pages/admin/AdminExpenses.jsx'))
+const AdminStaff = lazy(() => import('./pages/admin/AdminStaff.jsx'))
+const AdminStaffDetail = lazy(() => import('./pages/admin/AdminStaffDetail.jsx'))
+
+const StaffLayout = lazy(() => import('./components/staff/StaffLayout.jsx'))
+const StaffLogin = lazy(() => import('./pages/staff/StaffLogin.jsx'))
+const StaffChangePassword = lazy(() => import('./pages/staff/StaffChangePassword.jsx'))
+const StaffHours = lazy(() => import('./pages/staff/StaffHours.jsx'))
+const StaffProfile = lazy(() => import('./pages/staff/StaffProfile.jsx'))
 const AdminExamStudents = lazy(() => import('./pages/admin/AdminExamStudents.jsx'))
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings.jsx'))
 const AdminSupport = lazy(() => import('./pages/admin/AdminSupport.jsx'))
 
 import { AdminAuthProvider } from './context/AdminAuthContext.jsx'
+import { StaffAuthProvider } from './context/StaffAuthContext.jsx'
 
-// Route-level code splitting keeps the initial bundle to just what the
-// landing page needs; every other route (especially the rarely-visited
-// admin area) downloads only when a user actually navigates there.
 function RouteFallback() {
   return (
     <div className="min-h-[40vh] flex items-center justify-center">
@@ -83,11 +89,30 @@ function App() {
                   <Route path="verification/:id" element={<AdminVerification />} />
                   <Route path="donations" element={<AdminDonations />} />
                   <Route path="expenses" element={<AdminExpenses />} />
+                  <Route path="staff" element={<AdminStaff />} />
+                  <Route path="staff/:id" element={<AdminStaffDetail />} />
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="support" element={<AdminSupport />} />
                 </Route>
               </Routes>
             </AdminAuthProvider>
+          }
+        />
+
+        <Route
+          path="/staff/*"
+          element={
+            <StaffAuthProvider>
+              <Routes>
+                <Route path="login" element={<StaffLogin />} />
+                <Route path="change-password" element={<StaffChangePassword />} />
+                <Route element={<StaffLayout />}>
+                  <Route index element={<StaffHours />} />
+                  <Route path="profile" element={<StaffProfile />} />
+                </Route>
+                <Route path="*" element={<Navigate to="/staff" replace />} />
+              </Routes>
+            </StaffAuthProvider>
           }
         />
       </Routes>

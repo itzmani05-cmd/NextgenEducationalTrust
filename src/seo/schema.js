@@ -1,6 +1,3 @@
-// JSON-LD builders. Every function here only ever surfaces data that
-// already exists elsewhere in the app (siteConfig, or content passed in by
-// the caller) — nothing here should invent facts about the Trust.
 import { SITE_NAME, SITE_URL, ORGANIZATION, absoluteUrl } from './siteConfig.js'
 
 export function organizationSchema() {
@@ -74,8 +71,6 @@ export function contactPageSchema() {
   }
 }
 
-// categories: [{ title, faqs: [{ q, a }] }] — same shape used to render
-// FaqCategoriesSection, so the schema can never drift from the visible copy.
 export function faqPageSchema(categories) {
   return {
     '@context': 'https://schema.org',

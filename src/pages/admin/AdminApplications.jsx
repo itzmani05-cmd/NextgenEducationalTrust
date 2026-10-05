@@ -44,9 +44,6 @@ export default function AdminApplications() {
     if (statusFilter && a.status !== statusFilter) return false
     if (!search.trim()) return true
     const q = search.trim().toLowerCase()
-    // Reference number shown to applicants is "NGC-" + the first 8 chars of
-    // the id (see Apply.jsx / StatusCheck.jsx) — match on that, on the bare
-    // 8-char code, or on a pasted full id.
     const ref = `ngc-${a.id.slice(0, 8)}`.toLowerCase()
     return (
       a.fullName?.toLowerCase().includes(q) ||

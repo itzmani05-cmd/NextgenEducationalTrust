@@ -2,9 +2,6 @@ import { stripFiles } from './objectPath.js'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
-// The wizard collects address as door no / street / place / pincode for a
-// better filling experience, but the server column is a single string —
-// compose it here rather than changing the schema.
 function formatAddress(address) {
   if (!address || typeof address !== 'object') return address || ''
   const { doorNo, street, place, pincode } = address
@@ -28,11 +25,6 @@ export async function uploadDocument(applicationId, docKey, file) {
   return body
 }
 
-// Creates the application record from the details/summary/declaration
-// phase of the wizard, in the `uploading` status — not yet visible to the
-// Trust. Documents are uploaded separately, one request per file (see
-// uploadDocument above); finalizeApplication below is what actually moves
-// it to `submitted` once the applicant clicks Submit Application.
 export async function createApplication(data, accessToken) {
   const payload = { ...stripFiles(data), address: formatAddress(data.address) }
 
@@ -52,9 +44,6 @@ export async function createApplication(data, accessToken) {
   return body
 }
 
-// Moves the application from `uploading` to `submitted` — the moment the
-// Trust actually gets to see it. Called once all required documents are
-// uploaded and the applicant clicks Submit Application.
 export async function finalizeApplication(applicationId) {
   const res = await fetch(`${API_BASE_URL}/api/applications/${applicationId}/finalize`, {
     method: 'POST',
@@ -67,8 +56,6 @@ export async function finalizeApplication(applicationId) {
   return body
 }
 
-// Checks whether the signed-in Google account already has an application on
-// file, so the wizard can be gated up front instead of only failing at submit.
 export async function getMyApplication(accessToken) {
   const res = await fetch(`${API_BASE_URL}/api/applications/mine`, {
     headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
@@ -81,9 +68,6 @@ export async function getMyApplication(accessToken) {
   return body.application
 }
 
-// Submits (or resubmits, after a rejection) payment details for an approved
-// application. The payable amount is computed server-side from the
-// admin-approved concession — never sent from here.
 export async function submitPayment(applicationId, accessToken, { transactionId, paymentDate, paymentMethod, amountPaid, proof }) {
   const formData = new FormData()
   formData.append('transactionId', transactionId)
@@ -105,7 +89,6 @@ export async function submitPayment(applicationId, accessToken, { transactionId,
   return body
 }
 
-// Signed download URL for the applicant's own fee receipt.
 export async function getFeeReceiptSignedUrl(applicationId, accessToken) {
   const res = await fetch(`${API_BASE_URL}/api/applications/${applicationId}/payment/receipt-signed-url`, {
     headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},

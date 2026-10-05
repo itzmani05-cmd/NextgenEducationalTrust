@@ -6,8 +6,6 @@ import { drawWatermark } from './receipt.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'Logo.png')
-// Uses the C3 (Skill Development Program) logo as its watermark, matching
-// the fee receipt — the application itself is for admission to that program.
 const WATERMARK_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'C3Logo.png')
 
 function inr(n) {
@@ -20,9 +18,6 @@ function val(v) {
   return String(v)
 }
 
-// Mirrors the tier boundaries shown to the applicant during Apply (Step 2)
-// and to the admin in verification — spelled out in full rather than the
-// raw 'upto_1_5' / '1_5_to_3' / '3_to_5' / 'above_5' storage code.
 const INCOME_TIER_LABELS = {
   upto_1_5: `Up to ${inr(150000)}`,
   '1_5_to_3': `${inr(150000)} to ${inr(300000)}`,
@@ -53,16 +48,6 @@ function row(doc, label, value) {
   const labelWidth = 170
   const x = doc.page.margins.left
 
-  // Reserve room for the row before drawing anything. Without this, a row
-  // starting near the bottom margin can have its label text auto-paginate
-  // (pdfkit adds a page and draws the label at the top of it) while the
-  // value text below still uses the stale pre-page-break y — which then
-  // overflows *that* page too and auto-paginates a second time, leaving the
-  // label alone on one page and the value alone on the next (both looking
-  // blank at a glance). A flat buffer well beyond one line's actual height
-  // (rather than doc.currentLineHeight(), which cuts it close enough that
-  // pdfkit's own — stricter — overflow check can still fire first) keeps
-  // this pre-check reliably ahead of pdfkit's internal one.
   doc.fontSize(9.5)
   if (doc.y > doc.page.height - doc.page.margins.bottom - 20) doc.addPage()
 
@@ -74,11 +59,6 @@ function row(doc, label, value) {
   doc.moveDown(0.35)
 }
 
-// Renders the entire application record as a PDF — every field the applicant
-// submitted, plus current verification, concession, and payment status — for
-// the Trust admin team to keep or hand off offline. Generated fresh on every
-// request rather than stored, so it always reflects the latest admin
-// decisions (concession overrides, payment approval, etc).
 export function renderApplicationPdf(app) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: 50 })
@@ -98,7 +78,6 @@ export function renderApplicationPdf(app) {
         doc.image(LOGO_PATH, doc.page.margins.left + (contentWidth - logoWidth) / 2, doc.y, { width: logoWidth })
         doc.y += logoWidth + 8
       } catch {
-        // Logo is a nice-to-have — never let a bad image file block generation.
       }
     }
 

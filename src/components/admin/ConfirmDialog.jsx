@@ -1,9 +1,5 @@
 import { useEffect } from 'react'
 
-// Centered modal replacement for window.confirm() — the native browser
-// dialog doesn't match the app's UI and (depending on OS/browser) doesn't
-// even render centered on the page. Controlled by a single piece of state
-// on the caller: null when closed, or { message, onConfirm, tone } when open.
 export default function ConfirmDialog({ open, title, message, confirmLabel = 'Confirm', cancelLabel = 'Cancel', tone = 'default', onConfirm, onCancel }) {
   useEffect(() => {
     if (!open) return

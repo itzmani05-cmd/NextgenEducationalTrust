@@ -3,10 +3,6 @@ import {
   Utensils, Laptop, MoreHorizontal,
 } from 'lucide-react'
 
-// Categories themselves live in the database (admins can add their own);
-// each one stores an `icon` key from this fixed set, which decides both its
-// icon and badge colour. Keys must match CATEGORY_ICONS in
-// server/src/routes/expenses.js.
 export const CATEGORY_ICONS = [
   { key: 'scholarship', icon: GraduationCap, accent: 'text-brand-navy bg-blue-50' },
   { key: 'education_materials', icon: BookOpen, accent: 'text-indigo-700 bg-indigo-50' },
@@ -27,8 +23,6 @@ export function getIconStyle(key) {
   return CATEGORY_ICONS.find((i) => i.key === key) || CATEGORY_ICONS[CATEGORY_ICONS.length - 1]
 }
 
-// Falls back gracefully if an expense points at a category the list hasn't
-// loaded (shouldn't happen, since categories in use can't be deleted).
 export function resolveCategory(categoriesById, id) {
   const category = categoriesById[id]
   return { name: category?.name || 'Uncategorised', ...getIconStyle(category?.icon) }
@@ -50,8 +44,6 @@ export function formatINR(amount) {
   return `₹${Number(amount || 0).toLocaleString('en-IN')}`
 }
 
-// Dates come from the API as plain YYYY-MM-DD; parse as local midnight so
-// the displayed day never shifts with the viewer's timezone.
 export function formatExpenseDate(date) {
   const [y, m, d] = date.split('-').map(Number)
   return new Date(y, m - 1, d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })

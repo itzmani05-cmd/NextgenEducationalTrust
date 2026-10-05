@@ -1,5 +1,3 @@
-// Tiered bonus based on the average of 10th & 12th percentage:
-// ≥80% -> +5%, 60-79.99% -> +3%, 50-59.99% -> +1%, <50% -> +0%.
 export function tenthTwelfthBonus(tenthPct, twelfthPct) {
   const a = parseFloat(tenthPct)
   const b = parseFloat(twelfthPct)
@@ -11,9 +9,6 @@ export function tenthTwelfthBonus(tenthPct, twelfthPct) {
   return 0
 }
 
-// The 5 options the Trust chooses between when recording a final concession
-// decision (see AdminApplicationDetail.jsx) — shared here so the student-facing
-// status page can render the same label for whichever category was approved.
 export const CONCESSION_LABELS = {
   category1: 'Category 1 — Orphan',
   category2: 'Category 2 — Single Parent',
@@ -22,9 +17,6 @@ export const CONCESSION_LABELS = {
   exceptional: 'Exceptional Hardship',
 }
 
-// Categories 1 and 2 are flat — no additional factors apply. Categories 3
-// (income-based) and 4 (above ₹5L) stack the additional factors below,
-// capped at 50% and 25% respectively.
 const INCOME_BASED_KEYS = ['income_1', 'income_2', 'income_3', 'income_4']
 
 export function getCategory(data) {
@@ -70,8 +62,6 @@ export function getProvisional(data) {
     if (bothGovtSchool) {
       additions.push({ label: 'Government School', value: 5 })
     }
-    // Wizard state holds a File under `communityCertificate`; the stored
-    // application row holds its uploaded path under `communityCertificateUrl`.
     const hasCommunityCert = Boolean(data.communityCertificate || data.communityCertificateUrl)
     const isScSt = data.socialCategory === 'SC/ST'
     if (isScSt && hasCommunityCert) {

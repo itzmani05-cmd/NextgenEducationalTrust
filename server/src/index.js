@@ -7,6 +7,9 @@ import applicationsRouter from './routes/applications.js'
 import authRouter from './routes/auth.js'
 import donationsRouter from './routes/donations.js'
 import expensesRouter from './routes/expenses.js'
+import staffAuthRouter from './routes/staffAuth.js'
+import staffPortalRouter from './routes/staffPortal.js'
+import staffAdminRouter from './routes/staffAdmin.js'
 
 const app = express()
 const port = process.env.PORT || 4000
@@ -24,6 +27,9 @@ app.use('/api/auth', authRouter)
 app.use('/api/applications', applicationsRouter)
 app.use('/api/donations', donationsRouter)
 app.use('/api/expenses', expensesRouter)
+app.use('/api/staff-auth', staffAuthRouter)
+app.use('/api/staff', staffPortalRouter)
+app.use('/api/admin/staff', staffAdminRouter)
 
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {

@@ -5,15 +5,8 @@ import { uploadDocument } from '../../../utils/api.js'
 import { BASIC_DOCUMENTS, getConditionalDocuments } from '../../../utils/documentChecklist.js'
 import { bi } from '../../../i18n/bilingual.js'
 
-// Each document uploads on selection, one request per file (see
-// utils/api.js uploadDocument) — the application record already exists by
-// the time this step is reachable (created when the wizard was locked), so
-// a document picked here is durably saved immediately instead of waiting on
-// a final bulk submit. That's what keeps it from disappearing on refresh:
-// `documentPresence` (lifted to Apply.jsx) is what's already confirmed by
-// the server, independent of this component's own in-session upload state.
 export default function Step9Documents({ applicationId, docsSource, documentPresence, onUploaded }) {
-  const [uploadState, setUploadState] = useState({}) // { [key]: { uploading, error, fileName } }
+  const [uploadState, setUploadState] = useState({})
   const conditionalDocs = getConditionalDocuments(docsSource)
 
   const handleFile = async (doc, file) => {

@@ -1,7 +1,3 @@
-// Single source of truth for site-wide SEO facts. Keep every hard-coded
-// name/domain/contact string used in metadata and JSON-LD flowing through
-// here so branding stays consistent and only needs updating in one place.
-
 export const SITE_URL = 'https://www.nextgenedutrust.in'
 export const SITE_NAME = 'NextGen Solutions Educational Trust'
 export const SITE_NAME_SHORT = 'NextGen Solutions Educational Trust'

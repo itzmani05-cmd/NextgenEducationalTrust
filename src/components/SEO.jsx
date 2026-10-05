@@ -1,9 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { SITE_NAME, DEFAULT_OG_IMAGE, absoluteUrl } from '../seo/siteConfig.js'
 
-// Reusable per-page head manager. Pages pass only what differs from the
-// defaults; canonical/OG/Twitter tags are derived from `path` + `image` so
-// every page can't accidentally diverge in structure, only in content.
 export default function SEO({
   title,
   description,

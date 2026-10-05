@@ -9,9 +9,6 @@ function getResend() {
   return client
 }
 
-// Emails the PDF receipt to the donor once their donation has been verified.
-// Delivery is best-effort — a failure here never undoes the verification
-// itself (see PATCH /:id/status), it's just logged for a manual retry.
 export async function sendDonationReceiptEmail(donation, pdfBuffer) {
   const from = process.env.RESEND_FROM_EMAIL || 'NextGen Solutions Educational Trust <onboarding@resend.dev>'
 
@@ -43,9 +40,6 @@ async function send({ to, subject, html, attachments }) {
   if (error) throw new Error(error.message || `Failed to send email: ${subject}`)
 }
 
-// Sent once an admin completes document verification (PATCH /:id/status),
-// i.e. the moment `status` becomes 'approved' or 'rejected' — never on the
-// intermediate 'submitted' / 'under_review' states.
 export async function sendVerificationDecisionEmail(application, status) {
   const isApproved = status === 'approved'
   const subject = isApproved
@@ -68,10 +62,6 @@ export async function sendVerificationDecisionEmail(application, status) {
   })
 }
 
-// Sent when an admin approves a student's submitted payment. The fee receipt
-// PDF is attached when available (pdfBuffer may be omitted if receipt
-// generation failed — see PATCH /:id/payment/approve, which treats that as
-// best-effort and still approves the payment).
 export async function sendPaymentApprovedEmail(application, payment, pdfBuffer) {
   await send({
     to: application.email,
@@ -89,8 +79,6 @@ export async function sendPaymentApprovedEmail(application, payment, pdfBuffer) 
   })
 }
 
-// Sent when an admin rejects a student's submitted payment, so they know to
-// resubmit with corrected details.
 export async function sendPaymentRejectedEmail(application, payment) {
   await send({
     to: application.email,

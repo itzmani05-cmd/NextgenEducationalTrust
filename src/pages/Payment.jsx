@@ -12,7 +12,7 @@ import SummaryCard from '../components/payment/SummaryCard.jsx'
 import PaymentForm from '../components/payment/PaymentForm.jsx'
 import StatusBanner from '../components/payment/StatusBanner.jsx'
 
-const MAX_FILE_SIZE = 1024 * 1024 // 1MB — must match the server's multer limit (server/src/routes/applications.js)
+const MAX_FILE_SIZE = 1024 * 1024
 
 export default function Payment() {
   const { user, loading: authLoading, accessToken } = useAuth()
@@ -80,7 +80,6 @@ function PaymentContent({ accessToken }) {
 
   useEffect(() => {
     load()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken])
 
   if (loading) {

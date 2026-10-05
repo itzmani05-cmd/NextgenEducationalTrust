@@ -13,9 +13,8 @@ export default function HeroSection() {
             Technical Skill Development Program
           </span>
           <h1 className="font-serif text-4xl md:text-5xl text-brand-ink mb-4 leading-tight">
-            <span className="text-brand-rust">C³ Educational Platform</span> 
+            <span className="text-brand-rust">C³ Educational Platform</span>
           </h1>
-          
 
           <p className="text-brand-muted text-lg leading-relaxed mb-6">
             C³ Educational Platform is a Technical Skill Development Program of NextGen Solutions Educational Trust

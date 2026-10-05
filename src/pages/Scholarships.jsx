@@ -24,7 +24,7 @@ export default function Scholarships() {
       <div data-reveal><ObjectiveSection /></div>
       <div data-reveal><FocusSection /></div>
       <div data-reveal><ProgramsSection /></div>
-      
+
       <div data-reveal><ReviewsSection /></div>
       <div data-reveal><FindUsSection /></div>
     </div>

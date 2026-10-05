@@ -57,9 +57,6 @@ export default function AdminVerification() {
 
   const index = applications.findIndex((a) => a.id === id)
   const app = index >= 0 ? applications[index] : null
-  // Documents the applicant wasn't asked for, or was allowed to skip and
-  // didn't upload, aren't shown as tabs — nothing there for the admin to
-  // review.
   const docs = app ? getDocumentsNeedingReview(app) : []
 
   useEffect(() => {
@@ -89,12 +86,8 @@ export default function AdminVerification() {
     return () => {
       cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [app?.id, selectedDoc, token])
 
-  // Show the student's uploaded photo as the sidebar avatar as soon as it's
-  // uploaded — the admin needs to see it to decide whether to approve it, not
-  // only after already approving it.
   useEffect(() => {
     if (!app?.studentPhotoUrl) {
       setAvatarUrl('')
@@ -111,7 +104,6 @@ export default function AdminVerification() {
     return () => {
       cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [app?.id, app?.studentPhotoUrl, token])
 
   const updateAppLocally = (updated) => {

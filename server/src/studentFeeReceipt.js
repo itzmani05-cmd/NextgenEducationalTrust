@@ -9,8 +9,6 @@ import { getProvisional } from './scholarshipCalc.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const LOGO_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'Logo.png')
-// Fee receipt uses the C3 (Skill Development Program) logo as its watermark
-// instead of the Trust's general logo — the donation receipt is unaffected.
 const WATERMARK_PATH = path.join(__dirname, '..', '..', 'src', 'assests', 'C3Logo.png')
 
 function inr(n) {
@@ -62,9 +60,6 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     doc.y = appNumberY + 20
 
     doc.moveDown(0.6)
-    // examName is stored English-only today, but older applications may still
-    // hold the wizard's legacy "English / Tamil" display string — keep only
-    // the English half so it never leaks onto an official document.
     const rawCourseName = application.examName || application.college?.degree || '—'
     const cleanCourseName = rawCourseName.split(' / ')[0].trim()
     const courseName = cleanCourseName === '—' ? cleanCourseName : `Skill Development Program - ${cleanCourseName}`
@@ -86,9 +81,6 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     doc.moveDown(1)
     doc.fontSize(11).fillColor('#1B2A4A').font('Helvetica-Bold').text('Fee Breakdown', 50, doc.y)
     doc.moveDown(0.4)
-    // The base/factors breakdown only applies to the income-tier categories
-    // (category3/4) — category1/2 are flat 100%/50% grants and "exceptional"
-    // is a manual Trust Committee override, so neither has a formula to show.
     const showConcessionBreakdown = application.concessionCategory === 'category3' || application.concessionCategory === 'category4'
     const suggestion = showConcessionBreakdown ? getProvisional(application) : null
     const feeRows = [
@@ -101,10 +93,6 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
         ]
         : [['Concession', application.finalApprovedConcession != null ? `${application.finalApprovedConcession}%` : '—']]),
     ]
-    // Wider label column + right-aligned value column than the other row
-    // groups on this receipt — the concession breakdown labels ("Academic
-    // Performance (10th & 12th)") and the "Calculated ... (capped at ...)"
-    // value are both too long for the narrow 220/320 layout used elsewhere.
     const feeValueX = 340
     const feeValueWidth = doc.page.width - doc.page.margins.right - feeValueX
     y = doc.y
@@ -143,15 +131,8 @@ function renderFeeReceiptPdf({ receiptNumber, application, payment, issuedAt }) 
     doc.y = Math.min(Math.max(doc.y + 40, doc.page.height - 160), doc.page.height - 100)
     const sigX = 290
     const sigWidth = doc.page.width - doc.page.margins.right - sigX
-    // Captured once: doc.text() below moves doc.y as a side effect, so reading
-    // doc.y again for the second line would stack its +32 on top of that
-    // shift instead of the intended fixed offset from the signature block.
     const sigY = doc.y
     drawSeal(doc, 50, sigY)
-    // Conventional order top-to-bottom: "For, <Trust>" line, then the
-    // signature sitting in the gap above the designation, then "Managing
-    // Trustee / Authorized Signatory" — not the signature floating above
-    // the "For, ..." line.
    doc.fontSize(9.5).fillColor('#222').font('Helvetica')
 
     doc.text('For,', sigX, sigY, {
@@ -186,15 +167,8 @@ export { renderFeeReceiptPdf }
 
 export async function issueFeeReceiptForPayment(application, payment) {
   const supabase = getSupabaseAdmin()
-  // Keep the receipt's issue date stable across re-renders (it should read the
-  // date the payment was verified, not "today"), while still falling back
-  // sanely if an older record is missing verifiedAt.
   const issuedAt = payment.verifiedAt || new Date()
 
-  // The receipt number/storage path, once allocated, never change — but the
-  // PDF content is always re-rendered from current data on every fetch, so
-  // template/format updates (and any data corrections) reach students on
-  // their next download instead of being frozen at first-issue time.
   if (payment.receiptNumber && payment.receiptPath) {
     const pdfBuffer = await renderFeeReceiptPdf({ receiptNumber: payment.receiptNumber, application, payment, issuedAt })
     const { error: uploadError } = await supabase.storage

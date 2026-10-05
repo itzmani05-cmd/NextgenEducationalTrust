@@ -1,4 +1,3 @@
-// Scalar fields sent by the frontend using the exact same name as the Prisma column.
 const DIRECT_FIELDS = [
   'fullName', 'dob', 'gender', 'mobile', 'email', 'address', 'district',
 
@@ -22,11 +21,8 @@ const DIRECT_FIELDS = [
   'declarationAccepted',
 ]
 
-// Nested Json blobs, passed through as-is.
 const JSON_FIELDS = ['tenth', 'twelfth', 'college']
 
-// Frontend sends the raw File-holding field name (currently always null until
-// Storage upload is wired up); Prisma stores the eventual URL under `${key}Url`.
 export const FILE_FIELDS = [
   'fatherDeathCert', 'motherDeathCert', 'supportingDocument', 'incomeCertificate',
   'selfIncomeDoc', 'communityCertificate', 'scholarshipDoc',
@@ -34,8 +30,6 @@ export const FILE_FIELDS = [
   'educationalCertificates',
 ]
 
-// Builds a Prisma-safe `data` object from the raw wizard payload, dropping
-// anything the schema doesn't recognize instead of letting Prisma throw.
 export function mapApplicationPayload(body) {
   const data = {}
 

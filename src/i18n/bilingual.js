@@ -12,9 +12,6 @@ function combine(en, ta) {
   return `${en} / ${ta}`
 }
 
-// Every label is shown in both languages at once (e.g. "Full Name / முழு
-// பெயர்") rather than behind a language toggle. Arrays (e.g. the stepper
-// title list) are combined item by item.
 export function bi(key) {
   const en = lookup(translations.en, key)
   const ta = lookup(translations.ta, key)
@@ -27,9 +24,6 @@ export function bi(key) {
   return result !== undefined ? result : key
 }
 
-// English only — for wizard chrome (page title, step counter, the stepper's
-// own step list, nav buttons, confirmation-screen text) rather than the
-// actual questions/fields a student fills in, which use `bi()` above.
 export function enOnly(key) {
   const en = lookup(translations.en, key)
   return en !== undefined ? en : key

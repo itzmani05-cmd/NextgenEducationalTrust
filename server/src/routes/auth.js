@@ -4,9 +4,6 @@ import { passwordMatches, signAdminToken, getOrCreateAdminIdentity } from '../au
 
 const router = Router()
 
-// ADMIN_PASSWORD is a single shared secret with no lockout of its own —
-// this is what actually stops it being brute-forced. Successful logins
-// don't count against the limit, only wrong-password attempts do.
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 5,

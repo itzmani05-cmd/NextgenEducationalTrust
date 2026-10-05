@@ -1,11 +1,5 @@
-// Server-side mirror of src/utils/scholarshipCalc.js, operating on the stored
-// Application row rather than in-progress wizard state. Kept authoritative
-// here so `calculatedConcession` can never be set from a client-sent value.
-
 const INCOME_BASED_KEYS = ['income_1', 'income_2', 'income_3', 'income_4']
 
-// Tiered bonus based on the average of 10th & 12th percentage:
-// ≥80% -> +5%, 60-79.99% -> +3%, 50-59.99% -> +1%, <50% -> +0%.
 function tenthTwelfthBonus(tenthPct, twelfthPct) {
   const a = parseFloat(tenthPct)
   const b = parseFloat(twelfthPct)

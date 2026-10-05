@@ -1,8 +1,3 @@
-/* Self-hosted fonts (latin subset only — the only script actually used in
-   the UI). Inter ships as a single variable-font file; each weight below
-   points at the same file and lets the browser pick that instance off its
-   weight axis, matching how Google Fonts itself serves it. font-display:
-   swap avoids blocking text render on the font download. */
 @font-face {
   font-family: 'Inter';
   font-style: normal;
@@ -61,17 +56,9 @@
 html {
   scroll-behavior: smooth;
 }
-
-/* Admin portal is denser than the public site. Tailwind sizes are rem-based,
-   so shrinking the root font scales admin text and spacing together.
-   Toggled by AdminLayout while it is mounted. */
 html.admin-compact {
   font-size: 14px;
 }
-
-/* Scroll-reveal: elements marked [data-reveal] fade/slide in once observed
-   by useScrollReveal (see src/hooks/useScrollReveal.js). Respects reduced-
-   motion preference and never hides content if JS fails to run. */
 [data-reveal] {
   opacity: 0;
   transform: translateY(28px);
@@ -90,9 +77,6 @@ html.admin-compact {
 }
 
 @layer components {
-  /* Numbers every apply-wizard question in DOM order, per step. Conditional
-     fields that aren't rendered are simply skipped, so numbering never has
-     gaps — no per-field index props to keep in sync by hand. */
   .question-counter {
     counter-reset: apply-question;
   }

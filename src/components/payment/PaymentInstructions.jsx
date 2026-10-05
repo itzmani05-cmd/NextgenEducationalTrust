@@ -1,6 +1,5 @@
 import qrCode from '../../assests/QrPic.webp'
 
-// Trust payment details.
 const BANK_NAME = 'City Union Bank'
 const BANK_ACCOUNT_NAME = 'NEXTGEN SOLUTIONS EDUCATIONAL TRUST'
 const BANK_ACCOUNT_NUMBER = '510909010405740'

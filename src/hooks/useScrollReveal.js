@@ -1,10 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
-// Mount once (in Layout) to drive every [data-reveal] element on the site.
-// A single IntersectionObserver is far cheaper than one per component, and a
-// MutationObserver picks up nodes added after route changes or async data
-// loads (e.g. admin tables) without each page having to wire this up itself.
 export default function useScrollReveal() {
   const { pathname } = useLocation()
 

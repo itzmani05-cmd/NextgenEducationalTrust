@@ -7,7 +7,6 @@ import { getSupabaseAdmin, STORAGE_BUCKET } from '../supabaseAdmin.js'
 
 const router = Router()
 
-// Must match the icon keys in src/components/admin/expenses/expenseConstants.js.
 const CATEGORY_ICONS = [
   'scholarship', 'education_materials', 'events', 'salaries', 'rent_utilities',
   'office_supplies', 'travel', 'maintenance', 'marketing', 'health', 'food', 'technology', 'other',
@@ -23,8 +22,6 @@ const upload = multer({
 
 router.use(requireAdmin)
 
-// `date` is a Postgres DATE — send it back as plain YYYY-MM-DD so the client
-// never has to think about timezones.
 function serializeExpense(expense) {
   return { ...expense, date: expense.date.toISOString().slice(0, 10) }
 }
@@ -34,7 +31,6 @@ function cleanOptional(value, max = 200) {
   return s || null
 }
 
-// Shared by create and edit. Multipart bodies arrive as strings.
 async function validateExpenseBody(body) {
   const title = String(body.title || '').trim()
   const amount = Number(body.amount)
@@ -51,7 +47,6 @@ async function validateExpenseBody(body) {
   if (!DATE_PATTERN.test(date) || Number.isNaN(parsedDate.getTime())) {
     return { error: 'A valid date (YYYY-MM-DD) is required.' }
   }
-  // One day of slack so an admin ahead of UTC can still enter "today".
   if (parsedDate.getTime() > Date.now() + 24 * 60 * 60 * 1000) {
     return { error: 'Expense date cannot be in the future.' }
   }
@@ -92,8 +87,6 @@ async function uploadBill(expenseId, file) {
   return { billPath: path, billFileName: file.originalname.slice(0, 200) }
 }
 
-// Best-effort: an orphaned file in storage is harmless, so a failed removal
-// never fails the request that replaced/deleted it.
 async function removeBill(path) {
   if (!path) return
   try {
@@ -103,8 +96,6 @@ async function removeBill(path) {
     console.error('Failed to remove expense bill from storage:', err)
   }
 }
-
-// ---------- Categories ----------
 
 router.get('/categories', async (req, res) => {
   try {
@@ -143,7 +134,6 @@ router.post('/categories', async (req, res) => {
     if (await nameTaken(data.name)) {
       return res.status(409).json({ error: `A category named "${data.name}" already exists.` })
     }
-    // New categories go just above "Other" (sortOrder 1000).
     const last = await prisma.expenseCategory.findFirst({
       where: { sortOrder: { lt: 1000 } },
       orderBy: { sortOrder: 'desc' },
@@ -206,8 +196,6 @@ router.delete('/categories/:id', async (req, res) => {
   }
 })
 
-// ---------- Expenses ----------
-
 router.get('/', async (req, res) => {
   try {
     const expenses = await prisma.expense.findMany({
@@ -236,7 +224,6 @@ router.post('/', upload.single('bill'), async (req, res) => {
       try {
         expense = await prisma.expense.update({ where: { id: expense.id }, data: await uploadBill(expense.id, req.file) })
       } catch (uploadErr) {
-        // Don't leave a half-saved expense behind if the bill didn't upload.
         await prisma.expense.delete({ where: { id: expense.id } }).catch(() => {})
         throw uploadErr
       }
@@ -254,8 +241,6 @@ router.post('/', upload.single('bill'), async (req, res) => {
   }
 })
 
-// Accepts the same fields as create. A new `bill` file replaces the old one;
-// removeBill=true clears it without a replacement.
 router.patch('/:id', upload.single('bill'), async (req, res) => {
   const fileError = checkBillFile(req.file)
   if (fileError) return res.status(400).json({ error: fileError })

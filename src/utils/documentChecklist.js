@@ -30,18 +30,10 @@ export function getAllRequiredDocuments(data) {
   return [...BASIC_DOCUMENTS, ...getConditionalDocuments(data)]
 }
 
-// Mirrors the server's storage layout (documentFieldPatch.js): flat documents
-// are stored under `${key}Url`, nested ones (tenth/twelfth/college) directly
-// under their own key. Use this — not the raw checklist key — to read a
-// document's value off a fetched application record.
 export function getDocumentFieldPath(docKey) {
   return docKey.includes('.') ? docKey : `${docKey}Url`
 }
 
-// { [docKey]: true | false } — whether each applicable document is already
-// present on a fetched application record (server field names, via
-// getDocumentFieldPath) — used to resume the Documents step after a refresh
-// without losing track of what's already been uploaded.
 export function getDocumentPresenceMap(app) {
   const map = {}
   for (const doc of getAllRequiredDocuments(app)) {
@@ -50,11 +42,6 @@ export function getDocumentPresenceMap(app) {
   return map
 }
 
-// Documents the admin must approve/reject before verification can be marked
-// complete: every required document, plus any optional one the student
-// actually uploaded. An optional document the student skipped (e.g. income
-// certificate when annualIncome is 'above_5') is excluded so it can't leave
-// verification stuck at "pending" with no file to review.
 export function getDocumentsNeedingReview(app) {
   return getAllRequiredDocuments(app).filter(
     (doc) => doc.required !== false || Boolean(getPath(app, getDocumentFieldPath(doc.key))),

@@ -16,10 +16,6 @@ import { sendVerificationDecisionEmail, sendPaymentApprovedEmail, sendPaymentRej
 
 const router = Router()
 
-// Only 'approved'/'rejected'/'under_review' are settable via the generic
-// PATCH /:id/status route below — the payment_* states are only ever
-// reached through their dedicated endpoints further down, each with its own
-// validation, so the state machine can't be skipped.
 const STATUS_VALUES = ['submitted', 'under_review', 'approved', 'rejected']
 const DOC_STATUS_VALUES = ['pending', 'approved', 'rejected']
 const PAYMENT_METHODS = ['upi', 'bank_transfer', 'other']
@@ -39,8 +35,6 @@ router.post('/', requireApplicantAuth, async (req, res) => {
   }
 
   try {
-    // One application per Google account — re-check right before creating so
-    // a race between two near-simultaneous submits can't both slip through.
     const existing = await prisma.application.findFirst({
       where: { authUserId: req.authUser.id },
     })
@@ -56,9 +50,6 @@ router.post('/', requireApplicantAuth, async (req, res) => {
         ...mapApplicationPayload(req.body),
         authUserId: req.authUser.id,
         authEmail: req.authUser.email,
-        // Locking the wizard creates the record, but it isn't visible to the
-        // Trust yet — the applicant still needs to upload documents and hit
-        // Submit Application (see POST /:id/finalize below).
         status: 'uploading',
       },
     })
@@ -69,10 +60,6 @@ router.post('/', requireApplicantAuth, async (req, res) => {
   }
 })
 
-// The applicant calls this once they've uploaded their documents and click
-// Submit Application — the moment the Trust actually gets to see it. Public,
-// like the document upload route above: the application's unguessable UUID
-// is the only thing gating this, not a login session.
 router.post('/:id/finalize', async (req, res) => {
   try {
     const existing = await prisma.application.findUnique({ where: { id: req.params.id } })
@@ -92,8 +79,6 @@ router.post('/:id/finalize', async (req, res) => {
   }
 })
 
-// Lets the applicant's own client check whether they've already applied,
-// so the wizard can be gated up front instead of only failing at submit time.
 router.get('/mine', requireApplicantAuth, async (req, res) => {
   try {
     const application = await prisma.application.findFirst({
@@ -108,9 +93,6 @@ router.get('/mine', requireApplicantAuth, async (req, res) => {
   }
 })
 
-// Public status lookup for applicants — no auth, but requires knowing both
-// the mobile number and email on file, and returns a curated view only
-// (no family/financial details, no raw document paths).
 router.post('/lookup', async (req, res) => {
   const { mobile, email } = req.body
 
@@ -155,14 +137,9 @@ router.post('/lookup', async (req, res) => {
       college: stripDocPaths(app.college),
       documentReviews: app.documentReviews || {},
       documentPresence: getDocumentPresenceMap(app),
-      // Only surface the Trust's final decision, once recorded — never the
-      // provisional calculatedConcession, and never the internal committee note.
       concession: app.finalApprovedConcession != null
         ? { category: app.concessionCategory, percentage: app.finalApprovedConcession }
         : null,
-      // Read-only summary — no proof/document file paths. Submitting a
-      // payment requires signing in (see /profile and /payment), since that
-      // needs requireApplicantAuth.
       payment: app.payment
         ? {
           status: app.payment.status,
@@ -183,9 +160,6 @@ router.get('/', requireAdmin, async (req, res) => {
   const { status } = req.query
 
   try {
-    // Without an explicit status filter, hide applications still mid-upload
-    // (locked in but not yet finalized by the applicant) — the Trust isn't
-    // meant to see these until Submit Application is actually clicked.
     const applications = await prisma.application.findMany({
       where: status ? { status } : { status: { not: 'uploading' } },
       orderBy: { createdAt: 'desc' },
@@ -221,9 +195,6 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
   try {
     const data = { status }
 
-    // The moment an application is accepted, run the provisional discount
-    // calculation from the applicant's own answers — separate from whatever
-    // the Trust ultimately approves via PATCH /:id/concession.
     if (status === 'approved') {
       const existing = await prisma.application.findUnique({ where: { id: req.params.id } })
       if (!existing) return res.status(404).json({ error: 'Application not found.' })
@@ -243,8 +214,6 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
       })
     }
 
-    // Best-effort: the status change itself is already committed above, so an
-    // email delivery failure here is only logged, never surfaced as a request error.
     if ((status === 'approved' || status === 'rejected') && before?.status !== status) {
       sendVerificationDecisionEmail(application, status).catch((err) => {
         console.error('Failed to send verification decision email:', err)
@@ -260,9 +229,6 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
 
 const CONCESSION_CATEGORIES = ['category1', 'category2', 'category3', 'category4', 'exceptional']
 
-// Records the Trust's final concession decision. Only allowed once the
-// application has been accepted (calculatedConcession will already be set
-// from the status route above) — the Trust reviews/confirms or overrides it.
 router.patch('/:id/concession', requireAdmin, async (req, res) => {
   const { category, finalApprovedConcession, note, courseFee } = req.body
 
@@ -349,10 +315,6 @@ router.patch('/:id/documents/:docKey', requireAdmin, async (req, res) => {
   }
 })
 
-// Public — used both right after initial submission (to attach the files a
-// student selected during the wizard) and later if a document needs re-upload
-// after being rejected. Anyone POSTing needs the application's unguessable
-// UUID, which only the applicant (or the Trust) ever sees.
 router.post('/:id/documents/:docKey', upload.single('file'), async (req, res) => {
   const { docKey } = req.params
 
@@ -380,7 +342,6 @@ router.post('/:id/documents/:docKey', upload.single('file'), async (req, res) =>
       .upload(path, req.file.buffer, { contentType: req.file.mimetype, upsert: true })
     if (uploadError) throw uploadError
 
-    // A fresh file means any prior review verdict for this document no longer applies.
     const documentReviews = { ...(existing.documentReviews || {}) }
     delete documentReviews[docKey]
 
@@ -417,13 +378,6 @@ router.get('/:id/documents/:docKey/signed-url', requireAdmin, async (req, res) =
   }
 })
 
-// ---------------------------------------------------------------------------
-// Payment workflow
-// ---------------------------------------------------------------------------
-
-// Student submits (or resubmits, after a rejection) their payment details.
-// The payable amount is always computed here from the admin-approved
-// concession + course fee — the client never gets to set it.
 router.post('/:id/payment', requireApplicantAuth, upload.single('proof'), async (req, res) => {
   const { transactionId, paymentDate, paymentMethod, amountPaid } = req.body
 
@@ -464,7 +418,6 @@ router.post('/:id/payment', requireApplicantAuth, upload.single('proof'), async 
       return res.status(409).json({ error: 'A payment has already been submitted for this application.' })
     }
 
-    // One transaction ID can't be reused across a different application.
     const duplicate = await prisma.payment.findFirst({
       where: { transactionId: cleanTransactionId, applicationId: { not: application.id } },
     })
@@ -526,8 +479,6 @@ router.get('/:id/payment/proof-signed-url', requireAdmin, async (req, res) => {
   }
 })
 
-// Either the Trust (admin) or the payment's own applicant can download the
-// fee receipt.
 router.get(
   '/:id/payment/receipt-signed-url',
   requireAdminOrOwner(async (req) => {
@@ -542,9 +493,6 @@ router.get(
       })
       if (!application?.payment?.receiptPath) return res.status(404).json({ error: 'Fee receipt not available yet.' })
 
-      // Re-render before serving so the signed URL always points at a receipt
-      // reflecting the current template/data, not whatever was cached at
-      // first-issue time — see issueFeeReceiptForPayment.
       const { payment } = await issueFeeReceiptForPayment(application, application.payment)
 
       const supabase = getSupabaseAdmin()
@@ -598,9 +546,6 @@ router.patch('/:id/payment/approve', requireAdmin, async (req, res) => {
       action: 'PAYMENT_APPROVED', oldStatus: 'payment_submitted', newStatus: 'payment_approved',
     })
 
-    // Fee receipt generation is best-effort here: payment approval itself is
-    // already committed and correct even if PDF/storage hiccups — an admin
-    // can retry via POST /:id/payment/receipt/generate.
     let updatedPaymentWithReceipt = updatedPayment
     let receiptPdfBuffer
     try {
@@ -615,7 +560,6 @@ router.patch('/:id/payment/approve', requireAdmin, async (req, res) => {
       console.error('Payment approved but fee receipt generation failed:', receiptErr)
     }
 
-    // Best-effort — never blocks the already-committed approval above.
     sendPaymentApprovedEmail(updatedApplication, updatedPaymentWithReceipt, receiptPdfBuffer).catch((err) => {
       console.error('Failed to send payment approved email:', err)
     })
@@ -658,7 +602,6 @@ router.patch('/:id/payment/reject', requireAdmin, async (req, res) => {
       action: 'PAYMENT_REJECTED', oldStatus: 'payment_submitted', newStatus: 'payment_rejected', remarks: reason,
     })
 
-    // Best-effort — never blocks the already-committed rejection above.
     sendPaymentRejectedEmail(updatedApplication, updatedPayment).catch((err) => {
       console.error('Failed to send payment rejected email:', err)
     })
@@ -670,9 +613,6 @@ router.patch('/:id/payment/reject', requireAdmin, async (req, res) => {
   }
 })
 
-// Manual/idempotent trigger — normally fee receipts are issued automatically
-// the moment a payment is approved (see above); this exists to retry after a
-// transient failure there, or to re-fetch an already-issued receipt.
 router.post('/:id/payment/receipt/generate', requireAdmin, async (req, res) => {
   try {
     const application = await prisma.application.findUnique({
@@ -692,8 +632,6 @@ router.post('/:id/payment/receipt/generate', requireAdmin, async (req, res) => {
         adminEmail: req.admin.email, applicationId: application.id, paymentId: payment.id,
         action: 'FEE_RECEIPT_ISSUED', newValue: { receiptNumber: payment.receiptNumber },
       })
-      // Only on first issuance — catches up the email the student would have
-      // gotten at approval time if receipt generation hadn't failed then.
       sendPaymentApprovedEmail(application, payment, pdfBuffer).catch((err) => {
         console.error('Failed to send payment approved email:', err)
       })
@@ -706,14 +644,6 @@ router.post('/:id/payment/receipt/generate', requireAdmin, async (req, res) => {
   }
 })
 
-// Full application record as a PDF, for the Trust to keep or share offline.
-// Only available once payment has been approved — before that the record is
-// still in flux and isn't considered final. Generated fresh on every
-// request (not cached) so it always reflects the latest state.
-// Fetches the actual bytes for every document the applicant uploaded, keyed
-// by docKey, so the PDF can embed real previews instead of just "Uploaded".
-// A single missing/unreadable file is logged and skipped rather than failing
-// the whole download — the record itself is more important than any one attachment.
 async function loadDocumentAttachments(application) {
   const supabase = getSupabaseAdmin()
   const attachments = {}
@@ -735,24 +665,12 @@ async function loadDocumentAttachments(application) {
   return attachments
 }
 
-// Appends every uploaded document as its own full page — pdfkit (used for
-// the main record) can't inline an image full-bleed or merge another PDF's
-// pages, so this pass does both with pdf-lib after the base record is built.
-// Each document gets exactly one page of content: an image is scaled up to
-// fill it, an uploaded PDF is merged in as-is (its own page count, since
-// that's the source file's actual content — but no separate divider page is
-// wasted on it). A slim label band is drawn on the page itself so it's
-// unambiguous which document each page belongs to.
 const A4_SIZE = [595.28, 841.89]
 const PAGE_MARGIN = 36
 const LABEL_BAND_HEIGHT = 26
 const IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png'])
 const PDF_EXTS = new Set(['pdf'])
 
-// `entries` is a flat list of { label, buffer, ext } — uploaded documents and
-// the fee receipt both flow through here the same way, so the fee receipt
-// (a PDF we generated ourselves) gets merged in exactly like a student-
-// uploaded mark sheet PDF would.
 async function appendDocumentAttachments(baseBuffer, entries) {
   const usable = entries.filter(({ ext }) => ext && (IMAGE_EXTS.has(ext) || PDF_EXTS.has(ext)))
   if (usable.length === 0) return baseBuffer

@@ -19,8 +19,6 @@ import StudentInfoSections from '../../components/admin/application-detail/Stude
 import DocumentsSection from '../../components/admin/application-detail/DocumentsSection.jsx'
 import DeclarationSection from '../../components/admin/application-detail/DeclarationSection.jsx'
 
-// Maps the system's fine-grained calculation category onto the 5 options the
-// Trust actually chooses between.
 const AUTO_CATEGORY_MAP = {
   orphan: 'category1',
   single_parent: 'category2',
@@ -93,7 +91,7 @@ export default function AdminApplicationDetail() {
     if (cat === 'category2') return 50
     if (cat === 'category3') return suggestion?.provisional ?? 0
     if (cat === 'category4') return suggestion?.provisional ?? 0
-    return '' // exceptional — no auto-calculated figure
+    return ''
   }
 
   useEffect(() => {
@@ -107,7 +105,6 @@ export default function AdminApplicationDetail() {
     )
     setConcessionNote(app.concessionNote || '')
     setCourseFee(app.courseFee != null ? String(app.courseFee) : '')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [app?.id])
 
   const handleCategorySelect = (cat) => {
@@ -268,9 +265,6 @@ export default function AdminApplicationDetail() {
     return s === 'approved' || s === 'rejected'
   }).length
   const verificationComplete = docs.length > 0 && reviewedCount === docs.length
-  // True once the application has been accepted, whether or not it has since
-  // moved further along into the payment stages — used to keep the Accept
-  // button and the concession panel correct at every later status.
   const acceptedOrBeyond = !['submitted', 'under_review', 'rejected'].includes(app.status)
   const paymentApproved = app.payment?.status === 'approved'
 
