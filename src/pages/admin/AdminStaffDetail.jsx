@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Pencil, KeyRound, Clock, UserRound } from 'lucide-react'
+import { ArrowLeft, Pencil, KeyRound, Clock, CalendarCheck, UserRound } from 'lucide-react'
 import { useAdminAuth } from '../../context/AdminAuthContext.jsx'
 import {
-  AuthError, createStaffPayout, getStaff, getStaffDocumentSignedUrl, listStaffPayouts, listStaffWorkLogs,
+  AuthError, createStaffPayout, getStaff, getStaffDocumentSignedUrl, listStaffAttendance, listStaffPayouts, listStaffWorkLogs,
   resetStaffPassword, reviewWorkLog, updateStaff,
 } from '../../utils/adminApi.js'
 import ErrorBanner from '../../components/admin/ErrorBanner.jsx'
@@ -11,11 +11,13 @@ import ConfirmDialog from '../../components/admin/ConfirmDialog.jsx'
 import StaffFormModal from '../../components/admin/staff/StaffFormModal.jsx'
 import CredentialsDialog from '../../components/admin/staff/CredentialsDialog.jsx'
 import StaffHoursPanel from '../../components/admin/staff/StaffHoursPanel.jsx'
+import StaffAttendancePanel from '../../components/admin/staff/StaffAttendancePanel.jsx'
 import StaffProfilePanel from '../../components/admin/staff/StaffProfilePanel.jsx'
 import { formatINR } from '../../components/admin/expenses/expenseConstants.js'
 
 const TABS = [
   { key: 'hours', label: 'Hours & Payments', icon: Clock },
+  { key: 'attendance', label: 'Attendance', icon: CalendarCheck },
   { key: 'profile', label: 'Profile & Documents', icon: UserRound },
 ]
 
@@ -52,6 +54,7 @@ export default function AdminStaffDetail() {
 
   const loadLogs = useCallback((month) => guard(() => listStaffWorkLogs(token, id, month)), [guard, token, id])
   const loadPayouts = useCallback(() => guard(() => listStaffPayouts(token, id)), [guard, token, id])
+  const loadAttendance = useCallback((month) => guard(() => listStaffAttendance(token, id, month)), [guard, token, id])
   const closeEdit = useCallback(() => setEditing(false), [])
 
   const handleSave = async (data) => {
@@ -169,6 +172,8 @@ export default function AdminStaffDetail() {
               onReview={(log, data) => guard(() => reviewWorkLog(token, log.id, data))}
               onPay={(data) => guard(() => createStaffPayout(token, id, data))}
             />
+          ) : tab === 'attendance' ? (
+            <StaffAttendancePanel loadAttendance={loadAttendance} />
           ) : (
             <StaffProfilePanel staff={staff} onViewDocument={viewDocument} />
           )}

@@ -745,7 +745,13 @@ router.get('/:id/application-pdf', requireAdmin, async (req, res) => {
     const refNumber = `NGC-${application.id.slice(0, 8).toUpperCase()}`
 
     res.setHeader('Content-Type', 'application/pdf')
-    res.setHeader('Content-Disposition', `attachment; filename="application-${refNumber}.pdf"`)
+    const part = (v) => String(v ?? '').trim().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '')
+    const baseName = [application.fullName, application.examName, application.examYear].map(part).filter(Boolean).join('_') || `application-${refNumber}`
+    const asciiName = baseName.replace(/[^ -~]/g, '') || `application-${refNumber}`
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${asciiName}.pdf"; filename*=UTF-8''${encodeURIComponent(baseName)}.pdf`,
+    )
     res.send(pdfBuffer)
   } catch (err) {
     console.error('Failed to generate application PDF:', err)

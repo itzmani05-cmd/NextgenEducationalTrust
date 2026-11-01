@@ -147,6 +147,57 @@ router.get('/me/documents/:docId/signed-url', async (req, res) => {
   }
 })
 
+const todayIST = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
+
+const serializeAttendance = (a) => ({
+  id: a.id,
+  date: a.date.toISOString().slice(0, 10),
+  checkInAt: a.checkInAt.toISOString(),
+  checkOutAt: a.checkOutAt ? a.checkOutAt.toISOString() : null,
+})
+
+router.get('/me/attendance', async (req, res) => {
+  const month = String(req.query.month || '')
+  if (!MONTH_PATTERN.test(month)) return res.status(400).json({ error: 'month must be YYYY-MM.' })
+  try {
+    const rows = await prisma.staffAttendance.findMany({
+      where: { staffId: req.staff.id, date: monthRange(month) },
+      orderBy: { date: 'desc' },
+    })
+    res.json({ today: todayIST(), records: rows.map(serializeAttendance) })
+  } catch (err) {
+    console.error('Failed to list attendance:', err)
+    res.status(500).json({ error: 'Failed to load your attendance.' })
+  }
+})
+
+router.post('/me/attendance/check-in', async (req, res) => {
+  try {
+    const date = new Date(`${todayIST()}T00:00:00.000Z`)
+    const existing = await prisma.staffAttendance.findUnique({ where: { staffId_date: { staffId: req.staff.id, date } } })
+    if (existing) return res.status(409).json({ error: 'You have already checked in today.' })
+    const row = await prisma.staffAttendance.create({ data: { staffId: req.staff.id, date, checkInAt: new Date() } })
+    res.status(201).json(serializeAttendance(row))
+  } catch (err) {
+    console.error('Failed to check in:', err)
+    res.status(500).json({ error: 'Failed to check in.' })
+  }
+})
+
+router.post('/me/attendance/check-out', async (req, res) => {
+  try {
+    const date = new Date(`${todayIST()}T00:00:00.000Z`)
+    const existing = await prisma.staffAttendance.findUnique({ where: { staffId_date: { staffId: req.staff.id, date } } })
+    if (!existing) return res.status(409).json({ error: 'Check in first.' })
+    if (existing.checkOutAt) return res.status(409).json({ error: 'You have already checked out today.' })
+    const row = await prisma.staffAttendance.update({ where: { id: existing.id }, data: { checkOutAt: new Date() } })
+    res.json(serializeAttendance(row))
+  } catch (err) {
+    console.error('Failed to check out:', err)
+    res.status(500).json({ error: 'Failed to check out.' })
+  }
+})
+
 router.get('/me/work-logs', async (req, res) => {
   const month = String(req.query.month || '')
   if (!MONTH_PATTERN.test(month)) return res.status(400).json({ error: 'month must be YYYY-MM.' })

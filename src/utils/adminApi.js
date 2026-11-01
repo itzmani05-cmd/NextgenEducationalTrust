@@ -153,8 +153,16 @@ export async function downloadApplicationPdf(token, id) {
   }
 
   const disposition = res.headers.get('Content-Disposition') || ''
+  const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i)
   const match = disposition.match(/filename="([^"]+)"/)
-  const filename = match ? match[1] : `application-${id.slice(0, 8)}.pdf`
+  let filename = match ? match[1] : `application-${id.slice(0, 8)}.pdf`
+  if (utf8Match) {
+    try {
+      filename = decodeURIComponent(utf8Match[1])
+    } catch {
+      // keep the ASCII fallback
+    }
+  }
 
   return { blob: await res.blob(), filename }
 }
@@ -185,6 +193,10 @@ export function getStaffDocumentSignedUrl(token, id, docId) {
 
 export function listStaffWorkLogs(token, id, month) {
   return request(`/api/admin/staff/${id}/work-logs?month=${encodeURIComponent(month)}`, { token })
+}
+
+export function listStaffAttendance(token, id, month) {
+  return request(`/api/admin/staff/${id}/attendance?month=${encodeURIComponent(month)}`, { token })
 }
 
 export function listPendingWorkLogs(token) {

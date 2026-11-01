@@ -54,3 +54,15 @@ export function deleteMyWorkLog(token, id) {
 export function listMyPayouts(token) {
   return request('/api/staff/me/payouts', { token })
 }
+
+export function listMyAttendance(token, month) {
+  return request(`/api/staff/me/attendance?month=${encodeURIComponent(month)}`, { token })
+}
+
+export function checkInAttendance(token) {
+  return request('/api/staff/me/attendance/check-in', { token, method: 'POST' })
+}
+
+export function checkOutAttendance(token) {
+  return request('/api/staff/me/attendance/check-out', { token, method: 'POST' })
+}

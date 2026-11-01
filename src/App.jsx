@@ -34,6 +34,7 @@ const StaffLayout = lazy(() => import('./components/staff/StaffLayout.jsx'))
 const StaffLogin = lazy(() => import('./pages/staff/StaffLogin.jsx'))
 const StaffChangePassword = lazy(() => import('./pages/staff/StaffChangePassword.jsx'))
 const StaffHours = lazy(() => import('./pages/staff/StaffHours.jsx'))
+const StaffAttendance = lazy(() => import('./pages/staff/StaffAttendance.jsx'))
 const StaffProfile = lazy(() => import('./pages/staff/StaffProfile.jsx'))
 const AdminExamStudents = lazy(() => import('./pages/admin/AdminExamStudents.jsx'))
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings.jsx'))
@@ -108,6 +109,7 @@ function App() {
                 <Route path="change-password" element={<StaffChangePassword />} />
                 <Route element={<StaffLayout />}>
                   <Route index element={<StaffHours />} />
+                  <Route path="attendance" element={<StaffAttendance />} />
                   <Route path="profile" element={<StaffProfile />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/staff" replace />} />

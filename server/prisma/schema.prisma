@@ -318,6 +318,7 @@ model Staff {
   documents StaffDocument[]
   workLogs  StaffWorkLog[]
   payouts   StaffPayout[]
+  attendance StaffAttendance[]
 
   @@map("staff")
 }
@@ -360,6 +361,19 @@ model StaffWorkLog {
   @@index([staffId, date])
   @@index([status])
   @@map("staff_work_logs")
+}
+
+model StaffAttendance {
+  id         String    @id @default(uuid())
+  createdAt  DateTime  @default(now())
+  staffId    String
+  staff      Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  date       DateTime  @db.Date
+  checkInAt  DateTime
+  checkOutAt DateTime?
+
+  @@unique([staffId, date])
+  @@map("staff_attendance")
 }
 
 model StaffPayout {

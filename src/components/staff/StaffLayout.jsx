@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Navigate, NavLink, Outlet, Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { Clock, UserRound, LogOut, KeyRound, AlertCircle } from 'lucide-react'
+import { Clock, CalendarCheck, UserRound, LogOut, KeyRound, AlertCircle } from 'lucide-react'
 import { useStaffAuth } from '../../context/StaffAuthContext.jsx'
 import { AuthError, getMyProfile } from '../../utils/staffApi.js'
 import logo from '../../assests/Logo.webp'
 
 const NAV = [
   { to: '/staff', label: 'My Hours', icon: Clock, end: true },
+  { to: '/staff/attendance', label: 'Attendance', icon: CalendarCheck },
   { to: '/staff/profile', label: 'My Profile', icon: UserRound },
 ]
 

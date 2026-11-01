@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
-import { Clock, CheckCircle2, Hourglass, IndianRupee, Pencil, Trash2, Plus, Wallet } from 'lucide-react'
-import { createMyWorkLog, deleteMyWorkLog, listMyPayouts, listMyWorkLogs, updateMyWorkLog } from '../../utils/staffApi.js'
+import { Clock, CheckCircle2, Hourglass, IndianRupee, Pencil, Trash2, Plus } from 'lucide-react'
+import { createMyWorkLog, deleteMyWorkLog, listMyWorkLogs, updateMyWorkLog } from '../../utils/staffApi.js'
 import { WORK_LOG_STATUS, currentMonth, formatMinutes, monthLabel, recentMonths, shortDate, todayISO } from '../../components/staff/staffConstants.js'
-import { formatExpenseDate, formatINR, getPaymentModeLabel } from '../../components/admin/expenses/expenseConstants.js'
+import { formatExpenseDate, formatINR } from '../../components/admin/expenses/expenseConstants.js'
 import { staffInputClasses } from '../../components/staff/StaffAuthCard.jsx'
 
 const HOUR_OPTIONS = Array.from({ length: 17 }, (_, i) => i)
@@ -26,7 +26,6 @@ export default function StaffHours() {
   const { token, profile, guard } = useOutletContext()
   const [month, setMonth] = useState(currentMonth)
   const [logs, setLogs] = useState([])
-  const [payouts, setPayouts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [form, setForm] = useState(() => ({ ...EMPTY_FORM, date: todayISO() }))
@@ -46,10 +45,6 @@ export default function StaffHours() {
       cancelled = true
     }
   }, [token, month, guard])
-
-  useEffect(() => {
-    guard(() => listMyPayouts(token)).then(setPayouts).catch(() => {})
-  }, [token, guard])
 
   const counted = logs.filter((l) => l.status !== 'rejected')
   const approved = logs.filter((l) => l.status === 'approved')
@@ -219,29 +214,6 @@ export default function StaffHours() {
                 </li>
               )
             })}
-          </ul>
-        )}
-      </div>
-
-      <div className="bg-white border border-brand-border rounded-xl overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-brand-border">
-          <h2 className="text-sm font-bold text-brand-text flex items-center gap-2"><Wallet className="w-4 h-4" /> Payments received</h2>
-        </div>
-        {payouts.length === 0 ? (
-          <p className="px-5 py-8 text-center text-sm text-brand-muted">No payments yet.</p>
-        ) : (
-          <ul className="divide-y divide-brand-border">
-            {payouts.map((p) => (
-              <li key={p.id} className="px-5 py-3 flex flex-wrap items-center justify-between gap-2 text-sm">
-                <div>
-                  <p className="font-semibold text-brand-text">{monthLabel(p.month)} · {formatMinutes(p.minutes)}</p>
-                  <p className="text-xs text-brand-muted">
-                    Paid {formatExpenseDate(p.paidOn)} by {getPaymentModeLabel(p.paymentMode)}{p.referenceNo ? ` · ${p.referenceNo}` : ''}
-                  </p>
-                </div>
-                <p className="font-bold text-brand-text tabular-nums">{formatINR(p.amount)}</p>
-              </li>
-            ))}
           </ul>
         )}
       </div>
