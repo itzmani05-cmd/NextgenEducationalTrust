@@ -195,10 +195,6 @@ export function listStaffWorkLogs(token, id, month) {
   return request(`/api/admin/staff/${id}/work-logs?month=${encodeURIComponent(month)}`, { token })
 }
 
-export function listStaffAttendance(token, id, month) {
-  return request(`/api/admin/staff/${id}/attendance?month=${encodeURIComponent(month)}`, { token })
-}
-
 export function listPendingWorkLogs(token) {
   return request('/api/admin/staff/work-logs/pending', { token })
 }

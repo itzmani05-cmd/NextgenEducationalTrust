@@ -55,14 +55,10 @@ export function listMyPayouts(token) {
   return request('/api/staff/me/payouts', { token })
 }
 
-export function listMyAttendance(token, month) {
-  return request(`/api/staff/me/attendance?month=${encodeURIComponent(month)}`, { token })
+export function listAttendanceStudents(token, date) {
+  return request(`/api/staff/me/attendance/students?date=${encodeURIComponent(date)}`, { token })
 }
 
-export function checkInAttendance(token) {
-  return request('/api/staff/me/attendance/check-in', { token, method: 'POST' })
-}
-
-export function checkOutAttendance(token) {
-  return request('/api/staff/me/attendance/check-out', { token, method: 'POST' })
+export function saveAttendance(token, date, records) {
+  return request('/api/staff/me/attendance', { token, method: 'PUT', body: { date, records } })
 }

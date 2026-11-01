@@ -148,53 +148,65 @@ router.get('/me/documents/:docId/signed-url', async (req, res) => {
 })
 
 const todayIST = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
+const ATTENDANCE_STATUSES = ['payment_approved', 'certificate_issued']
 
-const serializeAttendance = (a) => ({
-  id: a.id,
-  date: a.date.toISOString().slice(0, 10),
-  checkInAt: a.checkInAt.toISOString(),
-  checkOutAt: a.checkOutAt ? a.checkOutAt.toISOString() : null,
-})
-
-router.get('/me/attendance', async (req, res) => {
-  const month = String(req.query.month || '')
-  if (!MONTH_PATTERN.test(month)) return res.status(400).json({ error: 'month must be YYYY-MM.' })
+router.get('/me/attendance/students', async (req, res) => {
+  const date = String(req.query.date || todayIST())
+  const parsed = new Date(`${date}T00:00:00.000Z`)
+  if (!DATE_PATTERN.test(date) || Number.isNaN(parsed.getTime())) return res.status(400).json({ error: 'Choose a valid date.' })
   try {
-    const rows = await prisma.staffAttendance.findMany({
-      where: { staffId: req.staff.id, date: monthRange(month) },
-      orderBy: { date: 'desc' },
+    const students = await prisma.application.findMany({
+      where: { status: { in: ATTENDANCE_STATUSES } },
+      select: { id: true, fullName: true, mobile: true, examCategory: true, examName: true },
+      orderBy: { fullName: 'asc' },
     })
-    res.json({ today: todayIST(), records: rows.map(serializeAttendance) })
+    const records = await prisma.studentAttendance.findMany({
+      where: { date: parsed, applicationId: { in: students.map((s) => s.id) } },
+      select: { applicationId: true, present: true },
+    })
+    const byId = new Map(records.map((r) => [r.applicationId, r.present]))
+    res.json({
+      today: todayIST(),
+      students: students.map((s) => ({ ...s, present: byId.has(s.id) ? byId.get(s.id) : null })),
+    })
   } catch (err) {
-    console.error('Failed to list attendance:', err)
-    res.status(500).json({ error: 'Failed to load your attendance.' })
+    console.error('Failed to load attendance students:', err)
+    res.status(500).json({ error: 'Failed to load students.' })
   }
 })
 
-router.post('/me/attendance/check-in', async (req, res) => {
-  try {
-    const date = new Date(`${todayIST()}T00:00:00.000Z`)
-    const existing = await prisma.staffAttendance.findUnique({ where: { staffId_date: { staffId: req.staff.id, date } } })
-    if (existing) return res.status(409).json({ error: 'You have already checked in today.' })
-    const row = await prisma.staffAttendance.create({ data: { staffId: req.staff.id, date, checkInAt: new Date() } })
-    res.status(201).json(serializeAttendance(row))
-  } catch (err) {
-    console.error('Failed to check in:', err)
-    res.status(500).json({ error: 'Failed to check in.' })
-  }
-})
+router.put('/me/attendance', async (req, res) => {
+  const date = String(req.body.date || '')
+  const parsed = new Date(`${date}T00:00:00.000Z`)
+  if (!DATE_PATTERN.test(date) || Number.isNaN(parsed.getTime())) return res.status(400).json({ error: 'Choose a valid date.' })
+  if (date > todayIST()) return res.status(400).json({ error: 'You cannot mark attendance for a future date.' })
 
-router.post('/me/attendance/check-out', async (req, res) => {
+  const entries = Array.isArray(req.body.records) ? req.body.records : []
+  if (entries.length === 0 || entries.length > 1000) return res.status(400).json({ error: 'No attendance to save.' })
+  if (entries.some((e) => typeof e?.applicationId !== 'string' || typeof e?.present !== 'boolean')) {
+    return res.status(400).json({ error: 'Invalid attendance entries.' })
+  }
+
   try {
-    const date = new Date(`${todayIST()}T00:00:00.000Z`)
-    const existing = await prisma.staffAttendance.findUnique({ where: { staffId_date: { staffId: req.staff.id, date } } })
-    if (!existing) return res.status(409).json({ error: 'Check in first.' })
-    if (existing.checkOutAt) return res.status(409).json({ error: 'You have already checked out today.' })
-    const row = await prisma.staffAttendance.update({ where: { id: existing.id }, data: { checkOutAt: new Date() } })
-    res.json(serializeAttendance(row))
+    const valid = await prisma.application.findMany({
+      where: { id: { in: entries.map((e) => e.applicationId) }, status: { in: ATTENDANCE_STATUSES } },
+      select: { id: true },
+    })
+    const validIds = new Set(valid.map((v) => v.id))
+    const rows = entries.filter((e) => validIds.has(e.applicationId))
+    await prisma.$transaction(
+      rows.map((e) =>
+        prisma.studentAttendance.upsert({
+          where: { applicationId_date: { applicationId: e.applicationId, date: parsed } },
+          create: { applicationId: e.applicationId, date: parsed, present: e.present, markedById: req.staff.id },
+          update: { present: e.present, markedById: req.staff.id },
+        }),
+      ),
+    )
+    res.json({ saved: rows.length })
   } catch (err) {
-    console.error('Failed to check out:', err)
-    res.status(500).json({ error: 'Failed to check out.' })
+    console.error('Failed to save attendance:', err)
+    res.status(500).json({ error: 'Failed to save attendance.' })
   }
 })
 

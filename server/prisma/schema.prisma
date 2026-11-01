@@ -131,6 +131,8 @@ model Application {
   certificate Certificate?
 
   @@map("applications")
+
+  attendance StudentAttendance[]
 }
 
 model Payment {
@@ -319,6 +321,7 @@ model Staff {
   workLogs  StaffWorkLog[]
   payouts   StaffPayout[]
   attendance StaffAttendance[]
+  markedAttendance StudentAttendance[]
 
   @@map("staff")
 }
@@ -374,6 +377,22 @@ model StaffAttendance {
 
   @@unique([staffId, date])
   @@map("staff_attendance")
+}
+
+model StudentAttendance {
+  id            String      @id @default(uuid())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  date          DateTime    @db.Date
+  present       Boolean
+  markedById    String?
+  markedBy      Staff?      @relation(fields: [markedById], references: [id], onDelete: SetNull)
+
+  @@unique([applicationId, date])
+  @@index([date])
+  @@map("student_attendance")
 }
 
 model StaffPayout {

@@ -237,26 +237,6 @@ router.get('/:id/work-logs', async (req, res) => {
   }
 })
 
-router.get('/:id/attendance', async (req, res) => {
-  const month = String(req.query.month || '')
-  if (!MONTH_PATTERN.test(month)) return res.status(400).json({ error: 'month must be YYYY-MM.' })
-  try {
-    const rows = await prisma.staffAttendance.findMany({
-      where: { staffId: req.params.id, date: monthRange(month) },
-      orderBy: { date: 'desc' },
-    })
-    res.json(rows.map((a) => ({
-      id: a.id,
-      date: a.date.toISOString().slice(0, 10),
-      checkInAt: a.checkInAt.toISOString(),
-      checkOutAt: a.checkOutAt ? a.checkOutAt.toISOString() : null,
-    })))
-  } catch (err) {
-    console.error('Failed to list staff attendance:', err)
-    res.status(500).json({ error: 'Failed to load attendance.' })
-  }
-})
-
 router.get('/:id/payouts', async (req, res) => {
   try {
     const payouts = await prisma.staffPayout.findMany({ where: { staffId: req.params.id }, orderBy: { paidOn: 'desc' } })
